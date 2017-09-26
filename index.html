@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MeshNetSimulator</title>
+  <style>
+  .graph {
+    background: #333333;
+    font: inherit;
+    height: 800px;
+    width: 1000px;
+
+    canvas {
+      display: block;
+      position: absolute;
+    }
+  }
+  </style>
+
+<!--
+  <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+-->
+  <script src="d3/d3-collection.v1.min.js"></script>
+  <script src="d3/d3-dispatch.v1.min.js"></script>
+  <script src="d3/d3-quadtree.v1.min.js"></script>
+  <script src="d3/d3-timer.v1.min.js"></script>
+  <script src="d3/d3-force.v1.min.js"></script>
+  <script src="d3/d3-zoom.v1.min.js"></script>
+  <script src="d3/d3-drag.v1.min.js"></script>
+  <script src="d3/d3-selection.v1.min.js"></script>
+  <script src="d3/d3-interpolate.v1.min.js"></script>
+  <script src="d3/d3-ease.v1.min.js"></script>
+  <script src="d3/d3-color.v1.min.js"></script>
+  <script src="d3/d3-transition.v1.min.js"></script>
+
+  <script src="math.js"></script>
+  <script src="draw.js"></script>
+  <script src="forcegraph.js"></script>
+
+  <script>
+var data = { graph: {
+  links: [
+      {
+          "bidirect": true,
+          "source": 0,
+          "target": 1,
+          "tq": 1.008,
+          "vpn": true,
+          "id": '62e327ff8a64-eade27b88dbe'
+      }
+  ],
+  nodes: [
+          {
+              "id": "62:e3:27:ff:8a:64",
+              "node_id": "62e327ff8a64",
+              "node": {
+                "firstseen": "2017-09-04T12:40:29",
+                "lastseen": "2017-09-10T05:20:01",
+                "nodeinfo": { "node_id": "62e327ff8a64", "hostname": "Node1" },
+                "statistics": { "clients": 4 },
+                "flags": { "online": true, "unseen": true, "gateway": false, "online": true }
+              }
+          },
+          {
+              "id": "ea:de:27:b8:8d:be",
+              "node_id": "eade27b88dbe",
+              "node": {
+                "firstseen": "2017-09-04T12:40:29",
+                "lastseen": "2017-09-10T05:20:01",
+                "nodeinfo": { "node_id": "eade27b88dbe", "hostname": "Node2" },
+                "statistics": { "clients": 1 },
+                "flags": { "online": true, "unseen": true, "gateway": false, "online": true }
+              }
+          }
+      ]
+}};
+
+function start() {
+  data.graph.links.forEach(function (d) {
+    d.source = data.graph.nodes[d.source];
+    d.target = data.graph.nodes[d.target];
+  });
+
+  var graph = createForceGraph();
+  graph.setData(data);
+  graph.render(document.getElementById('main'));
+  graph.resetView();
+}
+  </script>
+
+</head>
+<body onload="start()">
+  <div id="main">
+    <div>
+      <input name="updateButton" type="button" value="Update1" onclick="foo()" /></p>
+      <input name="updateButton" type="button" value="Update2" onclick="bar()" /></p>
+    </div>
+  </div>
+  <noscript>
+      <strong>JavaScript required</strong>
+  </noscript>
+</body>
+</html>
