@@ -47,7 +47,7 @@ function createForceGraph() {
   }
 
   function transformPosition(p) {
-    console.log('transformPosition: ' + p.x + ', ' + p.y + ', ' + p.k);
+    // console.log('transformPosition: ' + p.x + ', ' + p.y + ', ' + p.k);
     transform.x = p.x;
     transform.y = p.y;
     transform.k = p.k;
@@ -91,11 +91,17 @@ function createForceGraph() {
     if (d3Selection.event.defaultPrevented) {
       return;
     }
+
+    // var e = [d3.event.clientX, d3.event.clientY];
+    console.log('offsetWidth: ' + canvas.offsetWidth + ', offsetHeight: ' + canvas.offsetHeight);
+    console.log('clientX: ' + d3Selection.event.clientX + ', clientY: ' + d3Selection.event.clientY);
+
     var e = transform.invert([d3Selection.event.clientX, d3Selection.event.clientY]);
+    console.log('e[0]: ' + e[0] + ', e[1]: ' + e[1]);
     var n = force.find(e[0], e[1], NODE_RADIUS_SELECT);
+    console.log('onClick ' + n);
 
     if (n !== undefined) {
-      console.log('onClick node');
       gotoNode(n.o.node);
       // gotoNode({ nodeId: n.o.node.nodeinfo.node_id });
       return;
