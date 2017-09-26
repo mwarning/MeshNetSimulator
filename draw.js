@@ -151,7 +151,7 @@ function createDraw() {
   };
 
   self.selectNode = function selectNode(node) {
-    console.log('select node: ' + Object.keys(node).join(', '));
+    // console.log('select node: ' + Object.keys(node).join(', '));
     var d3Selection = d3;
     if (d3Selection.event.ctrlKey) {
       var i = selectedNodes.indexOf(node);

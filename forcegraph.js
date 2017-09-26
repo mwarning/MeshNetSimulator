@@ -1,6 +1,23 @@
 
-function sidebar() {
-  return 0;
+
+// from sidebar
+function getWidth() {
+  // Needed to avoid render blocking
+  var gridBreakpoints = {
+    lg: [992, 446],
+    xl: [1200, 560]
+  };
+
+  if (gridBreakpoints.lg[0] > window.innerWidth) {
+    return 0;
+  } else if (gridBreakpoints.xl[0] > window.innerWidth) {
+    return gridBreakpoints.lg[1];
+  }
+  return gridBreakpoints.xl[1];
+};
+
+function sidebar_width() {
+  return 0; // getWidth();
 }
 
 function createForceGraph() {
@@ -54,7 +71,7 @@ function createForceGraph() {
   }
 
   function moveTo(callback, forceMove) {
-    console.log('moveTo: forceMove: ' + forceMove + ', sidebar: ' + sidebar());
+    console.log('moveTo: forceMove: ' + forceMove + ', sidebar_width: ' + sidebar_width());
     clearTimeout(movetoTimer);
     if (!forceMove && force.alpha() > 0.3) {
       movetoTimer = setTimeout(function timerOfMoveTo() {
@@ -68,7 +85,7 @@ function createForceGraph() {
     var k = result[2];
     var end = { k: k };
 
-    end.x = (canvas.width + sidebar()) / 2 - x * k;
+    end.x = (canvas.width + sidebar_width()) / 2 - x * k;
     end.y = canvas.height / 2 - y * k;
 
     var start = { x: transform.x, y: transform.y, k: transform.k };
@@ -92,14 +109,9 @@ function createForceGraph() {
       return;
     }
 
-    // var e = [d3.event.clientX, d3.event.clientY];
-    console.log('offsetWidth: ' + canvas.offsetWidth + ', offsetHeight: ' + canvas.offsetHeight);
-    console.log('clientX: ' + d3Selection.event.clientX + ', clientY: ' + d3Selection.event.clientY);
-
-    var e = transform.invert([d3Selection.event.clientX, d3Selection.event.clientY]);
-    console.log('e[0]: ' + e[0] + ', e[1]: ' + e[1]);
+    var e = transform.invert(d3.mouse(this));
     var n = force.find(e[0], e[1], NODE_RADIUS_SELECT);
-    console.log('onClick ' + n);
+
 
     if (n !== undefined) {
       gotoNode(n.o.node);
