@@ -244,14 +244,14 @@ function createForceGraph() {
         var o = dictNodes[nodeId];
         delete dictNodes[nodeId];
         // console.log(o);
-        intNodes.filter(function (e) {
+        intNodes = intNodes.filter(function (e) {
           var r = (e !== o);
           if (!r) {
             console.log('found node to remove: ' + e.o.node_id);
           }
           return r;
         });
-        intLinks.filter(function (e) {
+        intLinks = intLinks.filter(function (e) {
           var r = (e.o !== o && e.source !== o && e.target !== o);
           // if (!r) {
           //  console.log('found link to remove: ' + e.node_id);
