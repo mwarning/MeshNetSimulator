@@ -114,7 +114,7 @@ function createForceGraph() {
 
 
     if (n !== undefined) {
-      gotoNode(n.o.node);
+      gotoNode(n.o);
       // gotoNode({ nodeId: n.o.node.nodeinfo.node_id });
       return;
     }
@@ -133,7 +133,6 @@ function createForceGraph() {
       });
 
     if (closedLink !== undefined) {
-      console.log('onClick link: ' + closedLink.o.id);
       gotoLink(closedLink.o);
       // router.gotoLink({ linkId: closedLink.o.id });
     }
@@ -233,22 +232,17 @@ function createForceGraph() {
 
   // TODO: test
   self.removeSelected = function removeSelected() {
-    // console.log('TODO: ' + draw.getSelectedNodes().length);
+    console.log('TODO: ' + draw.getSelectedNodes().length);
     // draw.clearSelection();
     // return;
     draw.getSelectedNodes().forEach(function (n) {
-      var nodeId = n.nodeinfo.node_id;
-      console.log('remove node: ' + nodeId);
+      var nodeId = n.id;
       if (nodeId in dictNodes) {
-        console.log('node on dictNodes');
         var o = dictNodes[nodeId];
         delete dictNodes[nodeId];
         // console.log(o);
         intNodes = intNodes.filter(function (e) {
           var r = (e !== o);
-          if (!r) {
-            console.log('found node to remove: ' + e.o.node_id);
-          }
           return r;
         });
         intLinks = intLinks.filter(function (e) {
@@ -269,23 +263,22 @@ function createForceGraph() {
   self.setData = function setData(data) {
     intNodes = data.graph.nodes.map(function (d) {
       var e;
-      if (d.node_id in dictNodes) {
-        e = dictNodes[d.node_id];
+      if (d.id in dictNodes) {
+        e = dictNodes[d.id];
       } else {
         e = {};
-        dictNodes[d.node_id] = e;
+        dictNodes[d.id] = e;
       }
 
       e.o = d;
-      console.log('add node: ' + Object.keys(e.o).join(', '));
       return e;
     });
 
     intLinks = data.graph.links.map(function (d) {
       var e = {};
       e.o = d;
-      e.source = dictNodes[d.source.node_id];
-      e.target = dictNodes[d.target.node_id];
+      e.source = dictNodes[d.source.id];
+      e.target = dictNodes[d.target.id];
       e.color = '#04C714'; // linkScale(1 / d.tq);
       console.log('add link: ' + Object.keys(e.o).join(', '));
 
@@ -312,10 +305,10 @@ function createForceGraph() {
     moveTo(function calcToNode() {
       for (var i = 0; i < intNodes.length; i++) {
         var n = intNodes[i];
-        if (n.o.node.nodeinfo.node_id !== d.nodeinfo.node_id) {
+        if (n.o.id !== d.id) {
           continue;
         }
-        draw.selectNode(n.o.node);
+        draw.selectNode(n.o);
         return [n.x, n.y, (ZOOM_MAX + 1) / 2];
       }
       return [0, 0, (ZOOM_MIN + 1) / 2];

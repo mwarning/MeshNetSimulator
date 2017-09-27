@@ -51,7 +51,7 @@ function createDraw() {
       ctx.fillStyle = clientColor;
       ctx.fill();
       ctx.beginPath();
-      var name = d.o.node_id;
+      var name = d.o.id;
       if (d.o.node && d.o.node.nodeinfo) {
         name = d.o.node.nodeinfo.hostname;
       }
@@ -68,7 +68,7 @@ function createDraw() {
   }
 
   function drawHighlightNode(d) {
-    if (selectedNodes.includes(d.o.node)) {
+    if (selectedNodes.includes(d.o)) {
     // if (highlight && highlight.type === 'node' && d.o.node === highlight.o) {
       ctx.arc(d.x, d.y, NODE_RADIUS * 1.5, 0, 2 * Math.PI);
       ctx.fillStyle = highlightColor;
@@ -91,7 +91,6 @@ function createDraw() {
   }
 
   self.drawNode = function drawNode(d) {
-    // console.log('d.x: ' + d.x + ', d.y: ' + d.y);
     if (d.x < transform.invertX(0) || d.y < transform.invertY(0) || transform.invertX(width) < d.x || transform.invertY(height) < d.y) {
       return;
     }
@@ -151,7 +150,6 @@ function createDraw() {
   };
 
   self.selectNode = function selectNode(node) {
-    // console.log('select node: ' + Object.keys(node).join(', '));
     var d3Selection = d3;
     if (d3Selection.event.ctrlKey) {
       var i = selectedNodes.indexOf(node);
