@@ -47,7 +47,9 @@ function createDraw() {
   function drawDetailNode(d) {
     if (transform.k > 1) {
       ctx.beginPath();
-      positionClients(ctx, d, Math.PI, d.o.node.statistics.clients, 15);
+      if ('clients' in d.o) {
+        positionClients(ctx, d, Math.PI, d.o.clients, 15);
+      }
       ctx.fillStyle = clientColor;
       ctx.fill();
       ctx.beginPath();

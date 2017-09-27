@@ -25,6 +25,7 @@
   <script src="math.js"></script>
   <script src="draw.js"></script>
   <script src="forcegraph.js"></script>
+  <script src="edit.js"></script>
 
 <script>
 var data = { graph: {
@@ -41,23 +42,25 @@ var data = { graph: {
   nodes: [
     {
       "id": "62:e3:27:ff:8a:64",
-      "node_id": "62e327ff8a64",
+      // "node_id": "62e327ff8a64",
+      "clients": 4,
       "node": {
         // "firstseen": "2017-09-04T12:40:29",
         // "lastseen": "2017-09-10T05:20:01",
         "nodeinfo": { "node_id": "62e327ff8a64", "hostname": "Node1" },
-        "statistics": { "clients": 4 }
+        // "statistics": { "clients": 4 }
         // "flags": { "online": true, "unseen": true, "gateway": false }
       }
     },
     {
       "id": "ea:de:27:b8:8d:be",
-      "node_id": "eade27b88dbe",
+      // "node_id": "eade27b88dbe",
+      "clients": 1,
       "node": {
         // "firstseen": "2017-09-04T12:40:29",
         // "lastseen": "2017-09-10T05:20:01",
         "nodeinfo": { "node_id": "eade27b88dbe", "hostname": "Node2" },
-        "statistics": { "clients": 1 }
+        // "statistics": { "clients": 1 }
         // "flags": { "online": true, "unseen": true, "gateway": false }
       }
     }
@@ -80,6 +83,9 @@ function showTab(evt, tabname) {
   evt.currentTarget.classList.add('active');
 }
 
+var graph;
+var edit;
+
 function start() {
   // replace index by node object
   data.graph.links.forEach(function (d) {
@@ -87,10 +93,12 @@ function start() {
     d.target = data.graph.nodes[d.target];
   });
 
-  var graph = createForceGraph();
+  graph = createForceGraph();
   graph.setData(data);
   graph.render(document.getElementsByClassName("display")[0]);
   graph.resetView();
+
+  edit = createEdit(graph);
 }
   </script>
 </head>
@@ -98,32 +106,38 @@ function start() {
   <div class="container">
     <div class="toolbar">
       <div class="tab">
-        <button class="tablinks" onclick="showTab(event, 'File')">File</button>
+        <button class="tablinks active" onclick="showTab(event, 'File')">File</button>
         <button class="tablinks" onclick="showTab(event, 'Edit')">Edit</button>
         <button class="tablinks" onclick="showTab(event, 'Sim')">Sim</button>
       </div>
       <div id="File" class="tabcontent">
-        <p>Load/Safe content.</p>
-        <input type="button" value="Import">
-        <input type="button" value="Export">
+        <input type="button" value="Load">
+        <input type="button" value="Save">
         <select>
-          <option value="meshviewer">MeshViewer</option>
+          <option value="meshviewer_v1">MeshViewer v1</option>
+          <option value="meshviewer_v2">MeshViewer v2</option>
+          <option value="netjson">NetJSON</option>
         </select>
       </div>
 
       <div id="Edit" class="tabcontent">
-        <input type="button" value="Disconnect">
-        <input type="button" value="Connect">
+        <input type="button" onclick="graph.removeSelected()" value="remove selected">
+        <input type="button" onclick="edit.addLine(3, false)" value="add line">
+        <input type="button" onclick="graph.resetView()" value="reset view">
+
+        <!--
         <br />
         <input type="button" value="AddStar">
         <input type="button" value="AddLine">
         <input type="button" value="AddLattice">
-      </p>
+        -->
       </div>
 
       <div id="Sim" class="tabcontent">
-        <p>Simulation.</p>
         <input type="button" value="Step">
+        <p>
+        <label>Stats:</label>
+        </p>
       </div>
     </div>
     <div class="display">

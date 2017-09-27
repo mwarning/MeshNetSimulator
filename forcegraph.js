@@ -33,6 +33,7 @@ function createForceGraph() {
   var linkScale = d3Interpolate.interpolate('#F02311', '#04C714');
 
   var self = this;
+  var lastClick = [0, 0];
   var el;
   var canvas;
   var ctx;
@@ -108,14 +109,14 @@ function createForceGraph() {
     if (d3Selection.event.defaultPrevented) {
       return;
     }
-
     var e = transform.invert(d3.mouse(this));
     var n = force.find(e[0], e[1], NODE_RADIUS_SELECT);
 
+    // Remember last click position
+    lastClick = e;
 
     if (n !== undefined) {
       selectNode(n.o);
-      // selectNode({ nodeId: n.o.node.nodeinfo.node_id });
       return;
     }
 
@@ -134,7 +135,6 @@ function createForceGraph() {
 
     if (closedLink !== undefined) {
       selectLink(closedLink.o);
-      // router.selectLink({ linkId: closedLink.o.id });
     }
   }
 
@@ -230,11 +230,57 @@ function createForceGraph() {
     redraw();
   });
 
-  // self.addConnections(nodes)
+  this.addElements = function addElements(nodes, links) {
+    var px = lastClick[0];
+    var py = lastClick[1];
 
-  // TODO: test
+    links.forEach(function(e) {
+      e.color = '#E8E8E8';
+    });
+
+    nodes.forEach(function(e) {
+      if('px' in e) e.px += px;
+      if('py' in e) e.py += py;
+    });
+
+    console.log('Add ' + nodes.length + ' nodes and ' + links.length + ' links');
+
+    intNodes = intNodes.concat(nodes);
+    intLinks = intLinks.concat(links);
+
+    force.nodes(intNodes);
+    forceLink.links(intLinks);
+
+    force.alpha(1).restart();
+    resizeCanvas();
+  }
+
+  function genMAC(){
+    var hexDigits = '0123456789abcdef';
+    var mac = '';
+    for (var i = 0; i < 6; i++) {
+        mac += hexDigits.charAt(Math.round(Math.random() * 15));
+        mac += hexDigits.charAt(Math.round(Math.random() * 15));
+        if (i != 5) {
+          mac += ':';
+        }
+    }
+    return mac;
+  }
+
+  self.isUniqueId = function isUniqueId(id) {
+    return !intNodes.some(function(e) { return e.o.id.startsWith(id); });
+  };
+
+  self.getUniqueIdPrefix = function getUniqueIdPrefix() {
+    var id;
+    do {
+      id = genMAC();
+    } while(!isUniqueId(id));
+    return id;
+  }
+
   self.removeSelected = function removeSelected() {
-    console.log('TODO: ' + draw.getSelectedNodes().length);
     var nodeDict = draw.getSelectedNodes().reduce(function(map, n) {
       map[n.o.id] = n;
       return map;
@@ -255,7 +301,8 @@ function createForceGraph() {
       return !(e.source.o.id in nodeDict) && !(e.target.o.id in nodeDict) && !(e.o.id in linkDict);
     });
 
-    console.log("intNodes.length: " + intNodes.length + ", intLinks.length: " + intLinks.length);
+    force.nodes(intNodes);
+    forceLink.links(intLinks);
 
     draw.clearSelection();
     force.alpha(1).restart();
@@ -263,40 +310,24 @@ function createForceGraph() {
   };
 
   self.setData = function setData(data) {
-    var nodeDict = intNodes.reduce(function(map, n) {
-      map[n.o.id] = n;
-      return map;
-    }, {});
+    var nodeDict = {};
 
-    intNodes = data.graph.nodes.map(function (d) {
-      var e;
-      if (d.id in nodeDict) {
-        e = nodeDict[d.id];
-      } else {
-        e = {};
-        nodeDict[d.id] = e;
-      }
-
+    var nodes = data.graph.nodes.map(function (d) {
+      var e = {};
       e.o = d;
+      nodeDict[d.id] = e;
       return e;
     });
 
-    intLinks = data.graph.links.map(function (d) {
+    var links = data.graph.links.map(function (d) {
       var e = {};
       e.o = d;
       e.source = nodeDict[d.source.id];
       e.target = nodeDict[d.target.id];
-      e.color = linkScale(1 / d.tq);
-      console.log('add link: ' + Object.keys(e.o).join(', '));
-
       return e;
     });
 
-    force.nodes(intNodes);
-    forceLink.links(intLinks);
-
-    force.alpha(1).restart();
-    resizeCanvas();
+    addElements(nodes, links);
   };
 
   self.resetView = function resetView() {
