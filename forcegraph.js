@@ -41,7 +41,6 @@ function createForceGraph() {
 
   var transform = d3Zoom.zoomIdentity;
   var intNodes = [];
-  var dictNodes = {};
   var intLinks = [];
   var movetoTimer;
 
@@ -115,8 +114,8 @@ function createForceGraph() {
 
 
     if (n !== undefined) {
-      gotoNode(n.o);
-      // gotoNode({ nodeId: n.o.node.nodeinfo.node_id });
+      selectNode(n.o);
+      // selectNode({ nodeId: n.o.node.nodeinfo.node_id });
       return;
     }
 
@@ -134,8 +133,8 @@ function createForceGraph() {
       });
 
     if (closedLink !== undefined) {
-      gotoLink(closedLink.o);
-      // router.gotoLink({ linkId: closedLink.o.id });
+      selectLink(closedLink.o);
+      // router.selectLink({ linkId: closedLink.o.id });
     }
   }
 
@@ -231,30 +230,32 @@ function createForceGraph() {
     redraw();
   });
 
+  // self.addConnections(nodes)
+
   // TODO: test
   self.removeSelected = function removeSelected() {
     console.log('TODO: ' + draw.getSelectedNodes().length);
-    // draw.clearSelection();
-    // return;
-    draw.getSelectedNodes().forEach(function (n) {
-      var nodeId = n.id;
-      if (nodeId in dictNodes) {
-        var o = dictNodes[nodeId];
-        delete dictNodes[nodeId];
-        // console.log(o);
-        intNodes = intNodes.filter(function (e) {
-          var r = (e !== o);
-          return r;
-        });
-        intLinks = intLinks.filter(function (e) {
-          var r = (e.o !== o && e.source !== o && e.target !== o);
-          // if (!r) {
-          //  console.log('found link to remove: ' + e.node_id);
-          // }
-          return r;
-        });
-      }
+    var nodeDict = draw.getSelectedNodes().reduce(function(map, n) {
+      map[n.o.id] = n;
+      return map;
+    }, {});
+
+    var linkDict = draw.getSelectedLinks().reduce(function(map, l) {
+      map[l.o.id] = l;
+      return map;
+    }, {});
+
+    // Remove from internal node list
+    intNodes = intNodes.filter(function (e) {
+      return !(e.o.id in nodeDict);
     });
+
+    // Remove from internal link list
+    intLinks = intLinks.filter(function (e) {
+      return !(e.source.o.id in nodeDict) && !(e.target.o.id in nodeDict) && !(e.o.id in linkDict);
+    });
+
+    console.log("intNodes.length: " + intNodes.length + ", intLinks.length: " + intLinks.length);
 
     draw.clearSelection();
     force.alpha(1).restart();
@@ -262,13 +263,18 @@ function createForceGraph() {
   };
 
   self.setData = function setData(data) {
+    var nodeDict = intNodes.reduce(function(map, n) {
+      map[n.o.id] = n;
+      return map;
+    }, {});
+
     intNodes = data.graph.nodes.map(function (d) {
       var e;
-      if (d.id in dictNodes) {
-        e = dictNodes[d.id];
+      if (d.id in nodeDict) {
+        e = nodeDict[d.id];
       } else {
         e = {};
-        dictNodes[d.id] = e;
+        nodeDict[d.id] = e;
       }
 
       e.o = d;
@@ -278,8 +284,8 @@ function createForceGraph() {
     intLinks = data.graph.links.map(function (d) {
       var e = {};
       e.o = d;
-      e.source = dictNodes[d.source.id];
-      e.target = dictNodes[d.target.id];
+      e.source = nodeDict[d.source.id];
+      e.target = nodeDict[d.target.id];
       e.color = linkScale(1 / d.tq);
       console.log('add link: ' + Object.keys(e.o).join(', '));
 
@@ -301,30 +307,30 @@ function createForceGraph() {
     }, true);
   };
 
-  self.gotoNode = function gotoNode(d) {
-    console.log('gotoNode');
+  self.selectNode = function selectNode(d) {
+    console.log('selectNode');
     moveTo(function calcToNode() {
       for (var i = 0; i < intNodes.length; i++) {
         var n = intNodes[i];
         if (n.o.id !== d.id) {
           continue;
         }
-        draw.selectNode(n.o);
+        draw.selectNode(n);
         return [n.x, n.y, (ZOOM_MAX + 1) / 2];
       }
       return [0, 0, (ZOOM_MIN + 1) / 2];
     });
   };
 
-  self.gotoLink = function gotoLink(d) {
-    console.log('gotoLink');
+  self.selectLink = function selectLink(d) {
+    console.log('selectLink');
     moveTo(function calcToLink() {
-      draw.selectLink(d);
       for (var i = 0; i < intLinks.length; i++) {
         var l = intLinks[i];
         if (l.o !== d) {
           continue;
         }
+        draw.selectLink(l);
         return [(l.source.x + l.target.x) / 2, (l.source.y + l.target.y) / 2, (ZOOM_MAX / 2) + ZOOM_MIN];
       }
       return [0, 0, (ZOOM_MIN + 1) / 2];
