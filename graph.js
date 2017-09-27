@@ -235,19 +235,18 @@ function createGraph() {
     var py = lastClick[1];
 
     links.forEach(function(e) {
-      e.color = '#E8E8E8';
-      console.log("link: " + e.source.o.id  + ' => ' + e.target.o.id);
+      if (!('color' in e)) e.color = '#E8E8E8';
+      if (!('tq' in e.o)) e.o.tq = 1;
+      if (!('vpn' in e.o)) e.o.vpn = false;
     });
 
     nodes.forEach(function(e) {
-      if ('px' in e) e.px += px;
-      if ('py' in e) e.py += py;
-      if (!('label' in e.o)) e.o.label = e.o.id;
+      if ('x' in e) e.x += px;
+      if ('y' in e) e.y += py;
+      if (!('label' in e.o)) e.o.label = '';
+      if (!('name' in e.o)) e.o.name = e.o.id;
       if (!('clients' in e.o)) e.o.clients = 0;
-      console.log("node: id: " + e.o.id);
     });
-
-    console.log('Add ' + nodes.length + ' nodes and ' + links.length + ' links');
 
     intNodes = intNodes.concat(nodes);
     intLinks = intLinks.concat(links);

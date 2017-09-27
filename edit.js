@@ -2,23 +2,20 @@
 function createEdit(graph) {
   var self = {};
 
-  function genMAC(){
+  function genId(){
     var hexDigits = '0123456789abcdef';
-    var mac = '';
-    for (var i = 0; i < 6; i++) {
-        mac += hexDigits.charAt(Math.round(Math.random() * 15));
-        mac += hexDigits.charAt(Math.round(Math.random() * 15));
-        if (i != 5) {
-          mac += ':';
-        }
+    var id = '';
+    for (var i = 0; i < 2; i++) {
+      id += hexDigits.charAt(Math.round(Math.random() * 15));
+      id += hexDigits.charAt(Math.round(Math.random() * 15));
     }
-    return mac;
+    return id;
   }
 
   function getUniqueIdPrefix() {
     var id;
     do {
-      id = genMAC();
+      id = genId();
     } while(!graph.isUniqueIdPrefix(id));
     return id;
   }
@@ -29,7 +26,7 @@ function createEdit(graph) {
     var links = [];
 
     for (var i = 0; i < count; i++) {
-      nodes.push({/*px: (i * 15), py: 0,*/ o: {id: (id + '#' + i)}});
+      nodes.push({x: (i * 15), y: 0, o: {id: (id + '#' + i)}});
       if (i > 0) {
         var source = nodes[i - 1];
         var target = nodes[i];

@@ -53,13 +53,13 @@ function createDraw() {
       ctx.beginPath();
       ctx.textAlign = 'center';
       ctx.fillStyle = labelColor;
-      ctx.fillText(d.o.label, d.x, d.y + 20);
+      ctx.fillText(d.o.name, d.x, d.y + 20);
 
       // Show Packets
       ctx.beginPath();
       ctx.textAlign = 'center';
       ctx.fillStyle = 'black';
-      ctx.fillText('42', d.x, d.y + 3);
+      ctx.fillText(d.o.label, d.x, d.y + 3);
     }
   }
 
