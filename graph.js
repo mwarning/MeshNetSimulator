@@ -20,7 +20,7 @@ function sidebar_width() {
   return 0; // getWidth();
 }
 
-function createForceGraph() {
+function createGraph() {
   var draw = createDraw();
   var math = createMath();
   var d3Interpolate = d3;
@@ -109,6 +109,7 @@ function createForceGraph() {
     if (d3Selection.event.defaultPrevented) {
       return;
     }
+
     var e = transform.invert(d3.mouse(this));
     var n = force.find(e[0], e[1], NODE_RADIUS_SELECT);
 

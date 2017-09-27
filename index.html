@@ -24,7 +24,7 @@
 
   <script src="math.js"></script>
   <script src="draw.js"></script>
-  <script src="forcegraph.js"></script>
+  <script src="graph.js"></script>
   <script src="edit.js"></script>
 
 <script>
@@ -93,7 +93,7 @@ function start() {
     d.target = data.graph.nodes[d.target];
   });
 
-  graph = createForceGraph();
+  graph = createGraph();
   graph.setData(data);
   graph.render(document.getElementsByClassName("display")[0]);
   graph.resetView();
