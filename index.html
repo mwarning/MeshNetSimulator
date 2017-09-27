@@ -109,16 +109,29 @@ function start() {
 
       <div id="Edit" class="tabcontent">
         <input type="button" onclick="graph.removeSelected()" value="remove selected">
-        <input type="button" onclick="edit.addLine(2, false)" value="add line">
-        <input type="button" onclick="graph.resetView()" value="reset view">
-        <input type="button" onclick="graph.setData(data)" value="setData">
+        <input type="button" onclick="graph.selectConnected()" value="select connected">
+        <span>
+          <input type="button" onclick="edit.addLine(2, false)" value="add line">
+          <input type="number" name="line_count">
+          <input type="checkbox" name="line_loop">
+        </span>
+        <span>
+          <input type="button" onclick="edit.addStar(3)" value="add star">
+          <input type="number" name="star_count">
+        </span>
+        <span>
+          <input type="button" onclick="edit.addLayer(3, 3)" value="add layer">
+          <input type="number" name="layer_count_x">
+          <input type="number" name="layer_count_y">
+        </span>
+        <span>
+          <input type="button" onclick="edit.addLattice(3, 3)" value="add lattice">
+          <input type="number" name="lattice_count_x">
+          <input type="number" name="lattice_count_y">
+        </span>
 
-        <!--
-        <br />
-        <input type="button" value="AddStar">
-        <input type="button" value="AddLine">
-        <input type="button" value="AddLattice">
-        -->
+        <input type="button" onclick="graph.resetView()" value="reset view">
+        <input type="button" onclick="graph.setData(data)" value="reload data">
       </div>
 
       <div id="Sim" class="tabcontent">
