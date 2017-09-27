@@ -90,7 +90,6 @@ function createGraph() {
     end.y = canvas.height / 2 - y * k;
 
     var start = { x: transform.x, y: transform.y, k: transform.k };
-
     var interpolate = d3Interpolate.interpolateObject(start, end);
 
     var timer = d3Timer.timer(function (t) {
@@ -237,11 +236,15 @@ function createGraph() {
 
     links.forEach(function(e) {
       e.color = '#E8E8E8';
+      console.log("link: " + e.source.o.id  + ' => ' + e.target.o.id);
     });
 
     nodes.forEach(function(e) {
-      if('px' in e) e.px += px;
-      if('py' in e) e.py += py;
+      if ('px' in e) e.px += px;
+      if ('py' in e) e.py += py;
+      if (!('label' in e.o)) e.o.label = e.o.id;
+      if (!('clients' in e.o)) e.o.clients = 0;
+      console.log("node: id: " + e.o.id);
     });
 
     console.log('Add ' + nodes.length + ' nodes and ' + links.length + ' links');
@@ -256,30 +259,9 @@ function createGraph() {
     resizeCanvas();
   }
 
-  function genMAC(){
-    var hexDigits = '0123456789abcdef';
-    var mac = '';
-    for (var i = 0; i < 6; i++) {
-        mac += hexDigits.charAt(Math.round(Math.random() * 15));
-        mac += hexDigits.charAt(Math.round(Math.random() * 15));
-        if (i != 5) {
-          mac += ':';
-        }
-    }
-    return mac;
-  }
-
-  self.isUniqueId = function isUniqueId(id) {
+  self.isUniqueIdPrefix = function isUniqueIdPrefix(id) {
     return !intNodes.some(function(e) { return e.o.id.startsWith(id); });
   };
-
-  self.getUniqueIdPrefix = function getUniqueIdPrefix() {
-    var id;
-    do {
-      id = genMAC();
-    } while(!isUniqueId(id));
-    return id;
-  }
 
   self.removeSelected = function removeSelected() {
     var nodeDict = draw.getSelectedNodes().reduce(function(map, n) {

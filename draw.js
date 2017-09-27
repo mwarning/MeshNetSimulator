@@ -47,19 +47,13 @@ function createDraw() {
   function drawDetailNode(d) {
     if (transform.k > 1) {
       ctx.beginPath();
-      if ('clients' in d.o) {
-        positionClients(ctx, d, Math.PI, d.o.clients, 15);
-      }
+      positionClients(ctx, d, Math.PI, d.o.clients, 15);
       ctx.fillStyle = clientColor;
       ctx.fill();
       ctx.beginPath();
-      var name = d.o.id;
-      if (d.o.node && d.o.node.nodeinfo) {
-        name = d.o.node.nodeinfo.hostname;
-      }
       ctx.textAlign = 'center';
       ctx.fillStyle = labelColor;
-      ctx.fillText(name, d.x, d.y + 20);
+      ctx.fillText(d.o.label, d.x, d.y + 20);
 
       // Show Packets
       ctx.beginPath();
@@ -71,7 +65,6 @@ function createDraw() {
 
   function drawHighlightNode(d) {
     if (selectedNodes.includes(d)) {
-    // if (highlight && highlight.type === 'node' && d.o.node === highlight.o) {
       ctx.arc(d.x, d.y, NODE_RADIUS * 1.5, 0, 2 * Math.PI);
       ctx.fillStyle = highlightColor;
       ctx.fill();
@@ -81,7 +74,6 @@ function createDraw() {
 
   function drawHighlightLink(d, to) {
     if (selectedLinks.includes(d)) {
-    // if (highlight && highlight.type === 'link' && d.o === highlight.o) {
       ctx.lineTo(to[0], to[1]);
       ctx.strokeStyle = highlightColor;
       ctx.lineWidth = LINE_RADIUS * 2;
