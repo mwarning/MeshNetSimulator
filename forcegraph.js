@@ -30,6 +30,7 @@ function createForceGraph() {
   var d3Selection = d3;
   var d3Timer = d3;
   var d3Ease = d3;
+  var linkScale = d3Interpolate.interpolate('#F02311', '#04C714');
 
   var self = this;
   var el;
@@ -279,7 +280,7 @@ function createForceGraph() {
       e.o = d;
       e.source = dictNodes[d.source.id];
       e.target = dictNodes[d.target.id];
-      e.color = '#04C714'; // linkScale(1 / d.tq);
+      e.color = linkScale(1 / d.tq);
       console.log('add link: ' + Object.keys(e.o).join(', '));
 
       return e;
