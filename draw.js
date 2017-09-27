@@ -68,7 +68,7 @@ function createDraw() {
   }
 
   function drawHighlightNode(d) {
-    if (selectedNodes.includes(d.o)) {
+    if (selectedNodes.includes(d)) {
     // if (highlight && highlight.type === 'node' && d.o.node === highlight.o) {
       ctx.arc(d.x, d.y, NODE_RADIUS * 1.5, 0, 2 * Math.PI);
       ctx.fillStyle = highlightColor;
@@ -78,7 +78,7 @@ function createDraw() {
   }
 
   function drawHighlightLink(d, to) {
-    if (selectedLinks.includes(d.o)) {
+    if (selectedLinks.includes(d)) {
     // if (highlight && highlight.type === 'link' && d.o === highlight.o) {
       ctx.lineTo(to[0], to[1]);
       ctx.strokeStyle = highlightColor;
