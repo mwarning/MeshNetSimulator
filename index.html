@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>MeshNetSimulator</title>
+  <title>MeshNet Simulator</title>
   <link rel="stylesheet" type="text/css" href="style.css">
 
 <!--
@@ -73,6 +73,14 @@ function showTab(evt, tabname) {
 var graph;
 var edit;
 
+function getNum(id) {
+  return parseInt(document.getElementById(id).value, 10);
+}
+
+function getBool(id) {
+  return document.getElementById(id).checked;
+}
+
 function start() {
   // replace index by node object
   data.graph.links.forEach(function (d) {
@@ -98,8 +106,8 @@ function start() {
         <button class="tablinks" onclick="showTab(event, 'Sim')">Sim</button>
       </div>
       <div id="File" class="tabcontent">
-        <input type="button" value="Load">
-        <input type="button" value="Save">
+        <input type="button" onclick="edit.load()" value="Load">
+        <input type="button" onclick="edit.save()" value="Save">
         <select>
           <option value="meshviewer_v1">MeshViewer v1</option>
           <option value="meshviewer_v2">MeshViewer v2</option>
@@ -111,23 +119,23 @@ function start() {
         <input type="button" onclick="graph.removeSelected()" value="remove selected">
         <input type="button" onclick="graph.selectConnected()" value="select connected">
         <span>
-          <input type="button" onclick="edit.addLine(2, false)" value="add line">
-          <input type="number" name="line_count">
-          <input type="checkbox" name="line_loop">
+          <input type="button" onclick="edit.addLine(getNum('line_n'), getBool('line_loop'))" value="add line">
+          <input type="number" id="line_n" name="line_count" value="3">
+          <input type="checkbox" id="line_loop" name="line_loop">
         </span>
         <span>
-          <input type="button" onclick="edit.addStar(3)" value="add star">
-          <input type="number" name="star_count">
+          <input type="button" onclick="edit.addStar(getNum('star_n'))" value="add star">
+          <input type="number" id="star_n" name="spikes" value="3">
         </span>
         <span>
-          <input type="button" onclick="edit.addLayer(3, 3)" value="add layer">
-          <input type="number" name="layer_count_x">
-          <input type="number" name="layer_count_y">
+          <input type="button" onclick="edit.addLayer(getNum('layer_x'), getNum('layer_y'))" value="add layer">
+          <input type="number" id="layer_x" name="x count" value="3">
+          <input type="number" id="layer_y" name="y count" value="3">
         </span>
         <span>
-          <input type="button" onclick="edit.addLattice(3, 3)" value="add lattice">
-          <input type="number" name="lattice_count_x">
-          <input type="number" name="lattice_count_y">
+          <input type="button" onclick="edit.addLattice(getNum('lattice_x'), getNum('lattice_y')" value="add lattice">
+          <input type="number" id="lattice_x" name="x count" value="3">
+          <input type="number" id="lattice_y" name="y count" value="3">
         </span>
 
         <input type="button" onclick="graph.resetView()" value="reset view">
