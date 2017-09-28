@@ -110,10 +110,10 @@ function start() {
       </div>
 
       <div id="Edit" class="tabcontent">
-        <input type="button" onclick="graph.removeSelected()" value="remove selected">
-        <input type="button" onclick="graph.extendSelection()" value="extend selection">
-        <input type="button" onclick="graph.connectSelectedNodes()" value="connect selected">
-        <input type="button" onclick="graph.clear()" value="clear">
+        <input type="button" onclick="graph.connectSelection()" value="connect">
+        <input type="button" onclick="graph.extendSelection()" value="extend">
+        <input type="button" onclick="graph.removeSelection()" value="remove">
+        <input type="button" onclick="graph.clearSelection()" value="clear">
         <span>
           <input type="button" onclick="edit.addLine('line_n', 'line_loop')" value="add line">
           <input type="number" id="line_n" min="1" max="999" value="3">
@@ -135,6 +135,7 @@ function start() {
         </span>
 
         <input type="button" onclick="graph.resetView()" value="reset view">
+        <input type="button" onclick="graph.resetData()" value="reset data">
         <input type="button" onclick="edit.setData(data)" value="reload data">
       </div>
 

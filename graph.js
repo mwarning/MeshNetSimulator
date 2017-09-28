@@ -264,7 +264,7 @@ function createGraph(id) {
     resizeCanvas();
   }
 
-  self.clear = function clear() {
+  self.clear = function resetData() {
     draw.clearSelection();
 
     intNodes = [];
@@ -281,7 +281,7 @@ function createGraph(id) {
     return !intNodes.some(function(e) { return e.o.id.startsWith(id); });
   };
 
-  self.connectSelectedNodes = function connectSelectedNodes() {
+  self.connectSelection = function connectSelection() {
     var selectedNodes = draw.getSelectedNodes();
     var linkDict = {};
     var links = [];
@@ -354,7 +354,7 @@ function createGraph(id) {
     redraw();
   }
 
-  self.removeSelected = function removeSelected() {
+  self.removeSelection = function removeSelection() {
     var nodeDict = {};
     var linkDict = {};
 
@@ -383,6 +383,11 @@ function createGraph(id) {
     force.alpha(1).restart();
     redraw();
   };
+
+  self.clearSelection = function clearSelection() {
+    draw.clearSelection();
+    redraw();
+  }
 
   self.resetView = function resetView() {
     moveTo(function calcToReset() {
