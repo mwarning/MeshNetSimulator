@@ -230,15 +230,15 @@ function createGraph() {
     redraw();
   });
 
+  function createLinkId(n1, n2) {
+    var sid = n1.o.id;
+    var tid = n2.o.id;
+    return (sid > tid) ? (sid + '-' + tid) : (tid + '-' + sid);
+  }
+
   this.addElements = function addElements(nodes, links) {
     var px = lastClick[0];
     var py = lastClick[1];
-
-    links.forEach(function(e) {
-      if (!('color' in e)) e.color = '#E8E8E8';
-      if (!('tq' in e.o)) e.o.tq = 1;
-      if (!('vpn' in e.o)) e.o.vpn = false;
-    });
 
     nodes.forEach(function(e) {
       if ('x' in e) e.x += px;
@@ -246,6 +246,13 @@ function createGraph() {
       if (!('label' in e.o)) e.o.label = '';
       if (!('name' in e.o)) e.o.name = e.o.id;
       if (!('clients' in e.o)) e.o.clients = 0;
+    });
+
+    links.forEach(function(e) {
+      if (!('color' in e)) e.color = '#E8E8E8';
+      if (!('tq' in e.o)) e.o.tq = 1.0;
+      if (!('vpn' in e.o)) e.o.vpn = false;
+      if (!('id' in e.o)) e.o.id = createLinkId(e.source, e.target);
     });
 
     intNodes = intNodes.concat(nodes);
@@ -258,20 +265,106 @@ function createGraph() {
     resizeCanvas();
   }
 
+  self.clear = function clear() {
+    draw.clearSelection();
+
+    intNodes = [];
+    intLinks = [];
+
+    force.nodes(intNodes);
+    forceLink.links(intLinks);
+
+    force.alpha(1).restart();
+    resizeCanvas();
+  }
+
   self.isUniqueIdPrefix = function isUniqueIdPrefix(id) {
     return !intNodes.some(function(e) { return e.o.id.startsWith(id); });
   };
 
-  self.removeSelected = function removeSelected() {
-    var nodeDict = draw.getSelectedNodes().reduce(function(map, n) {
-      map[n.o.id] = n;
-      return map;
-    }, {});
+  self.connectSelectedNodes = function connectSelectedNodes() {
+    var selectedNodes = draw.getSelectedNodes();
+    var linkDict = {};
+    var links = [];
 
-    var linkDict = draw.getSelectedLinks().reduce(function(map, l) {
-      map[l.o.id] = l;
-      return map;
-    }, {});
+    intLinks.forEach(function(e) {
+      linkDict[createLinkId(e.source, e.target)] = null;
+    });
+
+    selectedNodes.forEach(function (e1) {
+      selectedNodes.forEach(function (e2) {
+        if (e1.o.id < e2.o.id) {
+          var id = createLinkId(e1, e2);
+          if (id in linkDict) {
+            // Link already exists
+            return;
+          }
+
+          links.push({source: e1, target: e2, o: {}});
+          linkDict[id] = null;
+        }
+      });
+    });
+
+    addElements([], links);
+  }
+
+  self.extendSelection = function extendSelection() {
+    var selectedNodes = {};
+    var selectedLinks = {};
+
+    // Map node id to array of link objects
+    var connections = {};
+
+    intNodes.forEach(function(n) {
+      connections[n.o.id] = [];
+    });
+
+    intLinks.forEach(function(l) {
+      connections[l.source.o.id].push(l);
+      connections[l.target.o.id].push(l);
+    });
+
+    function selectNode(n) {
+      selectedNodes[n.o.id] = n;
+      if (n.o.id in connections) {
+        connections[n.o.id].forEach(function(l) {
+          if (!(l.o.id in selectedLinks)) {
+            selectedLinks[l.o.id] = l;
+          }
+          if (!(l.source.o.id in selectedNodes)) {
+            selectNode(l.source);
+          }
+          if (!(l.target.o.id in selectedNodes)) {
+            selectNode(l.target);
+          }
+        });
+      }
+    }
+
+    draw.getSelectedNodes().forEach(function (e) {
+      selectNode(e);
+    });
+
+    draw.getSelectedLinks().forEach(function (e) {
+      selectNode(e.source);
+      selectNode(e.target);
+    });
+
+    draw.setSelection(Object.values(selectedNodes), Object.values(selectedLinks));
+  }
+
+  self.removeSelected = function removeSelected() {
+    var nodeDict = {};
+    var linkDict = {};
+
+    draw.getSelectedNodes().forEach(function(n) {
+      nodeDict[n.o.id] = n;
+    });
+
+    draw.getSelectedLinks().forEach(function(l) {
+      linkDict[l.o.id] = l;
+    });
 
     // Remove from internal node list
     intNodes = intNodes.filter(function (e) {
@@ -289,27 +382,6 @@ function createGraph() {
     draw.clearSelection();
     force.alpha(1).restart();
     redraw();
-  };
-
-  self.setData = function setData(data) {
-    var nodeDict = {};
-
-    var nodes = data.graph.nodes.map(function (d) {
-      var e = {};
-      e.o = d;
-      nodeDict[d.id] = e;
-      return e;
-    });
-
-    var links = data.graph.links.map(function (d) {
-      var e = {};
-      e.o = d;
-      e.source = nodeDict[d.source.id];
-      e.target = nodeDict[d.target.id];
-      return e;
-    });
-
-    addElements(nodes, links);
   };
 
   self.resetView = function resetView() {

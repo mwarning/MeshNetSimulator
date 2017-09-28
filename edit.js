@@ -131,5 +131,27 @@ function createEdit(graph) {
     graph.addElements(nodes, links);
   }
 
+  self.setData = function setData(data) {
+    var nodeDict = {};
+
+    var nodes = data.graph.nodes.map(function (d) {
+      var e = {};
+      e.o = d;
+      nodeDict[d.id] = e;
+      return e;
+    });
+
+    var links = data.graph.links.map(function (d) {
+      var e = {};
+      e.o = d;
+      e.source = nodeDict[d.source.id];
+      e.target = nodeDict[d.target.id];
+      return e;
+    });
+
+    graph.clear();
+    graph.addElements(nodes, links);
+  };
+
   return self;
 }

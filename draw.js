@@ -143,6 +143,11 @@ function createDraw() {
     selectedLinks = [];
   };
 
+  self.setSelection = function setSelection(nodes, links) {
+    selectedNodes = nodes;
+    selectedLinks = links;
+  };
+
   self.selectNode = function selectNode(node) {
     var d3Selection = d3;
     if (d3Selection.event.ctrlKey) {
