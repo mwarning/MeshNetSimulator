@@ -1,11 +1,8 @@
 
 function createEdit(graph) {
   var self = {};
-  var NODE_SPACING = 40;
 
-  function $(id) {
-    return document.getElementById(id);
-  }
+  var NODE_SPACING = 40;
 
   function getText(id) {
     return document.getElementById(id).value;
@@ -30,10 +27,10 @@ function createEdit(graph) {
     }
   }
 
-  function genId(){
+  function genRandomId(len){
     var chars = 'abcdefghijklmnopqrstuvwxyz';
     var id = '';
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < len; i++) {
       id += chars.charAt(Math.round(Math.random() * (chars.length - 1)));
     }
     return id;
@@ -42,7 +39,7 @@ function createEdit(graph) {
   function getUniqueIdPrefix() {
     var id;
     do {
-      id = genId();
+      id = genRandomId(4);
     } while(!graph.isUniqueIdPrefix(id));
     return id;
   }
@@ -206,7 +203,7 @@ function createEdit(graph) {
       return e;
     });
 
-    graph.clear();
+    graph.resetData();
     graph.addElements(nodes, links);
   };
 

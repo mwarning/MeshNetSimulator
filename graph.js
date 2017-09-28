@@ -30,7 +30,7 @@ function createGraph(id) {
   var d3Selection = d3;
   var d3Timer = d3;
   var d3Ease = d3;
-  var linkScale = d3Interpolate.interpolate('#F02311', '#04C714');
+  var animationEnabled = true; //TODO: replace...
 
   var self = this;
   var lastClick = [0, 0];
@@ -58,7 +58,6 @@ function createGraph(id) {
   draw.setTransform(transform);
 
   function resizeCanvas() {
-    console.log('resizeCanvas: ' + el.offsetWidth + ', ' + el.offsetHeight);
     canvas.width = el.offsetWidth;
     canvas.height = el.offsetHeight;
     draw.setMaxArea(canvas.width, canvas.height);
@@ -71,7 +70,6 @@ function createGraph(id) {
   }
 
   function moveTo(callback, forceMove) {
-    console.log('moveTo: forceMove: ' + forceMove + ', sidebar_width: ' + sidebar_width());
     clearTimeout(movetoTimer);
     if (!forceMove && force.alpha() > 0.3) {
       movetoTimer = setTimeout(function timerOfMoveTo() {
@@ -148,9 +146,6 @@ function createGraph(id) {
 
     ctx.restore();
   }
-
-  // el = document.createElement('div');
-  // el.classList.add('graph');
 
   forceLink = d3Force.forceLink()
     .distance(function (d) {
@@ -229,6 +224,7 @@ function createGraph(id) {
     redraw();
   });
 
+  // Create a direction independent link id
   function createLinkId(n1, n2) {
     var sid = n1.o.id;
     var tid = n2.o.id;
@@ -239,19 +235,16 @@ function createGraph(id) {
     var px = lastClick[0];
     var py = lastClick[1];
 
-    nodes.forEach(function(e) {
+    nodes = nodes.map(function(e) {
       if ('x' in e) e.x += px;
       if ('y' in e) e.y += py;
-      if (!('label' in e.o)) e.o.label = '';
-      if (!('name' in e.o)) e.o.name = e.o.id;
-      if (!('clients' in e.o)) e.o.clients = 0;
+      e.o = new Node(e.o.id, e.o);
+      return e;
     });
 
-    links.forEach(function(e) {
-      if (!('color' in e)) e.color = '#E8E8E8';
-      if (!('tq' in e.o)) e.o.tq = 1.0;
-      if (!('vpn' in e.o)) e.o.vpn = false;
-      if (!('id' in e.o)) e.o.id = createLinkId(e.source, e.target);
+    links = links.map(function(e) {
+      e.o = new Link(e.o.id, e.o);
+      return e;
     });
 
     intNodes = intNodes.concat(nodes);
@@ -261,7 +254,17 @@ function createGraph(id) {
     forceLink.links(intLinks);
 
     force.alpha(1).restart();
-    resizeCanvas();
+    redraw();
+  }
+
+  self.getAllItems = function getAllItems() {
+    var nodes = intNodes.map(function(e) {
+      return e.o;
+    });
+    var links = intLinks.map(function(e) {
+      return e.o;
+    });
+    return nodes + links;
   }
 
   self.resetData = function resetData() {
@@ -306,6 +309,16 @@ function createGraph(id) {
     });
 
     addElements([], links);
+  }
+
+  self.toggleAnimation = function toggleAnimation() {
+    //TODO: prevent animation restart on drag etc.
+    if (animationEnabled) {
+      force.stop();
+    } else {
+      force.alpha(1).restart();
+    }
+    animationEnabled = !animationEnabled;
   }
 
   self.extendSelection = function extendSelection() {
@@ -380,6 +393,7 @@ function createGraph(id) {
     forceLink.links(intLinks);
 
     draw.clearSelection();
+
     force.alpha(1).restart();
     redraw();
   };
@@ -391,7 +405,7 @@ function createGraph(id) {
 
   self.resetView = function resetView() {
     moveTo(function calcToReset() {
-      draw.clearSelection();
+      // draw.clearSelection();
       return [0, 0, (ZOOM_MIN + 1) / 2];
     }, true);
   };

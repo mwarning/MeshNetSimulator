@@ -29,6 +29,7 @@
   <script src="draw.js"></script>
   <script src="graph.js"></script>
   <script src="edit.js"></script>
+  <script src="sim.js"></script>
 
 <script>
 var data = { graph: {
@@ -138,15 +139,19 @@ function start() {
 
         <input type="button" onclick="graph.resetView()" value="reset view">
         <input type="button" onclick="graph.resetData()" value="reset data">
+        <input type="button" onclick="graph.toggleAnimation()" value="toggle animation">
         <input type="button" onclick="edit.setData(data)" value="reload data">
       </div>
 
       <div id="Sim" class="tabcontent">
+        <span>
         <input type="button" onclick="sim.step('sim_steps')" value="step">
         <input type="number" id="sim_steps" min="1" max="99999" value="1">
-        <p>
+        <input type="button" onclick="sim.reset()" value="reset">
+        </span>
+        <span>
         <label>Stats:</label>
-        </p>
+        </span>
       </div>
     </div>
     <div id="graph" class="graph">

@@ -38,6 +38,7 @@ function createDraw() {
   var nodeColor = '#fff';
   var clientColor = '#e6324b';
   var highlightColor = 'rgba(255, 255, 255, 0.2)';
+  var linkScale = d3.interpolate('#F02311', '#04C714');
 
   var labelColor = '#fff';
 
@@ -46,20 +47,24 @@ function createDraw() {
 
   function drawDetailNode(d) {
     if (transform.k > 1) {
-      ctx.beginPath();
-      positionClients(ctx, d, Math.PI, d.o.clients, 15);
-      ctx.fillStyle = clientColor;
-      ctx.fill();
+      if (d.o.clientCount > 0) {
+        ctx.beginPath();
+        positionClients(ctx, d, Math.PI, d.o.clientCount, 15);
+        ctx.fillStyle = clientColor;
+        ctx.fill();
+      }
+
       ctx.beginPath();
       ctx.textAlign = 'center';
       ctx.fillStyle = labelColor;
       ctx.fillText(d.o.name, d.x, d.y + 20);
 
-      // Show Packets
-      ctx.beginPath();
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'black';
-      ctx.fillText(d.o.label, d.x, d.y + 3);
+      if (d.o.packetCount > 0) {
+        ctx.beginPath();
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'black';
+        ctx.fillText(d.o.packetCount, d.x, d.y + 3);
+      }
     }
   }
 
@@ -114,7 +119,7 @@ function createDraw() {
     to = drawHighlightLink(d, to);
 
     ctx.lineTo(to[0], to[1]);
-    ctx.strokeStyle = d.color;
+    ctx.strokeStyle = linkScale(d.o.tq);
     if (d.o.vpn) {
       ctx.globalAlpha = 0.2;
       ctx.lineWidth = 1.5;

@@ -1,7 +1,6 @@
 
-function createPacket(id, props) {
-  var id = id;
-  var props = props;
+function Packet(id, p) {
+  this.id = id;
 
-  return self;
+  this.p = p;
 }
