@@ -149,8 +149,7 @@ function createDraw() {
   };
 
   self.selectNode = function selectNode(node) {
-    var d3Selection = d3;
-    if (d3Selection.event.ctrlKey) {
+    if (d3.event && d3.event.ctrlKey) {
       var i = selectedNodes.indexOf(node);
       if (i < 0) {
         selectedNodes.push(node);
@@ -164,8 +163,7 @@ function createDraw() {
   };
 
   self.selectLink = function selectLink(link) {
-    var d3Selection = d3;
-    if (d3Selection.event.ctrlKey) {
+    if (d3.event && d3.event.ctrlKey) {
       var i = selectedLinks.indexOf(link);
       if (i < 0) {
         selectedLinks.push(link);
