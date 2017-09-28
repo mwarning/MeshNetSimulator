@@ -73,8 +73,8 @@ function showTab(evt, tabname) {
 var graph;
 var edit;
 
-function getNum(id) {
-  return parseInt(document.getElementById(id).value, 10);
+function getInt(id) {
+  return Math.floor(parseInt(document.getElementById(id).value, 10));
 }
 
 function getBool(id) {
@@ -109,8 +109,7 @@ function start() {
         <input type="button" onclick="edit.load()" value="Load">
         <input type="button" onclick="edit.save()" value="Save">
         <select>
-          <option value="meshviewer_v1">MeshViewer v1</option>
-          <option value="meshviewer_v2">MeshViewer v2</option>
+          <option value="meshviewer">MeshViewer</option>
           <option value="netjson">NetJSON</option>
         </select>
       </div>
@@ -119,21 +118,21 @@ function start() {
         <input type="button" onclick="graph.removeSelected()" value="remove selected">
         <input type="button" onclick="graph.selectConnected()" value="select connected">
         <span>
-          <input type="button" onclick="edit.addLine(getNum('line_n'), getBool('line_loop'))" value="add line">
+          <input type="button" onclick="edit.addLine(getInt('line_n'), getBool('line_loop'))" value="add line">
           <input type="number" id="line_n" name="line_count" value="3">
           <input type="checkbox" id="line_loop" name="line_loop">
         </span>
         <span>
-          <input type="button" onclick="edit.addStar(getNum('star_n'))" value="add star">
+          <input type="button" onclick="edit.addStar(getInt('star_n'))" value="add star">
           <input type="number" id="star_n" name="spikes" value="3">
         </span>
         <span>
-          <input type="button" onclick="edit.addLayer(getNum('layer_x'), getNum('layer_y'))" value="add layer">
+          <input type="button" onclick="edit.addLayer(getInt('layer_x'), getInt('layer_y'))" value="add layer">
           <input type="number" id="layer_x" name="x count" value="3">
           <input type="number" id="layer_y" name="y count" value="3">
         </span>
         <span>
-          <input type="button" onclick="edit.addLattice(getNum('lattice_x'), getNum('lattice_y')" value="add lattice">
+          <input type="button" onclick="edit.addLattice(getInt('lattice_x'), getInt('lattice_y'))" value="add lattice">
           <input type="number" id="lattice_x" name="x count" value="3">
           <input type="number" id="lattice_y" name="y count" value="3">
         </span>
