@@ -264,7 +264,7 @@ function createGraph(id) {
     resizeCanvas();
   }
 
-  self.clear = function resetData() {
+  self.resetData = function resetData() {
     draw.clearSelection();
 
     intNodes = [];

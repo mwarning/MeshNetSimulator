@@ -75,6 +75,7 @@ function showTab(evt, tabname) {
 
 var graph;
 var edit;
+var sim;
 
 function start() {
   // replace index by node object
@@ -85,6 +86,7 @@ function start() {
 
   graph = createGraph('graph');
   edit = createEdit(graph);
+  sim = createSim(graph);
 }
 
   </script>
@@ -140,7 +142,8 @@ function start() {
       </div>
 
       <div id="Sim" class="tabcontent">
-        <input type="button" value="Step">
+        <input type="button" onclick="sim.step('sim_steps')" value="step">
+        <input type="number" id="sim_steps" min="1" max="99999" value="1">
         <p>
         <label>Stats:</label>
         </p>
