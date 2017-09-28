@@ -20,7 +20,7 @@ function sidebar_width() {
   return 0; // getWidth();
 }
 
-function createGraph() {
+function createGraph(id) {
   var draw = createDraw();
   var math = createMath();
   var d3Interpolate = d3;
@@ -34,7 +34,7 @@ function createGraph() {
 
   var self = this;
   var lastClick = [0, 0];
-  var el;
+  var el = document.getElementById(id);
   var canvas;
   var ctx;
   var force;
@@ -65,7 +65,6 @@ function createGraph() {
   }
 
   function transformPosition(p) {
-    // console.log('transformPosition: ' + p.x + ', ' + p.y + ', ' + p.k);
     transform.x = p.x;
     transform.y = p.y;
     transform.k = p.k;
@@ -150,8 +149,8 @@ function createGraph() {
     ctx.restore();
   }
 
-  el = document.createElement('div');
-  el.classList.add('graph');
+  // el = document.createElement('div');
+  // el.classList.add('graph');
 
   forceLink = d3Force.forceLink()
     .distance(function (d) {
@@ -352,6 +351,7 @@ function createGraph() {
     });
 
     draw.setSelection(Object.values(selectedNodes), Object.values(selectedLinks));
+    redraw();
   }
 
   self.removeSelected = function removeSelected() {
@@ -385,7 +385,6 @@ function createGraph() {
   };
 
   self.resetView = function resetView() {
-    console.log('resetView');
     moveTo(function calcToReset() {
       draw.clearSelection();
       return [0, 0, (ZOOM_MIN + 1) / 2];
@@ -393,7 +392,6 @@ function createGraph() {
   };
 
   self.selectNode = function selectNode(d) {
-    console.log('selectNode');
     moveTo(function calcToNode() {
       for (var i = 0; i < intNodes.length; i++) {
         var n = intNodes[i];
@@ -408,7 +406,6 @@ function createGraph() {
   };
 
   self.selectLink = function selectLink(d) {
-    console.log('selectLink');
     moveTo(function calcToLink() {
       for (var i = 0; i < intLinks.length; i++) {
         var l = intLinks[i];
@@ -422,20 +419,8 @@ function createGraph() {
     });
   };
 
-  self.destroy = function destroy() {
-    force.stop();
-    canvas.remove();
-    force = null;
-
-    if (el.parentNode) {
-      el.parentNode.removeChild(el);
-    }
-  };
-
-  self.render = function render(d) {
-    d.appendChild(el);
-    resizeCanvas();
-  };
+  resizeCanvas();
+  resetView();
 
   return self;
 }

@@ -22,6 +22,9 @@
   <script src="d3/d3-color.v1.min.js"></script>
   <script src="d3/d3-transition.v1.min.js"></script>
 
+  <script src="node.js"></script>
+  <script src="link.js"></script>
+  <script src="packet.js"></script>
   <script src="math.js"></script>
   <script src="draw.js"></script>
   <script src="graph.js"></script>
@@ -73,14 +76,6 @@ function showTab(evt, tabname) {
 var graph;
 var edit;
 
-function getInt(id) {
-  return Math.floor(parseInt(document.getElementById(id).value, 10));
-}
-
-function getBool(id) {
-  return document.getElementById(id).checked;
-}
-
 function start() {
   // replace index by node object
   data.graph.links.forEach(function (d) {
@@ -88,29 +83,30 @@ function start() {
     d.target = data.graph.nodes[d.target];
   });
 
-  graph = createGraph();
-  graph.render(document.getElementsByClassName("display")[0]);
-  graph.resetView();
-
+  graph = createGraph('graph');
   edit = createEdit(graph);
 }
+
   </script>
 </head>
 <body onload="start()">
-  <div class="container">
-    <div class="toolbar">
+  <div id="container">
+    <div id="toolbar">
       <div class="tab">
-        <button class="tablinks active" onclick="showTab(event, 'File')">File</button>
+        <button class="tablinks" onclick="showTab(event, 'File')">File</button>
         <button class="tablinks" onclick="showTab(event, 'Edit')">Edit</button>
         <button class="tablinks" onclick="showTab(event, 'Sim')">Sim</button>
       </div>
       <div id="File" class="tabcontent">
-        <input type="button" onclick="edit.load()" value="Load">
-        <input type="button" onclick="edit.save()" value="Save">
-        <select>
+        <input type="button" onclick="edit.loadData('file_graph', 'file_nodes', 'file_format', true)" value="Load">
+         <input type="button" onclick="edit.loadData('file_graph', 'file_nodes', 'file_format', false)" value="Add">
+        <input type="button" onclick="edit.saveData()" value="Save">
+        <select id="file_format">
           <option value="meshviewer">MeshViewer</option>
           <option value="netjson">NetJSON</option>
         </select>
+        <input type="file" id="file_graph" value="">
+        <input type="file" id="file_nodes" value="">
       </div>
 
       <div id="Edit" class="tabcontent">
@@ -119,23 +115,23 @@ function start() {
         <input type="button" onclick="graph.connectSelectedNodes()" value="connect selected">
         <input type="button" onclick="graph.clear()" value="clear">
         <span>
-          <input type="button" onclick="edit.addLine(getInt('line_n'), getBool('line_loop'))" value="add line">
-          <input type="number" id="line_n" min="1" max="999" name="line_count" value="3">
-          <input type="checkbox" id="line_loop" name="line_loop">
+          <input type="button" onclick="edit.addLine('line_n', 'line_loop')" value="add line">
+          <input type="number" id="line_n" min="1" max="999" value="3">
+          <input type="checkbox" id="line_loop">
         </span>
         <span>
-          <input type="button" onclick="edit.addStar(getInt('star_n'))" value="add star">
-          <input type="number" id="star_n" min="1" max="999" name="spikes" value="4">
+          <input type="button" onclick="edit.addStar('star_n')" value="add star">
+          <input type="number" id="star_n" min="1" max="999" value="4">
         </span>
         <span>
-          <input type="button" onclick="edit.addLattice(getInt('lattice_x'), getInt('lattice_y'))" value="add lattice">
-          <input type="number" id="lattice_x" min="1" max="999" name="x count" value="3">
-          <input type="number" id="lattice_y" min="1" max="999" name="y count" value="3">
+          <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="add lattice">
+          <input type="number" id="lattice_x" min="1" max="999" value="3">
+          <input type="number" id="lattice_y" min="1" max="999" value="3">
         </span>
         <span>
-          <input type="button" onclick="edit.addLayer(getInt('layer_x'), getInt('layer_y'))" value="add layer">
-          <input type="number" id="layer_x" min="3" max="999" name="x count" value="3">
-          <input type="number" id="layer_y" min="3" max="999" name="y count" value="3">
+          <input type="button" onclick="edit.addLayer('layer_x', 'layer_y')" value="add layer">
+          <input type="number" id="layer_x" min="3" max="999" value="3">
+          <input type="number" id="layer_y" min="3" max="999" value="3">
         </span>
 
         <input type="button" onclick="graph.resetView()" value="reset view">
@@ -149,7 +145,7 @@ function start() {
         </p>
       </div>
     </div>
-    <div class="display">
+    <div id="graph" class="graph">
     </div>
   </div>
   <noscript>

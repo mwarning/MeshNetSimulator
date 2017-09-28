@@ -3,6 +3,33 @@ function createEdit(graph) {
   var self = {};
   var NODE_SPACING = 40;
 
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  function getText(id) {
+    return document.getElementById(id).value;
+  }
+
+  function getInteger(id) {
+    return Math.floor(parseInt(document.getElementById(id).value, 10));
+  }
+
+  function getBoolean(id) {
+    return document.getElementById(id).checked;
+  }
+
+  function readFileContent(id, callback) {
+    var file = document.getElementById(id).files[0];
+    if (file) {
+      var r = new FileReader();
+      r.onload = function(e) {
+        callback(e.target.result);
+      }
+      r.readAsText(file);
+    }
+  }
+
   function genId(){
     var chars = 'abcdefghijklmnopqrstuvwxyz';
     var id = '';
@@ -25,6 +52,8 @@ function createEdit(graph) {
     var nodes = [];
     var links = [];
 
+    count = getInteger(count);
+    loop = getBoolean(loop);
     if (count < 1 || isNaN(count)) {
       return;
     }
@@ -52,6 +81,7 @@ function createEdit(graph) {
     var nodes = [];
     var links = [];
 
+    count = getInteger(count);
     if (count < 1 || isNaN(count)) {
       return;
     }
@@ -77,6 +107,9 @@ function createEdit(graph) {
     var nodes = [];
     var links = [];
 
+    x_count = getInteger(x_count);
+    y_count = getInteger(y_count);
+
     if (x_count < 1 || y_count < 1 || isNaN(x_count) || isNaN(y_count)) {
       return;
     }
@@ -101,6 +134,9 @@ function createEdit(graph) {
     var id = getUniqueIdPrefix();
     var nodes = [];
     var links = [];
+
+    x_count = getInteger(x_count);
+    y_count = getInteger(y_count);
 
     if (x_count < 1 || y_count < 1 || isNaN(x_count) || isNaN(y_count)) {
       return;
@@ -129,6 +165,27 @@ function createEdit(graph) {
     }
 
     graph.addElements(nodes, links);
+  }
+
+  function loadMeshViewerData(graph, nodes) {
+    console.log('graph: ' + graph.length + ', nodes: ' + nodes.length);
+  }
+
+  self.loadData = function loadData(graph_id, nodes_id, format_id) {
+    var format = getText(format_id);
+    readFileContent(graph_id, function(graph_content) {
+      readFileContent(nodes_id, function(nodes_content) {
+        var graph = JSON.parse(graph_content);
+        var nodes = JSON.parse(nodes_content);
+        if (format === 'meshviewer') {
+          loadMeshViewerData(graph, nodes);
+        }
+      });
+    });
+  }
+
+  self.saveData = function saveData(format) {
+
   }
 
   self.setData = function setData(data) {

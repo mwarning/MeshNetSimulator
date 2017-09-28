@@ -11,19 +11,19 @@
   }
 }
 
-.container {
+#container {
   height: auto;
   overflow: hidden;
   margin: 0;
   padding: 0;
 }
 
-.toolbar {
+#toolbar {
   width: 20%;
   float: left;
 }
 
-.display {
+#graph {
   width: 80%;
   float: left;
   overflow: hidden;
