@@ -1,25 +1,4 @@
 
-
-// from sidebar
-function getWidth() {
-  // Needed to avoid render blocking
-  var gridBreakpoints = {
-    lg: [992, 446],
-    xl: [1200, 560]
-  };
-
-  if (gridBreakpoints.lg[0] > window.innerWidth) {
-    return 0;
-  } else if (gridBreakpoints.xl[0] > window.innerWidth) {
-    return gridBreakpoints.lg[1];
-  }
-  return gridBreakpoints.xl[1];
-};
-
-function sidebar_width() {
-  return 0; // getWidth();
-}
-
 function createGraph(id) {
   var draw = createDraw();
   var math = createMath();
@@ -83,7 +62,7 @@ function createGraph(id) {
     var k = result[2];
     var end = { k: k };
 
-    end.x = (canvas.width + sidebar_width()) / 2 - x * k;
+    end.x = canvas.width / 2 - x * k;
     end.y = canvas.height / 2 - y * k;
 
     var start = { x: transform.x, y: transform.y, k: transform.k };
