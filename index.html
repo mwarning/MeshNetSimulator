@@ -101,15 +101,18 @@ function start() {
         <button class="tablinks" onclick="showTab(event, 'Sim')">Sim</button>
       </div>
       <div id="File" class="tabcontent">
-        <input type="button" onclick="edit.loadData('file_graph', 'file_nodes', 'file_format', true)" value="Load">
-         <input type="button" onclick="edit.loadData('file_graph', 'file_nodes', 'file_format', false)" value="Add">
-        <input type="button" onclick="edit.saveData()" value="Save">
-        <select id="file_format">
-          <option value="meshviewer">MeshViewer</option>
-          <option value="netjson">NetJSON</option>
-        </select>
-        <input type="file" id="file_graph" value="">
-        <input type="file" id="file_nodes" value="">
+        <span>
+          <label>Graph data:</label>
+          <input type="file" id="file_graph" value="">
+        </span>
+        <span>
+          <label>Nodes data:</label>
+          <input type="file" id="file_nodes" value="">
+        </span>
+        <span>
+          <input type="button" onclick="edit.loadMeshViewerData('file_graph', 'file_nodes')" value="Load">
+          <input type="button" onclick="edit.saveMeshViewerData()" value="Save">
+        </span>
       </div>
 
       <div id="Edit" class="tabcontent">

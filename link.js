@@ -1,6 +1,6 @@
 
-function Link(id, p) {
-  this.id = id;
+
+function Link(p = {}) {
   this.vpn = false;
   this.tq = 1.0;
 

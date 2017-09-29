@@ -224,27 +224,23 @@ function createGraph(id) {
     redraw();
   });
 
-  // Create a direction independent link id
-  function createLinkId(n1, n2) {
-    var sid = n1.o.id;
-    var tid = n2.o.id;
-    return (sid > tid) ? (sid + '-' + tid) : (tid + '-' + sid);
-  }
-
   this.addElements = function addElements(nodes, links) {
     var px = lastClick[0];
     var py = lastClick[1];
 
-    nodes = nodes.map(function(e) {
+    nodes.forEach(function(e) {
       if ('x' in e) e.x += px;
       if ('y' in e) e.y += py;
-      e.o = new Node(e.o.id, e.o);
-      return e;
+      if (!('o' in e)) {
+        var id = getUniqueIdPrefix();
+        e.o = new Node(id);
+      }
     });
 
-    links = links.map(function(e) {
-      e.o = new Link(e.o.id, e.o);
-      return e;
+    links.forEach(function(e) {
+      if (!('o' in e)) {
+        e.o = new Link();
+      }
     });
 
     intNodes = intNodes.concat(nodes);
@@ -280,14 +276,38 @@ function createGraph(id) {
     resizeCanvas();
   }
 
-  self.isUniqueIdPrefix = function isUniqueIdPrefix(id) {
+  function genRandomId(len){
+    var chars = 'abcdefghijklmnopqrstuvwxyz';
+    var id = '';
+    for (var i = 0; i < len; i++) {
+      id += chars.charAt(Math.round(Math.random() * (chars.length - 1)));
+    }
+    return id;
+  }
+
+  function isUniqueIdPrefix(id) {
     return !intNodes.some(function(e) { return e.o.id.startsWith(id); });
   };
+
+  self.getUniqueIdPrefix = function getUniqueIdPrefix() {
+    var id;
+    do {
+      id = genRandomId(4);
+    } while(!isUniqueIdPrefix(id));
+    return id;
+  }
 
   self.connectSelection = function connectSelection() {
     var selectedNodes = draw.getSelectedNodes();
     var linkDict = {};
     var links = [];
+
+    // Create a direction independent link id
+    function createLinkId(n1, n2) {
+      var sid = n1.o.id;
+      var tid = n2.o.id;
+      return (sid > tid) ? (sid + '-' + tid) : (tid + '-' + sid);
+    }
 
     intLinks.forEach(function(e) {
       linkDict[createLinkId(e.source, e.target)] = null;
@@ -302,7 +322,7 @@ function createGraph(id) {
             return;
           }
 
-          links.push({source: e1, target: e2, o: {}});
+          links.push({source: e1, target: e2});
           linkDict[id] = null;
         }
       });

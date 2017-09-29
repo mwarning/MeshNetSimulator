@@ -1,5 +1,5 @@
 
-function Node(id, p) {
+function Node(id, p = {}) {
   this.id = id;
   this.name = id;
   this.clientCount = 0;
