@@ -127,16 +127,16 @@ function createGraph(graph_id) {
 
   forceLink = d3Force.forceLink()
     .distance(function (d) {
-      if (d.o.vpn) {
+      if (d.vpn) {
         return 0;
       }
       return 75;
     })
     .strength(function (d) {
-      if (d.o.vpn) {
+      if (d.vpn) {
         return 0.02;
       }
-      return Math.max(0.5, 1 / d.o.tq);
+      return Math.max(0.5, 1 / d.tq);
     });
 
   var zoom = d3Zoom.zoom()
@@ -210,15 +210,14 @@ function createGraph(graph_id) {
       if ('x' in e) e.x += px;
       if ('y' in e) e.y += py;
       if (!('o' in e)) {
-        var id = getUniqueIdPrefix();
+        var id = getUniqueNamePrefix();
         e.o = new Node(id);
       }
     });
 
     links.forEach(function(e) {
-      if (!('o' in e)) {
-        e.o = new Link();
-      }
+      if (!('tq' in e)) e.tq = 1.0;
+      if (!('vpn' in e)) e.vpn = false;
     });
 
     intNodes = intNodes.concat(nodes);
@@ -263,15 +262,15 @@ function createGraph(graph_id) {
     return id;
   }
 
-  function isUniqueIdPrefix(id) {
-    return !intNodes.some(function(e) { return e.o.id.startsWith(id); });
+  function isUniqueNamePrefix(id) {
+    return !intNodes.some(function(e) { return e.o.name.startsWith(id); });
   };
 
-  self.getUniqueIdPrefix = function getUniqueIdPrefix() {
+  self.getUniqueNamePrefix = function getUniqueNamePrefix() {
     var id;
     do {
       id = genRandomId(4);
-    } while(!isUniqueIdPrefix(id));
+    } while(!isUniqueNamePrefix(id));
     return id;
   }
 

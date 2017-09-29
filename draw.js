@@ -35,7 +35,6 @@ function createDraw() {
   var selectedNodes = [];
   var selectedLinks = [];
 
-  var nodeColor = '#fff';
   var clientColor = '#e6324b';
   var highlightColor = 'rgba(255, 255, 255, 0.2)';
   var linkScale = d3.interpolate('#F02311', '#04C714');
@@ -99,7 +98,7 @@ function createDraw() {
 
     ctx.moveTo(d.x + 3, d.y);
     ctx.arc(d.x, d.y, 8, 0, 2 * Math.PI);
-    ctx.fillStyle = nodeColor;
+    ctx.fillStyle = d.o.color;
     ctx.fill();
 
     drawDetailNode(d);
@@ -119,8 +118,8 @@ function createDraw() {
     to = drawHighlightLink(d, to);
 
     ctx.lineTo(to[0], to[1]);
-    ctx.strokeStyle = linkScale(d.o.tq);
-    if (d.o.vpn) {
+    ctx.strokeStyle = linkScale(d.tq);
+    if (d.vpn) {
       ctx.globalAlpha = 0.2;
       ctx.lineWidth = 1.5;
     } else {

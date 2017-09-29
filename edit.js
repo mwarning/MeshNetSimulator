@@ -12,6 +12,10 @@ function createEdit(graph) {
     return Math.floor(parseInt(document.getElementById(id).value, 10));
   }
 
+  function getFloat(id) {
+    return parseInt(document.getElementById(id).value, 10);
+  }
+
   function getBoolean(id) {
     return document.getElementById(id).checked;
   }
@@ -27,8 +31,28 @@ function createEdit(graph) {
     }
   }
 
+  function changeLinkQuality(type_id, value_id) {
+    var type = getText(type_id);
+    var value = getFloat(value_id);
+
+    draw.getSelectedLinks().forEach(function(e) {
+      if (type == 'random') {
+        e.tq = value - (Math.random() / 2);
+      } else {
+        e.tq = value;
+      }
+    });
+  }
+
+  self.addSingle = function addSingle () {
+    var id = graph.getUniqueNamePrefix();
+    var nodes = [{o: new Node(id)}];
+
+    graph.addElements(nodes, []);
+  }
+
   self.addLine = function addLine (count, loop) {
-    var id = graph.getUniqueIdPrefix();
+    var id = graph.getUniqueNamePrefix();
     var nodes = [];
     var links = [];
 
@@ -57,7 +81,7 @@ function createEdit(graph) {
   }
 
   self.addStar = function addStar(count) {
-    var id = graph.getUniqueIdPrefix();
+    var id = graph.getUniqueNamePrefix();
     var nodes = [];
     var links = [];
 
@@ -82,8 +106,9 @@ function createEdit(graph) {
     graph.addElements(nodes, links);
   }
 
+  /*
   self.addLayer = function addLayer(x_count, y_count) {
-    var id = graph.getUniqueIdPrefix();
+    var id = graph.getUniqueNamePrefix();
     var nodes = [];
     var links = [];
 
@@ -109,9 +134,10 @@ function createEdit(graph) {
 
     graph.addElements(nodes, links);
   }
+  */
 
   self.addLattice = function addLattice(x_count, y_count) {
-    var id = graph.getUniqueIdPrefix();
+    var id = graph.getUniqueNamePrefix();
     var nodes = [];
     var links = [];
 
@@ -174,10 +200,7 @@ function createEdit(graph) {
     graphDataLinks.map(function(e) {
       var sid = graphDataNodes[e.source].id;
       var tid = graphDataNodes[e.target].id;
-      var link = new Link();
-      link.ty = e.ty;
-      link.vpn = e.vpn;
-      links.push({source: nodeDict[sid], target: nodeDict[tid], o: link});
+      links.push({source: nodeDict[sid], target: nodeDict[tid], ty: e.tq, vpn: e.vpn});
     });
 
     nodes = Object.values(nodeDict);
