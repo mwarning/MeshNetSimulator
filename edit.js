@@ -37,9 +37,9 @@ function createEdit(graph) {
 
     draw.getSelectedLinks().forEach(function(e) {
       if (type == 'random') {
-        e.tq = value - (Math.random() / 2);
+        e.quality = 100 * Math.random();
       } else {
-        e.tq = value;
+        e.quality = value;
       }
     });
   }
@@ -200,7 +200,7 @@ function createEdit(graph) {
     graphDataLinks.map(function(e) {
       var sid = graphDataNodes[e.source].id;
       var tid = graphDataNodes[e.target].id;
-      links.push({source: nodeDict[sid], target: nodeDict[tid], ty: (100 / e.tq), vpn: e.vpn});
+      links.push({source: nodeDict[sid], target: nodeDict[tid], quality: (100 / e.tq), vpn: e.vpn});
     });
 
     nodes = Object.values(nodeDict);

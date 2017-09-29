@@ -136,7 +136,7 @@ function createGraph(graph_id) {
       if (d.vpn) {
         return 0.02;
       }
-      return Math.max(0.5, 1 / d.tq);
+      return Math.max(0.5, 1 / d.quality);
     });
 
   var zoom = d3Zoom.zoom()
@@ -220,7 +220,7 @@ function createGraph(graph_id) {
     links.forEach(function(e) {
       // Make sure required fields are present
       // We inject them into the d3 optject for simplicity...
-      if (!('tq' in e)) e.tq = 100;
+      if (!('quality' in e)) e.quality = 100;
       if (!('vpn' in e)) e.vpn = false;
     });
 
