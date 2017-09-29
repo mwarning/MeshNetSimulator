@@ -317,7 +317,7 @@ function createGraph(graph_id) {
   }
 
   self.toggleAnimation = function toggleAnimation() {
-    //TODO: prevent animation restart on drag etc.
+    //TODO: prevent animation restart on drag/click etc.
     if (animationEnabled) {
       force.stop();
     } else {

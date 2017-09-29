@@ -185,7 +185,6 @@ function createDraw() {
   };
 
   self.setMaxArea = function setMaxArea(newWidth, newHeight) {
-    console.log('setMaxArea ' + newWidth + ' ' + newHeight);
     width = newWidth;
     height = newHeight;
   };

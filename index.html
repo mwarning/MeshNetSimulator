@@ -31,33 +31,31 @@
   <script src="edit.js"></script>
   <script src="sim.js"></script>
 
-<script>
+  <script>
+    function showTab(evt, tabname) {
+      var tabcontent = document.getElementsByClassName("tabcontent");
+      for (var i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
 
-function showTab(evt, tabname) {
-  var tabcontent = document.getElementsByClassName("tabcontent");
-  for (var i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
+      var tablinks = document.getElementsByClassName("tablinks");
+      for (var i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove('active');
+      }
 
-  var tablinks = document.getElementsByClassName("tablinks");
-  for (var i = 0; i < tablinks.length; i++) {
-    tablinks[i].classList.remove('active');
-  }
+      document.getElementById(tabname).style.display = "block";
+      evt.currentTarget.classList.add('active');
+    }
 
-  document.getElementById(tabname).style.display = "block";
-  evt.currentTarget.classList.add('active');
-}
+    var graph;
+    var edit;
+    var sim;
 
-var graph;
-var edit;
-var sim;
-
-function start() {
-  graph = createGraph('graph');
-  edit = createEdit(graph);
-  sim = createSim(graph);
-}
-
+    function start() {
+      graph = createGraph('graph');
+      edit = createEdit(graph);
+      sim = createSim(graph);
+    }
   </script>
 </head>
 <body onload="start()">
@@ -120,7 +118,7 @@ function start() {
             <input type="number" id="star_n" min="1" max="999" value="4">
           </div>
           <div>
-            <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="lattice">
+            <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="Lattice">
             <input type="number" id="lattice_x" min="1" max="999" value="3">
             <span>x</span>
             <input type="number" id="lattice_y" min="1" max="999" value="3">
