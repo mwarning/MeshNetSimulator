@@ -1,5 +1,5 @@
 
-function createGraph(id) {
+function createGraph(graph_id) {
   var draw = createDraw();
   var math = createMath();
   var d3Interpolate = d3;
@@ -13,7 +13,7 @@ function createGraph(id) {
 
   var self = this;
   var lastClick = [0, 0];
-  var el = document.getElementById(id);
+  var el = document.getElementById(graph_id);
   var canvas;
   var ctx;
   var force;
@@ -96,7 +96,7 @@ function createGraph(id) {
       return;
     }
 
-    e = {x: e[0], y: e[1]};
+    e = { x: e[0], y: e[1] };
 
     var closedLink;
     var radius = LINK_RADIUS_SELECT;
@@ -277,31 +277,28 @@ function createGraph(id) {
 
   self.connectSelection = function connectSelection() {
     var selectedNodes = draw.getSelectedNodes();
-    var linkDict = {};
+    var dict = {};
     var links = [];
 
-    // Create a direction independent link id
-    function createLinkId(n1, n2) {
-      var sid = n1.o.id;
-      var tid = n2.o.id;
-      return (sid > tid) ? (sid + '-' + tid) : (tid + '-' + sid);
+    // Create direction independent link identifier (assume index < 2^16)
+    function getLinkNum(e1, e2) {
+      if (e1.index < e2.index) {
+        return (e1.index << 16) * e2.index;
+      } else {
+        return (e2.index << 16) * e1.index;
+      }
     }
 
     intLinks.forEach(function(e) {
-      linkDict[createLinkId(e.source, e.target)] = null;
+      dict[getLinkNum(e.source, e.target)] = null;
     });
 
     selectedNodes.forEach(function (e1) {
       selectedNodes.forEach(function (e2) {
-        if (e1.o.id < e2.o.id) {
-          var id = createLinkId(e1, e2);
-          if (id in linkDict) {
-            // Link already exists
-            return;
-          }
-
+        var n = getLinkNum(e1, e2);
+        if (!(n in dict)) {
           links.push({source: e1, target: e2});
-          linkDict[id] = null;
+          dict[n] = null;
         }
       });
     });
@@ -327,25 +324,25 @@ function createGraph(id) {
     var connections = {};
 
     intNodes.forEach(function(n) {
-      connections[n.o.id] = [];
+      connections[n.index] = [];
     });
 
     intLinks.forEach(function(l) {
-      connections[l.source.o.id].push(l);
-      connections[l.target.o.id].push(l);
+      connections[l.source.index].push(l);
+      connections[l.target.index].push(l);
     });
 
     function selectNode(n) {
-      selectedNodes[n.o.id] = n;
-      if (n.o.id in connections) {
-        connections[n.o.id].forEach(function(l) {
-          if (!(l.o.id in selectedLinks)) {
-            selectedLinks[l.o.id] = l;
+      selectedNodes[n.index] = n;
+      if (n.index in connections) {
+        connections[n.index].forEach(function(l) {
+          if (!(l.index in selectedLinks)) {
+            selectedLinks[l.index] = l;
           }
-          if (!(l.source.o.id in selectedNodes)) {
+          if (!(l.source.index in selectedNodes)) {
             selectNode(l.source);
           }
-          if (!(l.target.o.id in selectedNodes)) {
+          if (!(l.target.index in selectedNodes)) {
             selectNode(l.target);
           }
         });
@@ -365,26 +362,27 @@ function createGraph(id) {
     redraw();
   }
 
+  // Remove selected items
   self.removeSelection = function removeSelection() {
     var nodeDict = {};
     var linkDict = {};
 
-    draw.getSelectedNodes().forEach(function(n) {
-      nodeDict[n.o.id] = n;
+    draw.getSelectedNodes().forEach(function (e) {
+      nodeDict[e.index] = e;
     });
 
-    draw.getSelectedLinks().forEach(function(l) {
-      linkDict[l.o.id] = l;
+    draw.getSelectedLinks().forEach(function (e) {
+      linkDict[e.index] = e;
     });
 
     // Remove from internal node list
     intNodes = intNodes.filter(function (e) {
-      return !(e.o.id in nodeDict);
+      return !(e.index in nodeDict);
     });
 
     // Remove from internal link list
     intLinks = intLinks.filter(function (e) {
-      return !(e.source.o.id in nodeDict) && !(e.target.o.id in nodeDict) && !(e.o.id in linkDict);
+      return !(e.source.index in nodeDict) && !(e.target.index in nodeDict) && !(e.index in linkDict);
     });
 
     force.nodes(intNodes);
