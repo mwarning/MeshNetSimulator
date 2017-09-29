@@ -93,7 +93,7 @@ function start() {
           <input type="button" onclick="graph.connectSelection()" value="connect">
           <input type="button" onclick="graph.extendSelection()" value="extend">
           <input type="button" onclick="graph.removeSelection()" value="remove">
-          <input type="button" onclick="graph.clearSelection()" value="clear">
+          <input type="button" onclick="graph.clearSelection()" value="clear selection">
           </div>
         </fieldset>
         <fieldset>
@@ -137,6 +137,9 @@ function start() {
             <input type="number" id="tq_value" min="0" max="10" value="1.0">
             <input type="button" onclick="edit.changeLinkQuality('tq_type', 'tq_value')" value="Change">
           </div>
+        </fieldset>
+        <fieldset>
+          <legend>Misc</legend>
           <div>
             <input type="button" onclick="graph.resetView()" value="reset view">
             <input type="button" onclick="graph.resetData()" value="reset data">
