@@ -220,7 +220,7 @@ function createGraph(graph_id) {
     links.forEach(function(e) {
       // Make sure required fields are present
       // We inject them into the d3 optject for simplicity...
-      if (!('tq' in e)) e.tq = 1.0;
+      if (!('tq' in e)) e.tq = 100;
       if (!('vpn' in e)) e.vpn = false;
     });
 

@@ -200,7 +200,7 @@ function createEdit(graph) {
     graphDataLinks.map(function(e) {
       var sid = graphDataNodes[e.source].id;
       var tid = graphDataNodes[e.target].id;
-      links.push({source: nodeDict[sid], target: nodeDict[tid], ty: e.tq, vpn: e.vpn});
+      links.push({source: nodeDict[sid], target: nodeDict[tid], ty: (100 / e.tq), vpn: e.vpn});
     });
 
     nodes = Object.values(nodeDict);

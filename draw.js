@@ -118,7 +118,7 @@ function createDraw() {
     to = drawHighlightLink(d, to);
 
     ctx.lineTo(to[0], to[1]);
-    ctx.strokeStyle = linkScale(d.tq);
+    ctx.strokeStyle = linkScale(d.tq / 100);
     if (d.vpn) {
       ctx.globalAlpha = 0.2;
       ctx.lineWidth = 1.5;
