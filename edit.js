@@ -200,22 +200,5 @@ function createEdit(graph) {
     // TODO
   }
 
-  self.setData = function setData(data) {
-    var nodeDict = {};
-
-    var nodes = data.graph.nodes.map(function (d) {
-      var e = {o: new Node(d.id, d)};
-      nodeDict[d.id] = e;
-      return e;
-    });
-
-    var links = data.graph.links.map(function (d) {
-      return {source: nodeDict[d.source.id], target: nodeDict[d.target.id], o: new Link(d.id, d)};
-    });
-
-    graph.resetData();
-    graph.addElements(nodes, links);
-  };
-
   return self;
 }

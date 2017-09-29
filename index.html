@@ -32,33 +32,7 @@
   <script src="sim.js"></script>
 
 <script>
-var data = { graph: {
-  links: [
-    {
-      "source": 0,
-      "target": 1,
-      "tq": 1.008,
-      "vpn": true,
-      "id": '62e327ff8a64-eade27b88dbe'
-    }
-  ],
-  nodes: [
-    {
-      "id": "62:e3:27:ff:8a:64",
-      "clients": 4,
-      "label": "abc",
-      "name" : "Node1"
-    },
-    {
-      "id": "ea:de:27:b8:8d:be",
-      "clients": 1,
-      "label": "123",
-      "name" : "Node2"
-    }
-  ]
-}};
 
-// https://www.w3schools.com/howto/howto_js_tabs.asp
 function showTab(evt, tabname) {
   var tabcontent = document.getElementsByClassName("tabcontent");
   for (var i = 0; i < tabcontent.length; i++) {
@@ -79,12 +53,6 @@ var edit;
 var sim;
 
 function start() {
-  // replace index by node object
-  data.graph.links.forEach(function (d) {
-    d.source = data.graph.nodes[d.source];
-    d.target = data.graph.nodes[d.target];
-  });
-
   graph = createGraph('graph');
   edit = createEdit(graph);
   sim = createSim(graph);
@@ -143,7 +111,6 @@ function start() {
         <input type="button" onclick="graph.resetView()" value="reset view">
         <input type="button" onclick="graph.resetData()" value="reset data">
         <input type="button" onclick="graph.toggleAnimation()" value="toggle animation">
-        <input type="button" onclick="edit.setData(data)" value="reload data">
       </div>
 
       <div id="Sim" class="tabcontent">
