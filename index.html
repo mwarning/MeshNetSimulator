@@ -90,10 +90,16 @@ function start() {
         <fieldset>
           <legend>Selection</legend>
           <div>
-          <input type="button" onclick="graph.connectSelection()" value="connect">
-          <input type="button" onclick="graph.extendSelection()" value="extend">
-          <input type="button" onclick="graph.removeSelection()" value="remove">
-          <input type="button" onclick="graph.clearSelection()" value="clear selection">
+            <input type="button" onclick="graph.extendSelection()" value="extend">
+            <input type="button" onclick="graph.clearSelection()" value="clear">
+            <fieldset>
+              <legend>Modify</legend>
+              <div>
+                <input type="button" onclick="graph.removeSelection()" value="remove">
+                <input type="button" onclick="graph.connectSelectedNodes()" value="connect">
+                <input type="button" onclick="graph.disconnectSelectedNodes()" value="disconnect">
+              </div>
+            </fieldset>
           </div>
         </fieldset>
         <fieldset>
@@ -114,7 +120,7 @@ function start() {
             <input type="number" id="star_n" min="1" max="999" value="4">
           </div>
           <div>
-            <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="add Lattice">
+            <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="lattice">
             <input type="number" id="lattice_x" min="1" max="999" value="3">
             <span>x</span>
             <input type="number" id="lattice_y" min="1" max="999" value="3">
@@ -147,6 +153,7 @@ function start() {
           </div>
         </fieldset>
       </div>
+
       <div id="Sim" class="tabcontent">
         <fieldset>
           <legend>Simulator</legend>

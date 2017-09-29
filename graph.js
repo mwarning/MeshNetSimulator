@@ -207,8 +207,10 @@ function createGraph(graph_id) {
     var py = lastClick[1];
 
     nodes.forEach(function(e) {
+      // Add base position
       if ('x' in e) e.x += px;
       if ('y' in e) e.y += py;
+      // Make sure a Node object exists
       if (!('o' in e)) {
         var id = getUniqueNamePrefix();
         e.o = new Node(id);
@@ -216,6 +218,8 @@ function createGraph(graph_id) {
     });
 
     links.forEach(function(e) {
+      // Make sure required fields are present
+      // We inject them into the d3 optject for simplicity...
       if (!('tq' in e)) e.tq = 1.0;
       if (!('vpn' in e)) e.vpn = false;
     });
@@ -230,14 +234,10 @@ function createGraph(graph_id) {
     redraw();
   }
 
-  self.getAllItems = function getAllItems() {
-    var nodes = intNodes.map(function(e) {
+  self.getAllNodes = function getAllNodes() {
+    return intNodes.map(function(e) {
       return e.o;
     });
-    var links = intLinks.map(function(e) {
-      return e.o;
-    });
-    return nodes + links;
   }
 
   self.resetData = function resetData() {
@@ -274,18 +274,27 @@ function createGraph(graph_id) {
     return id;
   }
 
-  self.connectSelection = function connectSelection() {
+  self.disconnectSelectedNodes = function disconnectSelectedNodes() {
+    var selectedNodes = draw.getSelectedNodes();
+
+    intLinks = intLinks.filter(function(e) {
+      return (selectedNodes.indexOf(e.source) < 0 || selectedNodes.indexOf(e.target) < 0);
+    });
+
+    forceLink.links(intLinks);
+
+    force.alpha(1).restart();
+    redraw();
+  }
+
+  self.connectSelectedNodes = function connectSelectedNodes() {
     var selectedNodes = draw.getSelectedNodes();
     var dict = {};
     var links = [];
 
-    // Create direction independent link identifier (assume index < 2^16)
-    function getLinkNum(e1, e2) {
-      if (e1.index < e2.index) {
-        return (e1.index << 16) * e2.index;
-      } else {
-        return (e2.index << 16) * e1.index;
-      }
+    // Create link identifier (assume index < 2^16)
+    function getLinkNum(source, target) {
+      return (source.index << 16) + target.index;
     }
 
     intLinks.forEach(function(e) {
@@ -294,10 +303,12 @@ function createGraph(graph_id) {
 
     selectedNodes.forEach(function (e1) {
       selectedNodes.forEach(function (e2) {
-        var n = getLinkNum(e1, e2);
-        if (!(n in dict)) {
-          links.push({source: e1, target: e2});
-          dict[n] = null;
+        if (e1.index < e2.index) {
+          var n = getLinkNum(e1, e2);
+          if (!(n in dict)) {
+            links.push({source: e1, target: e2});
+            dict[n] = null;
+          }
         }
       });
     });

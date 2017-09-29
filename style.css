@@ -72,3 +72,7 @@ input, select {
 input[type="number"] {
    width: 3em;
 }
+
+input[type="button"] {
+  padding: 0px;
+}
