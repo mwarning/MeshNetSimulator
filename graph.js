@@ -48,18 +48,18 @@ function createGraph(id) {
     transform.k = p.k;
   }
 
-  function moveTo(callback, forceMove) {
+  function moveTo(pos, forceMove) {
     clearTimeout(movetoTimer);
     if (!forceMove && force.alpha() > 0.3) {
       movetoTimer = setTimeout(function timerOfMoveTo() {
-        moveTo(callback);
+        moveTo(pos);
       }, 300);
       return;
     }
-    var result = callback();
-    var x = result[0];
-    var y = result[1];
-    var k = result[2];
+
+    var x = pos[0];
+    var y = pos[1];
+    var k = pos[2];
     var end = { k: k };
 
     end.x = canvas.width / 2 - x * k;
@@ -92,25 +92,24 @@ function createGraph(id) {
     lastClick = e;
 
     if (n !== undefined) {
-      selectNode(n.o);
+      selectNode(n);
       return;
     }
 
-    e = { x: e[0], y: e[1] };
+    e = {x: e[0], y: e[1]};
 
     var closedLink;
     var radius = LINK_RADIUS_SELECT;
-    intLinks
-      .forEach(function (d) {
-        var distance = math.distanceLink(e, d.source, d.target);
-        if (distance < radius) {
-          closedLink = d;
-          radius = distance;
-        }
-      });
+    intLinks.forEach(function (d) {
+      var distance = math.distanceLink(e, d.source, d.target);
+      if (distance < radius) {
+        closedLink = d;
+        radius = distance;
+      }
+    });
 
     if (closedLink !== undefined) {
-      selectLink(closedLink.o);
+      selectLink(closedLink);
     }
   }
 
@@ -403,38 +402,23 @@ function createGraph(id) {
   }
 
   self.resetView = function resetView() {
-    moveTo(function calcToReset() {
-      // draw.clearSelection();
-      return [0, 0, (ZOOM_MIN + 1) / 2];
-    }, true);
+    moveTo([0, 0, (ZOOM_MIN + 1) / 2], true);
   };
 
-  self.selectNode = function selectNode(d) {
-    moveTo(function calcToNode() {
-      for (var i = 0; i < intNodes.length; i++) {
-        var n = intNodes[i];
-        if (n.o.id !== d.id) {
-          continue;
-        }
-        draw.selectNode(n);
-        return [n.x, n.y, (ZOOM_MAX + 1) / 2];
-      }
-      return [0, 0, (ZOOM_MIN + 1) / 2];
-    });
+  self.selectNode = function selectNode(node) {
+    draw.selectNode(node);
+
+    if (!(d3.event && d3.event.ctrlKey)) {
+      moveTo([node.x, node.y, (ZOOM_MAX + 1) / 2]);
+    }
   };
 
-  self.selectLink = function selectLink(d) {
-    moveTo(function calcToLink() {
-      for (var i = 0; i < intLinks.length; i++) {
-        var l = intLinks[i];
-        if (l.o !== d) {
-          continue;
-        }
-        draw.selectLink(l);
-        return [(l.source.x + l.target.x) / 2, (l.source.y + l.target.y) / 2, (ZOOM_MAX / 2) + ZOOM_MIN];
-      }
-      return [0, 0, (ZOOM_MIN + 1) / 2];
-    });
+  self.selectLink = function selectLink(link) {
+    draw.selectLink(link);
+
+    if (!(d3.event && d3.event.ctrlKey)) {
+      moveTo([(link.source.x + link.target.x) / 2, (link.source.y + link.target.y) / 2, (ZOOM_MAX / 2) + ZOOM_MIN]);
+    }
   };
 
   resizeCanvas();
