@@ -5,6 +5,8 @@ The code is written in JavaScript/HTML.
 
 The project is currently beta. Pull request are welcome!
 
+![settings](https://raw.githubusercontent.com/mwarning/MeshNetSimulator/master/screenshot.png)
+
 Features:
 - load MeshViewer data
 - edit/create toolbar
