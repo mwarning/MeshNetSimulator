@@ -38,7 +38,8 @@ function createDraw() {
   var clientColor = '#e6324b';
   var highlightColor = 'rgba(255, 255, 255, 0.2)';
   var linkScale = d3.interpolate('#F02311', '#04C714');
-
+  var bandwidthWidthScale = d3.interpolateNumber(1.0, 3.0);
+  var bandwidthAlphaScale = d3.interpolateNumber(0.1, 0.8);
   var labelColor = '#fff';
 
   var NODE_RADIUS = 15;
@@ -119,14 +120,9 @@ function createDraw() {
 
     ctx.lineTo(to[0], to[1]);
     ctx.strokeStyle = linkScale(d.quality / 100);
-    // TODO: use bandwidth
-    if (d.vpn) {
-      ctx.globalAlpha = 0.2;
-      ctx.lineWidth = 1.5;
-    } else {
-      ctx.globalAlpha = 0.8;
-      ctx.lineWidth = 2.5;
-    }
+    ctx.lineWidth = bandwidthWidthScale(d.bandwidth / 100);
+    ctx.globalAlpha = bandwidthAlphaScale(d.bandwidth / 100);
+
     ctx.stroke();
     ctx.globalAlpha = 1;
   };

@@ -45,6 +45,15 @@ function createEdit(graph) {
     graph.redraw();
   }
 
+  self.changeLinkBandwidth = function changeLinkBandwidth(value_id) {
+    var value = getFloat(value_id);
+
+    graph.getSelectedIntLinks().forEach(function(e) {
+      e.bandwidth = value;
+    });
+    graph.redraw();
+  }
+
   self.addSingle = function addSingle () {
     graph.addElements([{}], []);
   }
@@ -86,7 +95,7 @@ function createEdit(graph) {
       return;
     }
 
-    nodes.push({x: 0, y: 0, o: new Node(id + 0)});
+    nodes.push({x: 0, y: 0});
 
     for (var i = 0; i < count; i++) {
       var a = i * 2 * Math.PI / count;
@@ -246,8 +255,8 @@ function createEdit(graph) {
         bidirect: true,
         source: e.source.index,
         target: e.target.index,
-        tq: e.tq,
-        vpn: e.vpn
+        tq: (100 / e.quality),
+        vpn: (e.bandwidth > 50)
       });
     });
 
@@ -298,7 +307,12 @@ function createEdit(graph) {
     graphDataLinks.map(function(e) {
       var sid = graphDataNodes[e.source].id;
       var tid = graphDataNodes[e.target].id;
-      links.push({source: nodeDict[sid], target: nodeDict[tid], quality: (100 / e.tq), vpn: e.vpn});
+      links.push({
+        source: nodeDict[sid],
+        target: nodeDict[tid],
+        quality: (100 / e.tq),
+        bandwidth: (e.vpn ? 80 : 20)
+      });
     });
 
     nodes = Object.values(nodeDict);

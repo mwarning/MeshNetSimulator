@@ -9,7 +9,7 @@ function createGraph(graph_id) {
   var d3Selection = d3;
   var d3Timer = d3;
   var d3Ease = d3;
-  var animationEnabled = true; //TODO: replace...
+  var animationEnabled = true; //TODO: fix or replace...
 
   var self = this;
   var lastClick = [0, 0];
@@ -127,13 +127,13 @@ function createGraph(graph_id) {
 
   forceLink = d3Force.forceLink()
     .distance(function (d) {
-      if (d.vpn) {
+      if (d.bandwidth > 50) {
         return 0;
       }
       return 75;
     })
     .strength(function (d) {
-      if (d.vpn) {
+      if (d.bandwidth > 50) {
         return 0.02;
       }
       return Math.max(0.5, 1 / d.quality);
@@ -227,7 +227,7 @@ function createGraph(graph_id) {
       // Make sure required fields are present
       // We inject them into the d3 optject for simplicity...
       if (!('quality' in e)) e.quality = 100;
-      if (!('vpn' in e)) e.vpn = false;
+      if (!('bandwidth' in e)) e.bandwidth = 50;
     });
 
     intNodes = intNodes.concat(nodes);

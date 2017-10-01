@@ -134,7 +134,8 @@
           -->
         </fieldset>
         <fieldset>
-          <legend>Change Link Quality</legend>
+          <legend>Change Link</legend>
+          <label>Quality:</label>
           <div>
             <select id="quality_type">
               <option value="fixed">Fixed</option>
@@ -143,6 +144,12 @@
             <input type="number" id="quality_value" min="0" max="100" value="50">
             <span>%</span>
             <input type="button" onclick="edit.changeLinkQuality('quality_type', 'quality_value')" value="Change">
+          </div>
+          <label>Bandwidth:</label>
+          <div>
+            <input type="number" id="bandwidth_value" min="0" max="100" value="50">
+            <span>%</span>
+            <input type="button" onclick="edit.changeLinkBandwidth('bandwidth_value')" value="Change">
           </div>
         </fieldset>
         <fieldset>
