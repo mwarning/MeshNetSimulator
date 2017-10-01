@@ -215,10 +215,11 @@ function createGraph(graph_id) {
       // Add base position
       if ('x' in e) e.x += px;
       if ('y' in e) e.y += py;
+
       // Make sure a Node object exists
       if (!('o' in e)) {
-        var id = getUniqueNamePrefix();
-        e.o = new Node(id);
+        var mac = getUniqueMAC();
+        e.o = new Node(mac);
       }
     });
 
@@ -254,25 +255,29 @@ function createGraph(graph_id) {
     resizeCanvas();
   }
 
-  function genRandomId(len){
-    var chars = 'abcdefghijklmnopqrstuvwxyz';
-    var id = '';
-    for (var i = 0; i < len; i++) {
-      id += chars.charAt(Math.round(Math.random() * (chars.length - 1)));
+  function getRandomMAC(){
+    var chars = '0123456789abcdef';
+    var mac = '';
+    for (var i = 0; i < 6; i++) {
+      mac += chars.charAt(Math.round(Math.random() * (chars.length - 1)));
+      mac += chars.charAt(Math.round(Math.random() * (chars.length - 1)));
+      if (i < 5) {
+        mac += ':';
+      }
     }
-    return id;
+    return mac;
   }
 
-  function isUniqueNamePrefix(id) {
-    return !intNodes.some(function(e) { return e.o.name.startsWith(id); });
+  function isUniqueMAC(mac) {
+    return !intNodes.some(function(e) { return e.o.mac == mac; });
   };
 
-  self.getUniqueNamePrefix = function getUniqueNamePrefix() {
-    var id;
+  self.getUniqueMAC = function getUniqueMAC() {
+    var mac;
     do {
-      id = genRandomId(4);
-    } while(!isUniqueNamePrefix(id));
-    return id;
+      mac = getRandomMAC();
+    } while(!isUniqueMAC(mac));
+    return mac;
   }
 
   self.disconnectSelectedNodes = function disconnectSelectedNodes() {

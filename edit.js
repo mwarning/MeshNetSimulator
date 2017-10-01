@@ -46,14 +46,10 @@ function createEdit(graph) {
   }
 
   self.addSingle = function addSingle () {
-    var id = graph.getUniqueNamePrefix();
-    var nodes = [{o: new Node(id)}];
-
-    graph.addElements(nodes, []);
+    graph.addElements([{}], []);
   }
 
   self.addLine = function addLine (count, loop) {
-    var id = graph.getUniqueNamePrefix();
     var nodes = [];
     var links = [];
 
@@ -64,7 +60,7 @@ function createEdit(graph) {
     }
 
     for (var i = 0; i < count; i++) {
-      nodes.push({x: (i * NODE_SPACING), y: 0, o: new Node(id + '#' + i)});
+      nodes.push({x: (i * NODE_SPACING), y: 0});
       if (i > 0) {
         var source = nodes[i - 1];
         var target = nodes[i];
@@ -82,7 +78,6 @@ function createEdit(graph) {
   }
 
   self.addStar = function addStar(count) {
-    var id = graph.getUniqueNamePrefix();
     var nodes = [];
     var links = [];
 
@@ -97,7 +92,7 @@ function createEdit(graph) {
       var a = i * 2 * Math.PI / count;
       var x = NODE_SPACING * Math.cos(a);
       var y = NODE_SPACING * Math.sin(a);
-      nodes.push({x: x, y: y, o: new Node(id + (i + 1))});
+      nodes.push({x: x, y: y});
 
       var source = nodes[0];
       var target = nodes[nodes.length - 1];
@@ -109,7 +104,6 @@ function createEdit(graph) {
 
   /*
   self.addLayer = function addLayer(x_count, y_count) {
-    var id = graph.getUniqueNamePrefix();
     var nodes = [];
     var links = [];
 
@@ -122,7 +116,7 @@ function createEdit(graph) {
 
     for (var x = 0; x < x_count; x++) {
       for (var y = 0; y < y_count; y++) {
-        nodes.push({x: (x * NODE_SPACING), y: (y * NODE_SPACING * 0.8), o: new Node(id + '_' + x + 'x' + y)});
+        nodes.push({x: (x * NODE_SPACING), y: (y * NODE_SPACING * 0.8)});
         if (x > 0) {
           for (var ny = 0; ny < y_count; ny++) {
             var source = nodes[(x - 1) * y_count + ny];
@@ -138,7 +132,6 @@ function createEdit(graph) {
   */
 
   self.addLattice = function addLattice(x_count, y_count) {
-    var id = graph.getUniqueNamePrefix();
     var nodes = [];
     var links = [];
 
@@ -151,7 +144,7 @@ function createEdit(graph) {
 
     for (var x = 0; x < x_count; x++) {
       for (var y = 0; y < y_count; y++) {
-        nodes.push({x: (x * NODE_SPACING), y: (y * NODE_SPACING), o: new Node(id + '_' + x + 'x' + y)});
+        nodes.push({x: (x * NODE_SPACING), y: (y * NODE_SPACING)});
       }
     }
 
@@ -206,8 +199,8 @@ function createEdit(graph) {
   }
 
   self.writeMeshViewerData = function writeMeshViewerData() {
-    var nodes = graph.getIntNodes();
-    var links = graph.getIntLinks();
+    var intNodes = graph.getIntNodes();
+    var intLinks = graph.getIntLinks();
 
     var nodesDataNodes = [];
     var graphDataNodes = [];
@@ -238,17 +231,17 @@ function createEdit(graph) {
       }
     }
 
-    nodes.forEach(function(e) {
-      //var o = applyByScheme(e.o, {}, nodesScheme);
+    intNodes.forEach(function(e) {
+      //var o = applyByScheme(e.o.p, {}, nodesScheme);
 
       nodesDataNodes.push(e.o);
       graphDataNodes.push({
-        id: e.o.nodeinfo.network.mac,
-        node_id: e.o.nodeinfo.node_id
+        id: e.o.mac,
+        node_id: e.o.mac.replace(/:/g, '')
       });
     });
 
-    links.forEach(function(e) {
+    intLinks.forEach(function(e) {
       graphDataLinks.push({
         bidirect: true,
         source: e.source.index,
@@ -288,18 +281,17 @@ function createEdit(graph) {
     var links = [];
 
     nodesDataNodes.forEach(function(e) {
-      var id = e.nodeinfo.network.mac;
-      var node = new Node(id);
+      var mac = e.nodeinfo.network.mac;
+      var node = new Node(mac);
       node.name = e.nodeinfo.hostname;
       node.clients = e.statistics.clients;
-      nodeDict[id] = {o: node};
+      nodeDict[mac] = {o: node};
     });
 
     graphDataNodes.forEach(function(e) {
-      var id = e.id;
-      if (!(id in nodeDict)) {
-        var node = new Node(id);
-        nodeDict[id] = {o: node};
+      var mac = e.id;
+      if (!(mac in nodeDict)) {
+        nodeDict[mac] = {o: new Node(mac)};
       }
     });
 

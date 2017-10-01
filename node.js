@@ -1,14 +1,14 @@
 
-function Node(name, p = {}) {
+function Node(mac, p = {}) {
   // Mandatory fields
-  this.name = name;
+  this.mac = mac;
+  this.name = mac;
   this.clientCount = 0;
   this.packetCount = 0;
   this.color = '#fff';
   this.incoming = [];
   this.outgoing = [];
   this.p = p; // Extra information from import file
-
 
   this.preStep = function preStep() {
     // Everything has been send
