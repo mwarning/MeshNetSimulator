@@ -23,7 +23,6 @@
   <script src="d3/d3-transition.v1.min.js"></script>
 
   <script src="node.js"></script>
-  <script src="link.js"></script>
   <script src="packet.js"></script>
   <script src="math.js"></script>
   <script src="draw.js"></script>
@@ -51,14 +50,14 @@
     var edit;
     var sim;
 
-    function start() {
+    function init() {
       graph = createGraph('graph');
       edit = createEdit(graph);
       sim = createSim(graph);
     }
   </script>
 </head>
-<body onload="start()">
+<body onload="init()">
   <div id="container">
     <div id="toolbar">
       <div class="tab">
@@ -90,14 +89,19 @@
           <div>
             <input type="button" onclick="graph.extendSelection()" value="extend">
             <input type="button" onclick="graph.clearSelection()" value="clear">
-            <fieldset>
-              <legend>Modify</legend>
-              <div>
-                <input type="button" onclick="graph.removeSelection()" value="remove">
-                <input type="button" onclick="graph.connectSelectedNodes()" value="connect">
-                <input type="button" onclick="graph.disconnectSelectedNodes()" value="disconnect">
-              </div>
-            </fieldset>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Nodes</legend>
+          <div>
+            <input type="button" onclick="graph.connectSelectedNodes()" value="connect">
+            <input type="button" onclick="graph.disconnectSelectedNodes()" value="disconnect">
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Nodes&amp;Links</legend>
+          <div>
+            <input type="button" onclick="graph.removeSelection()" value="remove">
           </div>
         </fieldset>
         <fieldset>
@@ -138,9 +142,15 @@
               <option value="fixed">Fixed</option>
               <option value="random">Random</option>
             </select>
-            <input type="number" id="quality_value" min="0" max="100" value="1.0">
+            <input type="number" id="quality_value" min="0" max="100" value="50">
             <span>%</span>
             <input type="button" onclick="edit.changeLinkQuality('quality_type', 'quality_value')" value="Change">
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Animation</legend>
+          <div>
+            <input type="button" onclick="graph.toggleAnimation()" value="toggle">
           </div>
         </fieldset>
         <fieldset>
@@ -148,7 +158,6 @@
           <div>
             <input type="button" onclick="graph.resetView()" value="reset view">
             <input type="button" onclick="graph.resetData()" value="reset data">
-            <input type="button" onclick="graph.toggleAnimation()" value="toggle animation">
           </div>
         </fieldset>
       </div>
@@ -158,7 +167,13 @@
           <legend>Simulator</legend>
           <div>
             <input type="button" onclick="sim.step('sim_steps')" value="step">
-            <input type="number" id="sim_steps" min="1" max="99999" value="1">
+            <select id="sim_steps">
+              <option value="1">1</option>
+              <option value="10">10</option>
+              <option value="100">100</option>
+              <option value="1000">1000</option>
+              <option value="10000">10000</option>
+            </select>
             <input type="button" onclick="sim.reset()" value="reset">
           </div>
           <div><label>Total Steps</label></div>
