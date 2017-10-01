@@ -1,6 +1,6 @@
 
-function Packet(id, p) {
-  this.id = id;
-
-  this.p = p;
+function Packet(sourceMAC, targetMAC, payload) {
+  this.sourceMAC = sourceMAC;
+  this.targetMac = targetMAC;
+  this.payload = payload;
 }
