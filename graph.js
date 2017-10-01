@@ -202,6 +202,11 @@ function createGraph(graph_id) {
     redraw();
   });
 
+  function updateGraphStatistics() {
+    document.getElementById('nodes_total').innerHTML = intNodes.length;
+    document.getElementById('links_total').innerHTML = intLinks.length;
+  }
+
   this.addElements = function addElements(nodes, links) {
     var px = lastClick[0];
     var py = lastClick[1];
@@ -232,6 +237,8 @@ function createGraph(graph_id) {
 
     force.alpha(1).restart();
     redraw();
+
+    updateGraphStatistics();
   }
 
   self.resetData = function resetData() {
@@ -269,7 +276,7 @@ function createGraph(graph_id) {
   }
 
   self.disconnectSelectedNodes = function disconnectSelectedNodes() {
-    var selectedNodes = draw.getSelectedNodes();
+    var selectedNodes = draw.getSelectedIntNodes();
 
     intLinks = intLinks.filter(function(e) {
       return (selectedNodes.indexOf(e.source) < 0 || selectedNodes.indexOf(e.target) < 0);
@@ -282,7 +289,7 @@ function createGraph(graph_id) {
   }
 
   self.connectSelectedNodes = function connectSelectedNodes() {
-    var selectedNodes = draw.getSelectedNodes();
+    var selectedNodes = draw.getSelectedIntNodes();
     var dict = {};
     var links = [];
 
@@ -353,11 +360,11 @@ function createGraph(graph_id) {
       }
     }
 
-    draw.getSelectedNodes().forEach(function (e) {
+    draw.getSelectedIntNodes().forEach(function (e) {
       selectNode(e);
     });
 
-    draw.getSelectedLinks().forEach(function (e) {
+    draw.getSelectedIntLinks().forEach(function (e) {
       selectNode(e.source);
       selectNode(e.target);
     });
@@ -371,11 +378,11 @@ function createGraph(graph_id) {
     var nodeDict = {};
     var linkDict = {};
 
-    draw.getSelectedNodes().forEach(function (e) {
+    draw.getSelectedIntNodes().forEach(function (e) {
       nodeDict[e.index] = e;
     });
 
-    draw.getSelectedLinks().forEach(function (e) {
+    draw.getSelectedIntLinks().forEach(function (e) {
       linkDict[e.index] = e;
     });
 
@@ -396,21 +403,23 @@ function createGraph(graph_id) {
 
     force.alpha(1).restart();
     redraw();
+
+    updateGraphStatistics();
   };
 
-  self.getSelectedNodes = function getSelectedNodes() {
-    return draw.getSelectedNodes();
+  self.getSelectedIntNodes = function getSelectedIntNodes() {
+    return draw.getSelectedIntNodes();
   }
 
-  self.getSelectedLinks = function getSelectedLinks() {
-    return draw.getSelectedLinks();
+  self.getSelectedIntLinks = function getSelectedIntLinks() {
+    return draw.getSelectedIntLinks();
   }
 
-  self.getNodes = function getNodes() {
+  self.getIntNodes = function getIntNodes() {
     return intNodes;
   }
 
-  self.getLinks = function getLinks() {
+  self.getIntLinks = function getIntLinks() {
     return intLinks;
   }
 

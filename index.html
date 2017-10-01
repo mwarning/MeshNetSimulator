@@ -112,10 +112,8 @@
           <div>
             <input type="button" onclick="edit.addLine('line_n', 'line_loop')" value="Line">
             <input type="number" id="line_n" min="1" max="999" value="3">
-            <span>
-              <input type="checkbox" id="line_loop">
-              <label>Loop</label>
-            </span>
+            <input type="checkbox" id="line_loop">
+            <label>Loop</label>
           </div>
           <div>
             <input type="button" onclick="edit.addStar('star_n')" value="Star">
@@ -165,7 +163,7 @@
       <div id="Sim" class="tabcontent">
         <fieldset>
           <legend>Simulator</legend>
-          <div>
+          <span>
             <input type="button" onclick="sim.step('sim_steps')" value="step">
             <select id="sim_steps">
               <option value="1">1</option>
@@ -175,23 +173,18 @@
               <option value="10000">10000</option>
             </select>
             <input type="button" onclick="sim.reset()" value="reset">
-          </div>
-          <div><label>Total Steps</label></div>
+          </span>
         </fieldset>
         <fieldset>
-          <legend>Statistics</legend>
-          <fieldset>
-            <legend>Packets</legend>
-            <div><label>Total</label></div>
-            <div><label>Active</label></div>
-            <div><label>Lost</label></div>
-            <div><label>Efficiency</label></div>
-          </fieldset>
-          <fieldset>
-            <legend>Graph</legend>
-            <div><label>Links:</label></div>
-            <div><label>Nodes:</label></div>
-          </fieldset>
+          <legend>Packet Statistics</legend>
+          <label>Total:</label><span id="packets_total">0</span>
+          <label>Lost:</label><span id="">0</span>
+          <label>Efficiency:</label><span id="">?</span>
+        </fieldset>
+        <fieldset>
+          <legend>Graph Statistics</legend>
+          <label>Links:</label><span id="links_total">0</span>
+          <label>Nodes:</label><span id="nodes_total">0</span>
         </fieldset>
       </div>
     </div>

@@ -76,3 +76,25 @@ input[type="number"] {
 input[type="button"] {
   padding: 0px;
 }
+
+fieldset {
+  margin: 0.2em;
+  padding: 0.5em;
+  width: 20em;
+  border: 0.1em solid #000;
+}
+
+fieldset > label {
+  float: left;
+  width: 8em;
+}
+
+fieldset > span {
+  display: block;
+  width: 10em;
+}
+
+fieldset > div {
+  display: block;
+  width: 18em;
+}

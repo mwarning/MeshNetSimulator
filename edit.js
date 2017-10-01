@@ -35,7 +35,7 @@ function createEdit(graph) {
     var type = getText(type_id);
     var value = getFloat(value_id);
 
-    graph.getSelectedLinks().forEach(function(e) {
+    graph.getSelectedIntLinks().forEach(function(e) {
       if (type == 'random') {
         e.quality = 100 * Math.random();
       } else {
@@ -172,6 +172,111 @@ function createEdit(graph) {
     }
 
     graph.addElements(nodes, links);
+  }
+
+  // Copy elements from 'from' to 'to' object, if elements
+  // are in the same place of the structure of scheme
+  function applyByScheme(from, to, scheme) {
+    var path = [];
+    function apply(from, scheme) {
+      if (typeof scheme === 'object') {
+        if (typeof from === 'object') {
+          for (key in scheme) {
+            if (key in from) {
+              path.push(key);
+              apply(from[key], scheme[key]);
+              path.pop();
+            }
+          }
+        }
+      } else if ((typeof scheme === typeof from)) {
+        var o = to;
+        for (var i = 0; i < (path.length - 1); i++) {
+          if (!(path[i] in o)) {
+            var e = {};
+            o[path[i]] = e;
+            o = e;
+          }
+        }
+        o[path[path.length - 1]] = from;
+      }
+    }
+    apply(from, scheme);
+    return to;
+  }
+
+  self.writeMeshViewerData = function writeMeshViewerData() {
+    var nodes = graph.getIntNodes();
+    var links = graph.getIntLinks();
+
+    var nodesDataNodes = [];
+    var graphDataNodes = [];
+    var graphDataLinks = [];
+
+    var nodesScheme = {
+      firstseen: '',
+      flags: {gateway: false,  online: false },
+      lastseen: '',
+      nodeinfo: {
+        hardware: { model: '' },
+        hostname: '',
+        location: {
+          latitude: 0,
+          longitude: 0
+        },
+        network: { mac: '' },
+        node_id: '',
+        owner: { contact: '' },
+        software: { firmware: { release: '' } },
+        system: { role: '', site_code: '' }
+      },
+      statistics: {
+        clients: 0,
+        memory_usage: 0,
+        rootfs_usage: 0,
+        uptime: 0
+      }
+    }
+
+    nodes.forEach(function(e) {
+      //var o = applyByScheme(e.o, {}, nodesScheme);
+
+      nodesDataNodes.push(e.o);
+      graphDataNodes.push({
+        id: e.o.nodeinfo.network.mac,
+        node_id: e.o.nodeinfo.node_id
+      });
+    });
+
+    links.forEach(function(e) {
+      graphDataLinks.push({
+        bidirect: true,
+        source: e.source.index,
+        target: e.target.index,
+        tq: e.tq,
+        vpn: e.vpn
+      });
+    });
+
+    var graph_json = {
+      batadv: {
+        directed: false,
+        graph: [],
+        multigraph: false,
+        nodes: graphDataNodes,
+        links: graphDataLinks
+      },
+      version: 1
+    };
+
+    var nodes_json = {
+      meta: {
+        timestamp: Date.now().format('DD.MM.Y HH:mm')
+      },
+      nodes: [],
+      version: 2
+    };
+    // TODO: write files here
   }
 
   function addMeshViewerData(graphData, nodesData) {

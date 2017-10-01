@@ -119,6 +119,7 @@ function createDraw() {
 
     ctx.lineTo(to[0], to[1]);
     ctx.strokeStyle = linkScale(d.quality / 100);
+    // TODO: use bandwidth
     if (d.vpn) {
       ctx.globalAlpha = 0.2;
       ctx.lineWidth = 1.5;
@@ -134,11 +135,11 @@ function createDraw() {
     ctx = newValue;
   };
 
-  self.getSelectedNodes = function getSelectedNodes() {
+  self.getSelectedIntNodes = function getSelectedIntNodes() {
     return selectedNodes;
   };
 
-  self.getSelectedLinks = function getSelectedLinks() {
+  self.getSelectedIntLinks = function getSelectedIntLinks() {
     return selectedLinks;
   };
 
