@@ -113,7 +113,7 @@ function createGraph(graph_id) {
     }
   }
 
-  function redraw() {
+  self.redraw = function redraw() {
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.translate(transform.x, transform.y);
@@ -232,12 +232,6 @@ function createGraph(graph_id) {
 
     force.alpha(1).restart();
     redraw();
-  }
-
-  self.getAllNodes = function getAllNodes() {
-    return intNodes.map(function(e) {
-      return e.o;
-    });
   }
 
   self.resetData = function resetData() {
@@ -403,6 +397,22 @@ function createGraph(graph_id) {
     force.alpha(1).restart();
     redraw();
   };
+
+  self.getSelectedNodes = function getSelectedNodes() {
+    return draw.getSelectedNodes();
+  }
+
+  self.getSelectedLinks = function getSelectedLinks() {
+    return draw.getSelectedLinks();
+  }
+
+  self.getNodes = function getNodes() {
+    return intNodes;
+  }
+
+  self.getLinks = function getLinks() {
+    return intLinks;
+  }
 
   self.clearSelection = function clearSelection() {
     draw.clearSelection();

@@ -31,17 +31,18 @@ function createEdit(graph) {
     }
   }
 
-  function changeLinkQuality(type_id, value_id) {
+  self.changeLinkQuality = function changeLinkQuality(type_id, value_id) {
     var type = getText(type_id);
     var value = getFloat(value_id);
 
-    draw.getSelectedLinks().forEach(function(e) {
+    graph.getSelectedLinks().forEach(function(e) {
       if (type == 'random') {
         e.quality = 100 * Math.random();
       } else {
         e.quality = value;
       }
     });
+    graph.redraw();
   }
 
   self.addSingle = function addSingle () {
