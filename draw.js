@@ -99,7 +99,7 @@ function createDraw() {
 
     ctx.moveTo(d.x + 3, d.y);
     ctx.arc(d.x, d.y, 8, 0, 2 * Math.PI);
-    ctx.fillStyle = d.o.color;
+    ctx.fillStyle = d.o.nodeColor;
     ctx.fill();
 
     drawDetailNode(d);

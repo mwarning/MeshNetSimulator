@@ -31,6 +31,17 @@ function createSim(graph) {
     document.getElementById('packets_total').innerHTML = packets_total;
   }
 
+  self.addPacketRoute = function addPacketRoute() {
+    var intNodes = graph.getSelectedIntNodes();
+    if (intNodes.length == 2) {
+      var sourceNode = intNodes[0].o;
+      var targetNode = intNodes[1].o;
+      sourceNode.addNewPacket(targetNode.mac, "hello");
+    } else {
+      alert('Select a source and target node.');
+    }
+  }
+
   self.step = function step(steps_id) {
     var steps = getInteger(steps_id);
     var intNodes = graph.getIntNodes();

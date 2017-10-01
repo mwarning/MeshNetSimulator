@@ -29,6 +29,7 @@
   <script src="graph.js"></script>
   <script src="edit.js"></script>
   <script src="sim.js"></script>
+  <script src="show.js"></script>
 
   <script>
     function showTab(evt, tabname) {
@@ -49,11 +50,13 @@
     var graph;
     var edit;
     var sim;
+    var show;
 
     function init() {
       graph = createGraph('graph');
       edit = createEdit(graph);
       sim = createSim(graph);
+      show = createShow(graph);
     }
   </script>
 </head>
@@ -61,11 +64,12 @@
   <div id="container">
     <div id="toolbar">
       <div class="tab">
-        <button class="tablinks" onclick="showTab(event, 'File')">File</button>
-        <button class="tablinks" onclick="showTab(event, 'Edit')">Edit</button>
-        <button class="tablinks" onclick="showTab(event, 'Sim')">Sim</button>
+        <button class="tablinks" onclick="showTab(event, 'file')">File</button>
+        <button class="tablinks" onclick="showTab(event, 'edit')">Edit</button>
+        <button class="tablinks" onclick="showTab(event, 'show')">Show</button>
+        <button class="tablinks" onclick="showTab(event, 'sim')">Sim</button>
       </div>
-      <div id="File" class="tabcontent">
+      <div id="file" class="tabcontent">
         <fieldset>
         <legend>Files</legend>
         <div>
@@ -83,7 +87,13 @@
         </fieldset>
       </div>
 
-      <div id="Edit" class="tabcontent">
+      <div id="show" class="tabcontent">
+        <fieldset id="show_info">
+        </fieldset>
+        <input type="button" onclick="show.showSelectedInfo()" value="Show">
+      </div>
+
+      <div id="edit" class="tabcontent">
         <fieldset>
           <legend>Selection</legend>
           <div>
@@ -167,7 +177,7 @@
         </fieldset>
       </div>
 
-      <div id="Sim" class="tabcontent">
+      <div id="sim" class="tabcontent">
         <fieldset>
           <legend>Simulator</legend>
           <span>
@@ -180,13 +190,14 @@
               <option value="10000">10000</option>
             </select>
             <input type="button" onclick="sim.reset()" value="reset">
+            <input type="button" onclick="sim.addPacketRoute()" value="packet">
           </span>
         </fieldset>
         <fieldset>
           <legend>Packet Statistics</legend>
           <label>Total:</label><span id="packets_total">0</span>
           <label>Lost:</label><span id="">0</span>
-          <label>Efficiency:</label><span id="">?</span>
+          <label>Efficiency:</label><span id="">0</span>
         </fieldset>
         <fieldset>
           <legend>Graph Statistics</legend>
