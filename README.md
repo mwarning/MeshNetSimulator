@@ -1,11 +1,11 @@
 # MeshNetSimulator
 
 A simulator for exploring/sketching mesh network routing strategies.
-The code is written in plain JavaScript/HTML.
+The code is written in plain JavaScript/HTML and [d3](https://d3js.org).
 
 The project is currently incomplete. Pull request are welcome!
 
-![settings](https://raw.githubusercontent.com/mwarning/MeshNetSimulator/master/screenshot.png)
+![settings](screenshot.png)
 
 Features:
 - load MeshViewer nodes.json/graph.json data
