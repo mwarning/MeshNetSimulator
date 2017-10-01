@@ -54,10 +54,6 @@ function createSim(graph) {
       shuffleArray(intNodes);
 
       for (var i = 0; i < len; i++) {
-        intNodes[i].o.preStep();
-      }
-
-      for (var i = 0; i < len; i++) {
         var intNode = intNodes[i];
         var intLinks = connections[intNode.index];
         for (var k = 0; k < intLinks.length; k++) {
@@ -67,12 +63,9 @@ function createSim(graph) {
           intNode.o.step(intNeigh.o);
         }
       }
-
-      for (var i = 0; i < len; i++) {
-        intNodes[i].o.postStep();
-      }
     }
 
+    graph.redraw();
     updateSimStatistics();
   }
 

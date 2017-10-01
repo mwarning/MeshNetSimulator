@@ -10,19 +10,20 @@ function Node(mac, p = {}) {
   this.outgoing = [];
   this.p = p; // Extra information from import file
 
-  this.preStep = function preStep() {
-    // Everything has been send
-    incoming = [];
+  this.step = function step(neigh) {
+    // console.log('step for node ' + this.name);
+    packetCount = incoming.length + outgoing.length;
   }
 
   this.step = function step(neigh) {
     console.log('step for node ' + this.name);
   }
 
-  this.postStep = function postStep() {
-    // Everything has been send
-    outgoing = [];
-    packetCount = incoming.length;
+  this.getProps = function getProps() {
+    return {mac: mac, clientCount: clientCount, packetCount: packetCount};
+  }
+
+  this.setProps = function setProps(props) {
   }
 
   this.reset = function () {
