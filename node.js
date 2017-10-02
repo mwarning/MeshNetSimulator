@@ -1,8 +1,8 @@
 
-function Node(mac, p = {}) {
+function Node(mac, meta = {}) {
   this.mac = mac;
   this.name = mac;
-  this.p = p;
+  this.meta = meta;
 
   this.clientCount = 0;
   this.nodeColor = '#fff';

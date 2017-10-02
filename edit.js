@@ -180,13 +180,13 @@ function createEdit(graph) {
   // are in the same place of the structure of scheme
   function applyByScheme(from, to, scheme) {
     var path = [];
-    function apply(from, scheme) {
+    function copy(from, scheme) {
       if (typeof scheme === 'object') {
         if (typeof from === 'object') {
           for (key in scheme) {
             if (key in from) {
               path.push(key);
-              apply(from[key], scheme[key]);
+              copy(from[key], scheme[key]);
               path.pop();
             }
           }
@@ -203,11 +203,12 @@ function createEdit(graph) {
         o[path[path.length - 1]] = from;
       }
     }
-    apply(from, scheme);
+
+    copy(from, scheme);
     return to;
   }
 
-  self.writeMeshViewerData = function writeMeshViewerData() {
+  self.saveMeshViewerData = function saveMeshViewerData() {
     var intNodes = graph.getIntNodes();
     var intLinks = graph.getIntLinks();
 
@@ -241,7 +242,7 @@ function createEdit(graph) {
     }
 
     intNodes.forEach(function(e) {
-      //var o = applyByScheme(e.o.p, {}, nodesScheme);
+      //var o = applyByScheme(e.o.meta, {}, nodesScheme);
 
       nodesDataNodes.push(e.o);
       graphDataNodes.push({
@@ -281,58 +282,53 @@ function createEdit(graph) {
     // TODO: write files here
   }
 
-  function addMeshViewerData(graphData, nodesData) {
-    var nodeDict = {};
-    var graphDataNodes = graphData.batadv.nodes;
-    var graphDataLinks = graphData.batadv.links;
-    var nodesDataNodes = nodesData.nodes;
-    var nodes = [];
-    var links = [];
-
-    nodesDataNodes.forEach(function(e) {
-      var mac = e.nodeinfo.network.mac;
-      var node = new Node(mac);
-      node.name = e.nodeinfo.hostname;
-      node.clients = e.statistics.clients;
-      nodeDict[mac] = {o: node};
-    });
-
-    graphDataNodes.forEach(function(e) {
-      var mac = e.id;
-      if (!(mac in nodeDict)) {
-        nodeDict[mac] = {o: new Node(mac)};
-      }
-    });
-
-    graphDataLinks.map(function(e) {
-      var sid = graphDataNodes[e.source].id;
-      var tid = graphDataNodes[e.target].id;
-      links.push({
-        source: nodeDict[sid],
-        target: nodeDict[tid],
-        quality: (100 / e.tq),
-        bandwidth: (e.vpn ? 80 : 20)
-      });
-    });
-
-    nodes = Object.values(nodeDict);
-    addElements(nodes, links);
-  }
-
   self.loadMeshViewerData = function loadMeshViewerData(graph_id, nodes_id) {
     readFileContent(graph_id, function(graph_content) {
       readFileContent(nodes_id, function(nodes_content) {
         var graphData = JSON.parse(graph_content);
         var nodesData = JSON.parse(nodes_content);
-        if (typeof graphData == 'object' && typeof nodesData == 'object') {
-          addMeshViewerData(graphData, nodesData);
+
+        if (typeof graphData !== 'object' || typeof nodesData !== 'object') {
+          return;
         }
+
+        var nodeDict = {};
+        var graphDataNodes = graphData.batadv.nodes;
+        var graphDataLinks = graphData.batadv.links;
+        var nodesDataNodes = nodesData.nodes;
+        var nodes = [];
+        var links = [];
+
+        nodesDataNodes.forEach(function(e) {
+          var mac = e.nodeinfo.network.mac;
+          var node = new Node(mac);
+          node.name = e.nodeinfo.hostname;
+          node.clients = e.statistics.clients;
+          nodeDict[mac] = {o: node};
+        });
+
+        graphDataNodes.forEach(function(e) {
+          var mac = e.id;
+          if (!(mac in nodeDict)) {
+            nodeDict[mac] = {o: new Node(mac)};
+          }
+        });
+
+        graphDataLinks.map(function(e) {
+          var sid = graphDataNodes[e.source].id;
+          var tid = graphDataNodes[e.target].id;
+          links.push({
+            source: nodeDict[sid],
+            target: nodeDict[tid],
+            quality: (100 / e.tq),
+            bandwidth: (e.vpn ? 80 : 20)
+          });
+        });
+
+        nodes = Object.values(nodeDict);
+        addElements(nodes, links);
       });
     });
-  }
-
-  self.saveMeshViewerData = function saveMeshViewerData(format) {
-    // TODO
   }
 
   return self;
