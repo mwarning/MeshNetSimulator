@@ -303,7 +303,7 @@ function createEdit(graph) {
           var mac = e.nodeinfo.network.mac;
           var node = new Node(mac);
           node.name = e.nodeinfo.hostname;
-          node.clients = e.statistics.clients;
+          node.clientCount = e.statistics.clients;
           nodeDict[mac] = {o: node};
         });
 
