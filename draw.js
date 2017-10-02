@@ -59,11 +59,12 @@ function createDraw() {
       ctx.fillStyle = labelColor;
       ctx.fillText(d.o.name, d.x, d.y + 20);
 
-      if (d.o.packetCount > 0) {
+      var packetCount = d.o.incoming.length + d.o.outgoing.length;
+      if (packetCount > 0) {
         ctx.beginPath();
         ctx.textAlign = 'center';
         ctx.fillStyle = 'black';
-        ctx.fillText(d.o.packetCount, d.x, d.y + 3);
+        ctx.fillText(packetCount, d.x, d.y + 3);
       }
     }
   }

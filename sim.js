@@ -40,7 +40,7 @@ function createSim(graph) {
     if (intNodes.length == 2) {
       var sourceNode = intNodes[0].o;
       var targetNode = intNodes[1].o;
-      sourceNode.addNewPacket(targetNode.mac, "hello");
+      sourceNode.outgoing(new Packet(sourceNode.mac, targetNode.mac, "hello"));
       graph.redraw();
     } else {
       alert('Select a source and target node.');
