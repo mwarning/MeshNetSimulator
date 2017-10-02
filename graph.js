@@ -203,8 +203,8 @@ function createGraph(graph_id) {
   });
 
   function updateGraphStatistics() {
-    document.getElementById('nodes_total').innerHTML = intNodes.length;
-    document.getElementById('links_total').innerHTML = intLinks.length;
+    document.getElementById('graph_nodes_total').innerHTML = intNodes.length;
+    document.getElementById('graph_links_total').innerHTML = intLinks.length;
   }
 
   this.addElements = function addElements(nodes, links) {

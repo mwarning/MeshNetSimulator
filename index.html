@@ -172,7 +172,7 @@
           <legend>Misc</legend>
           <div>
             <input type="button" onclick="graph.resetView()" value="reset view">
-            <input type="button" onclick="graph.resetData()" value="reset data">
+            <input type="button" onclick="graph.resetData()" value="remove graph">
           </div>
         </fieldset>
       </div>
@@ -180,29 +180,28 @@
       <div id="sim" class="tabcontent">
         <fieldset>
           <legend>Simulator</legend>
-          <span>
-            <input type="button" onclick="sim.step('sim_steps')" value="step">
-            <select id="sim_steps">
-              <option value="1">1</option>
-              <option value="10">10</option>
-              <option value="100">100</option>
-              <option value="1000">1000</option>
-              <option value="10000">10000</option>
-            </select>
-            <input type="button" onclick="sim.reset()" value="reset">
-            <input type="button" onclick="sim.addPacketRoute()" value="packet">
-          </span>
+          <input type="button" onclick="sim.step('sim_steps')" value="step">
+          <select id="sim_steps">
+            <option value="1">1</option>
+            <option value="10">10</option>
+            <option value="100">100</option>
+            <option value="1000">1000</option>
+            <option value="10000">10000</option>
+          </select>
+          <label>Total Steps:</label><span id="sim_steps_total">0</span>
+          <input type="button" onclick="sim.reset()" value="reset">
+          <input type="button" onclick="sim.addPacketRoute()" value="packet">
         </fieldset>
         <fieldset>
           <legend>Packet Statistics</legend>
-          <label>Total:</label><span id="packets_total">0</span>
+          <label>Total:</label><span id="sim_packets_total">0</span>
           <label>Lost:</label><span id="">0</span>
           <label>Efficiency:</label><span id="">0</span>
         </fieldset>
         <fieldset>
           <legend>Graph Statistics</legend>
-          <label>Links:</label><span id="links_total">0</span>
-          <label>Nodes:</label><span id="nodes_total">0</span>
+          <label>Links:</label><span id="graph_links_total">0</span>
+          <label>Nodes:</label><span id="graph_nodes_total">0</span>
         </fieldset>
       </div>
     </div>

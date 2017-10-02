@@ -1,6 +1,7 @@
 
 function createSim(graph) {
   var self = {};
+  sim_steps_total = 0;
 
   function getInteger(id) {
     return Math.floor(parseInt(document.getElementById(id).value, 10));
@@ -17,18 +18,21 @@ function createSim(graph) {
     graph.getIntNodes().forEach(function(e) {
       e.o.reset();
     });
+    sim_steps_total = 0;
+    updateSimStatistics();
   }
 
   function updateSimStatistics() {
     var intNodes = graph.getIntNodes();
     var intLinks = graph.getIntLinks();
 
-    var packets_total = 0;
+    var sim_packets_total = 0;
     intNodes.forEach(function(e) {
-      packets_total += e.o.incoming.length + e.o.outgoing.length;
+      sim_packets_total += e.o.incoming.length + e.o.outgoing.length;
     });
 
-    document.getElementById('packets_total').innerHTML = packets_total;
+    document.getElementById('sim_packets_total').innerHTML = sim_packets_total;
+    document.getElementById('sim_steps_total').innerHTML = sim_steps_total;
   }
 
   self.addPacketRoute = function addPacketRoute() {
@@ -37,6 +41,7 @@ function createSim(graph) {
       var sourceNode = intNodes[0].o;
       var targetNode = intNodes[1].o;
       sourceNode.addNewPacket(targetNode.mac, "hello");
+      graph.redraw();
     } else {
       alert('Select a source and target node.');
     }
@@ -59,6 +64,10 @@ function createSim(graph) {
       connections[l.target.index].push(l);
     });
 
+    function clonePacket(packet) {
+      return JSON.parse(JSON.stringify(packet));
+    }
+
     // _very_ simple simulation
     var len = intNodes.length;
     for (var c = 0; c < steps; c++) {
@@ -67,14 +76,36 @@ function createSim(graph) {
       for (var i = 0; i < len; i++) {
         var intNode = intNodes[i];
         var intLinks = connections[intNode.index];
-        for (var k = 0; k < intLinks.length; k++) {
-          var intLink = intLinks[k];
-          var intNeigh = (intLink.source.index !== intNode.index) ? intLink.source : intLink.target;
-          // Call node with every connected node
-          intNode.o.step(intNeigh.o);
+        // send outgoing packets over links
+        for (var p = 0; p < intNode.o.outgoing.length; p++) {
+          var packet = intNode.o.outgoing[p];
+          // console.log('send packet of ' + intNode.o.mac + ' to ' + packet.targetMAC);
+          if (packet.targetMAC == '00:00:00:00:00:00') {
+            // Send to all neighbors
+            for (var k = 0; k < intLinks.length; k++) {
+              var intLink = intLinks[k];
+              var intNeigh = (intLink.source.index !== intNode.index) ? intLink.source : intLink.target;
+              intNeigh.o.incoming.push(clonePacket(packet));
+            }
+          } else {
+            // Send to one neighbor
+            for (var k = 0; k < intLinks.length; k++) {
+              var intLink = intLinks[k];
+              var intNeigh = (intLink.source.index !== intNode.index) ? intLink.source : intLink.target;
+              if (packet.targetMAC == intNeigh.o.mac) {
+                // console.log('send packet from ' + intNode.o.mac + ' to ' + intNeigh.o.mac);
+                intNeigh.o.incoming.push(packet);
+                break;
+              }
+            };
+          }
         }
+        intNode.o.outgoing = [];
+        intNode.o.step();
       }
     }
+
+    sim_steps_total += steps;
 
     graph.redraw();
     updateSimStatistics();
