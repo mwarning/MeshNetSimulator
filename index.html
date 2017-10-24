@@ -22,9 +22,10 @@
   <script src="d3/d3-color.v1.min.js"></script>
   <script src="d3/d3-transition.v1.min.js"></script>
 
+  <script src="utils.js"></script>
+  <script src="dijkstra.js"></script>
   <script src="node.js"></script>
   <script src="packet.js"></script>
-  <script src="math.js"></script>
   <script src="draw.js"></script>
   <script src="graph.js"></script>
   <script src="edit.js"></script>
@@ -32,21 +33,6 @@
   <script src="show.js"></script>
 
   <script>
-    function showTab(evt, tabname) {
-      var tabcontent = document.getElementsByClassName("tabcontent");
-      for (var i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-      }
-
-      var tablinks = document.getElementsByClassName("tablinks");
-      for (var i = 0; i < tablinks.length; i++) {
-        tablinks[i].classList.remove('active');
-      }
-
-      document.getElementById(tabname).style.display = "block";
-      evt.currentTarget.classList.add('active');
-    }
-
     var graph;
     var edit;
     var sim;
@@ -116,31 +102,27 @@
         </fieldset>
         <fieldset>
           <legend>Add Primitives</legend>
-          <div>
-            <input type="button" onclick="edit.addSingle()" value="Node">
-          </div>
-          <div>
-            <input type="button" onclick="edit.addLine('line_n', 'line_loop')" value="Line">
+          <input class="left" type="button" onclick="edit.addSingle()" value="Node">
+          <span class="right">sdsdsd</span>
+          <input class="left" type="button" onclick="edit.addLine('line_n', 'line_loop')" value="Line">
+          <span class="right">
             <input type="number" id="line_n" min="1" max="999" value="3">
             <input type="checkbox" id="line_loop">
             <label>Loop</label>
-          </div>
-          <div>
-            <input type="button" onclick="edit.addStar('star_n')" value="Star">
-            <input type="number" id="star_n" min="1" max="999" value="4">
-          </div>
-          <div>
-            <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="Lattice">
+          </span>
+          <input class="left" type="button" onclick="edit.addStar('star_n')" value="Star">
+          <input class="right" type="number" id="star_n" min="1" max="999" value="4">
+
+          <input class="left" type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="Lattice">
+          <span class="right">
             <input type="number" id="lattice_x" min="1" max="999" value="3">
             <span>x</span>
             <input type="number" id="lattice_y" min="1" max="999" value="3">
-          </div>
+          </span>
           <!--
-          <div>
-            <input type="button" onclick="edit.addLayer('layer_x', 'layer_y')" value="add layer">
-            <input type="number" id="layer_x" min="3" max="999" value="3">
-            <input type="number" id="layer_y" min="3" max="999" value="3">
-          </div>
+          <input type="button" onclick="edit.addLayer('layer_x', 'layer_y')" value="add layer">
+          <input type="number" id="layer_x" min="3" max="999" value="3">
+          <input type="number" id="layer_y" min="3" max="999" value="3">
           -->
         </fieldset>
         <fieldset>
@@ -180,7 +162,7 @@
       <div id="sim" class="tabcontent">
         <fieldset>
           <legend>Simulator</legend>
-          <input type="button" onclick="sim.step('sim_steps')" value="step">
+          <input type="button" onclick="sim.step('sim_steps', 'deploy_packets')" value="step">
           <select id="sim_steps">
             <option value="1">1</option>
             <option value="10">10</option>
@@ -189,19 +171,46 @@
             <option value="10000">10000</option>
           </select>
           <label>Total Steps:</label><span id="sim_steps_total">0</span>
+          <label>Sim Duration:</label><span id="sim_duration">0</span>
           <input type="button" onclick="sim.reset()" value="reset">
-          <input type="button" onclick="sim.addPacketRoute()" value="packet">
+        </fieldset>
+        <fieldset>
+          <label>Packet Placement<label>
+          <input type="button" onclick="sim.addRoutes()" value="Add Routes">
+          <!-- <label>Deploy on every step<label> -->
+          <input type="checkbox" id="deploy_packets">
+          <input type="button" onclick="sim.deployPackets()" value="Deploy">
+          <label>Total Routes:</label><span id="sim_routes_total">0</span>
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortLexial(this)">From</th>
+                <th onclick="sortLexial(this)">To</th>
+                <th onclick="sortNumerical(this)">Rate</th>
+              </tr>
+            </thead>
+            <tbody id='sim_routes'>
+            </tbody>
+          </table>
+        </fieldset>
+        <fieldset>
+          <legend>Routing Statistics</legend>
+          <label>Routes:</label><span id="routes_count">0</span>
+          <label>Send:</label><span id="routes_packets_send">0</span>
+          <label>Received:</label><span id="routes_packets_received">0</span>
+          <label>Transit:</label><span id="routes_packets_transit">0</span>
+          <label>Lost:</label><span id="routes_packets_lost">0</span>
         </fieldset>
         <fieldset>
           <legend>Packet Statistics</legend>
-          <label>Total:</label><span id="sim_packets_total">0</span>
-          <label>Lost:</label><span id="">0</span>
-          <label>Efficiency:</label><span id="">0</span>
+          <label>Unicast:</label><span id="packets_unicast_count">0</span>
+          <label>Broadcast:</label><span id="packets_broadcast_count">0</span>
         </fieldset>
         <fieldset>
           <legend>Graph Statistics</legend>
-          <label>Links:</label><span id="graph_links_total">0</span>
-          <label>Nodes:</label><span id="graph_nodes_total">0</span>
+          <label>Links:</label><span id="graph_links_count">0</span>
+          <label>Nodes:</label><span id="graph_nodes_count">0</span>
+          <label>Clients:</label><span id="sim_clients_count">0</span>
         </fieldset>
       </div>
     </div>

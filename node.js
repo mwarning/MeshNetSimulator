@@ -1,21 +1,98 @@
 
+function power_of_2(n) {
+  return n && (n & (n - 1)) === 0;
+}
+
 function Node(mac, meta = {}) {
   this.mac = mac;
   this.name = mac;
   this.meta = meta;
 
-  this.clientCount = 0;
-  this.nodeColor = '#fff';
-
+  // Array of incoming/outgoing packets
   this.incoming = [];
   this.outgoing = [];
 
+  this.timer = 0;
+  this.neighbors = {};
+
+  // Process packets and transfer packets from incoming to outgoing list
   this.step = function step() {
-    // Process packet from incoming and place new packets into outgoing
+    // Send a broadcast to direct neighbors
+    if (power_of_2(this.timer)) {
+      /*
+      this.outgoing.push(
+        new Packet(this.mac, BROADCAST_MAC, this.mac, BROADCAST_MAC)
+      );
+      */
+      this.timer += 1;
+    }
+
+    for (var i = 0; i < this.incoming.length; i++) {
+      var packet = this.incoming[i];
+
+      // Packet arrived at the destination
+      if (packet.destinationMAC == this.mac) {
+        console.log('packet arrived at the destination');
+        continue;
+      }
+
+      // Drop packet when counter reached 0
+      if (packet.ttl <= 0) {
+        console.log(this.mac + ' drops packet: ttl <= 0');
+        continue;
+      }
+
+      if (packet.dstMAC == BROADCAST_MAC) {
+        if (packet.srcMAC in this.neighbors) {
+          this.neighbors[packet.srcMAC] += 1;
+        } else {
+          this.neighbors[packet.srcMAC] = 1;
+        }
+        console.log(this.mac + ' drops packet: broadcast');
+        continue;
+      }
+
+      // Select destination
+      var others = Object.keys(this.neighbors);
+      var senderMAC = packet.srcMAC;
+      if (others.length > 1) {
+        while (senderMAC == packet.srcMAC) {
+          senderMAC = others[Math.floor(Math.random() * others.length)];
+        }
+      } else {
+        console.log(this.mac + ' drop packet: no neighbors known');
+        continue;
+      }
+
+      packet.srcMAC = this.mac;
+      packet.dstMAC = senderMAC;
+      packet.ttl -= 1;
+
+      this.outgoing.push(packet);
+    }
+
+    //console.log(this.mac + ' step done (outgoing: ' + this.outgoing.length + ')');
+    this.incoming = [];
+    this.timer += 1;
   }
 
-  this.reset = function () {
+  this.getPacketCount = function getPacketCount() {
+    return (this.incoming.length + this.outgoing.length);
+  }
+
+  this.getClientCount = function getClientCount() {
+    // Get info from meta info when ffmap is used
+    return ('statistics' in this.meta) ? this.meta.statistics.clients : 0;
+  }
+
+  this.getNodeColor = function getNodeColor() {
+    return '#fff';
+  }
+
+  this.reset = function reset() {
     this.incoming = [];
     this.outgoing = [];
+    this.neighbors = {};
+    this.timer = 0;
   }
 }

@@ -47,9 +47,10 @@ function createDraw() {
 
   function drawDetailNode(d) {
     if (transform.k > 1) {
-      if (d.o.clientCount > 0) {
+      var clientCount = d.o.getClientCount();
+      if (clientCount > 0) {
         ctx.beginPath();
-        positionClients(ctx, d, Math.PI, d.o.clientCount, 15);
+        positionClients(ctx, d, Math.PI, clientCount, 15);
         ctx.fillStyle = clientColor;
         ctx.fill();
       }
@@ -59,7 +60,7 @@ function createDraw() {
       ctx.fillStyle = labelColor;
       ctx.fillText(d.o.name, d.x, d.y + 20);
 
-      var packetCount = d.o.incoming.length + d.o.outgoing.length;
+      var packetCount = d.o.getPacketCount();
       if (packetCount > 0) {
         ctx.beginPath();
         ctx.textAlign = 'center';
@@ -100,7 +101,7 @@ function createDraw() {
 
     ctx.moveTo(d.x + 3, d.y);
     ctx.arc(d.x, d.y, 8, 0, 2 * Math.PI);
-    ctx.fillStyle = d.o.nodeColor;
+    ctx.fillStyle = d.o.getNodeColor();
     ctx.fill();
 
     drawDetailNode(d);

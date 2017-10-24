@@ -1,7 +1,6 @@
 
 function createGraph(graph_id) {
   var draw = createDraw();
-  var math = createMath();
   var d3Interpolate = d3;
   var d3Zoom = d3;
   var d3Force = d3;
@@ -35,6 +34,32 @@ function createGraph(graph_id) {
   var FORCE_ALPHA = 0.3;
 
   draw.setTransform(transform);
+
+  function distanceLink(p, a, b) {
+    function distance(a, b) {
+      return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+    };
+
+    function distancePoint(a, b) {
+      return Math.sqrt(distance(a, b));
+    };
+
+    /* http://stackoverflow.com/questions/849211 */
+    var l2 = distance(a, b);
+    if (l2 === 0) {
+      return distance(p, a);
+    }
+    var t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2;
+    if (t < 0) {
+      return distance(p, a);
+    } else if (t > 1) {
+      return distance(p, b);
+    }
+    return distancePoint(p, {
+      x: a.x + t * (b.x - a.x),
+      y: a.y + t * (b.y - a.y)
+    });
+  };
 
   function resizeCanvas() {
     canvas.width = el.offsetWidth;
@@ -101,7 +126,7 @@ function createGraph(graph_id) {
     var closedLink;
     var radius = LINK_RADIUS_SELECT;
     intLinks.forEach(function (d) {
-      var distance = math.distanceLink(e, d.source, d.target);
+      var distance = distanceLink(e, d.source, d.target);
       if (distance < radius) {
         closedLink = d;
         radius = distance;
@@ -203,8 +228,8 @@ function createGraph(graph_id) {
   });
 
   function updateGraphStatistics() {
-    document.getElementById('graph_nodes_total').innerHTML = intNodes.length;
-    document.getElementById('graph_links_total').innerHTML = intLinks.length;
+    $('graph_nodes_count').innerHTML = intNodes.length;
+    $('graph_links_count').innerHTML = intLinks.length;
   }
 
   this.addElements = function addElements(nodes, links) {

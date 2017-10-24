@@ -4,22 +4,6 @@ function createEdit(graph) {
 
   var NODE_SPACING = 40;
 
-  function getText(id) {
-    return document.getElementById(id).value;
-  }
-
-  function getInteger(id) {
-    return Math.floor(parseInt(document.getElementById(id).value, 10));
-  }
-
-  function getFloat(id) {
-    return parseInt(document.getElementById(id).value, 10);
-  }
-
-  function getBoolean(id) {
-    return document.getElementById(id).checked;
-  }
-
   function readFileContent(id, callback) {
     var file = document.getElementById(id).files[0];
     if (file) {
@@ -69,7 +53,7 @@ function createEdit(graph) {
     }
 
     for (var i = 0; i < count; i++) {
-      nodes.push({x: (i * NODE_SPACING), y: 0});
+      nodes.push({x: (i * NODE_SPACING), y: (0.8 * (i % 2))});
       if (i > 0) {
         var source = nodes[i - 1];
         var target = nodes[i];
@@ -303,7 +287,6 @@ function createEdit(graph) {
           var mac = e.nodeinfo.network.mac;
           var node = new Node(mac);
           node.name = e.nodeinfo.hostname;
-          node.clientCount = e.statistics.clients;
           nodeDict[mac] = {o: node};
         });
 
