@@ -3,6 +3,10 @@ function $(id) {
   return document.getElementById(id);
 }
 
+function $$(id) {
+  return document.getElementById(id).firstChild;
+}
+
 function showTab(evt, tabname) {
   var tabcontent = document.getElementsByClassName("tabcontent");
   for (var i = 0; i < tabcontent.length; i++) {

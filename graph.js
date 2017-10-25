@@ -228,8 +228,8 @@ function createGraph(graph_id) {
   });
 
   function updateGraphStatistics() {
-    $('graph_nodes_count').innerHTML = intNodes.length;
-    $('graph_links_count').innerHTML = intLinks.length;
+    $$('graph_nodes_count').nodeValue = intNodes.length;
+    $$('graph_links_count').nodeValue = intLinks.length;
   }
 
   this.addElements = function addElements(nodes, links) {
