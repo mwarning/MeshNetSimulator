@@ -1,9 +1,9 @@
 # MeshNetSimulator
 
-A simulator for exploring/sketching mesh network routing strategies.
+A simple simulator for exploring/sketching mesh network routing strategies.
 The code is written in plain JavaScript/HTML and [d3](https://d3js.org).
 
-The project is currently incomplete. Pull request are welcome!
+Pull request are welcome!
 
 ![settings](screenshot.png)
 
@@ -13,10 +13,8 @@ Features:
 - run simple simulations
 
 Known issues:
-- file export not implemented yet
 - animation toggle does not work properly
 - no input file sanity check
-
 
 Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
@@ -26,6 +24,6 @@ License: GPLv3
 
 ## How to Use
 
-Get the code and open the file index.html in a browser. Then load nodes.json/grah.json (e.g. [nodes](https://regensburg.freifunk.net/data/nodes.json)/[graph](https://regensburg.freifunk.net/data/graph.json)) or create some network using the Edit tab.
+Open the file index.html in a browser. Then load nodes.json/graph.json (e.g. [nodes](https://regensburg.freifunk.net/data/nodes.json)/[graph](https://regensburg.freifunk.net/data/graph.json)) or create some network using the Edit tab.
 
-For sketching a routing strategy, you need to edit the node.js and packet.js files. A simple strategy is already implemented.
+For sketching a mesh routing strategie, you need to edit the node.js and packet.js files. A simple strategy is already implemented.
