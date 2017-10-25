@@ -3,7 +3,7 @@
   background: #333333;
   font: inherit;
   height: 800px;
-  width: 1300px;
+  width: 1000px;
 
   canvas {
     display: block;
@@ -43,7 +43,6 @@ div.tab button {
   border: none;
   outline: none;
   cursor: pointer;
-  /*padding: 14px 16px;*/
   font-size: 1.3em;
   transition: 0.2s;
 }
@@ -69,12 +68,21 @@ input, select {
   margin: 0.1em;
 }
 
-input[type="number"] {
-   width: 3em;
+fieldset input[type="number"] {
+  width: 3em;
 }
 
-input[type="button"] {
+fieldset input[type="text"] {
+  width: 8em;
+}
+
+fieldset input[type="button"] {
   padding: 0px;
+}
+
+input[type="checkbox"] {
+  text-align: center;
+  vertical-align: middle;
 }
 
 fieldset {
@@ -84,24 +92,12 @@ fieldset {
   border: 0.1em solid #000;
 }
 
-.left {
+fieldset label {
   float: left;
-  width: 8em;
-}
-
-.right {
-  display: block;
-  width: 18em;
-}
-
-/*
-fieldset > span {
-  display: block;
-  width: 10em;
+  width: 6em;
 }
 
 fieldset > div {
-  display: block;
-  width: 18em;
+  display: flex;
+  justify-content: space-around;
 }
-*/
