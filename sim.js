@@ -222,7 +222,8 @@ function createSim(graph) {
     var intLinks = graph.getIntLinks();
     var dijkstra = createDijkstra(intNodes, intLinks);
 
-    self.routes.forEach(function(route) {
+    for (var id in self.routes) {
+      var route = self.routes[id];
       var sourceIntNode = intNodes.find(function(e) { return e.o.mac === route.sourceMAC; });
       var targetIntNode = intNodes.find(function(e) { return e.o.mac === route.targetMAC; });
       var shortestDistance = dijkstra.getShortestDistance(sourceIntNode, targetIntNode);
@@ -231,7 +232,7 @@ function createSim(graph) {
       * This means packets in transit are counted as lost packets.
       */
       route.efficiency = (route.receivedStepCount / (route.receivedCount * shortestDistance)) * (route.receivedCount / route.sendCount);
-    });
+    }
   }
 
   self.step = function step(steps_id, deploy_id) {
