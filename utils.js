@@ -59,10 +59,42 @@ function append(parent, name, content = '') {
   return e;
 }
 
+function findChildIndex(child) {
+  var i = 0;
+  while( (child = child.previousElementSibling) != null ) {
+    i++;
+  }
+  return i;
+}
+
+function sortTableColumn(tbody, col, numerical) {
+  function access(tr) {
+    var val = tr.children[col].firstChild.nodeValue;
+    return numerical ? parseInt(val) : val;
+  }
+
+  var items = Array.from(tbody.children);
+
+  items.sort(function(tr1, tr2) {
+    var a = access(tr1);
+    var b = access(tr2);
+    return (a == b) ? 0 : (a > b ? 1 : -1);
+  });
+
+  clearChildren(tbody);
+  for (var i = 0; i < items.length; ++i) {
+    tbody.appendChild(items[i]);
+  }
+}
+
 function sortLexial(th) {
-  // TODO
+  var tbody = th.parentNode.parentNode.parentNode.getElementsByTagName('tbody')[0];
+  var col = findChildIndex(th);
+  sortTableColumn(tbody, col, false);
 }
 
 function sortNumerical(th) {
-  // TODO
+  var tbody = th.parentNode.parentNode.parentNode.getElementsByTagName('tbody')[0];
+  var col = findChildIndex(th);
+  sortTableColumn(tbody, col, true);
 }
