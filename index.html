@@ -39,6 +39,9 @@
     var show;
 
     function init() {
+      // Select first tab
+      document.getElementsByClassName('tablinks')[0].click();
+
       graph = createGraph('graph');
       edit = createEdit(graph);
       sim = createSim(graph);
