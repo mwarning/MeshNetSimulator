@@ -57,7 +57,9 @@ function createSim(graph) {
     var routesReceivedCount = 0;
     var routesTransitCount = 0;
     var routesCount = 0;
-    var routingEfficiency = 0;
+
+    var routing_efficiency_sum = 0;
+    var routing_efficiency_count = 0;
 
     function countPackets(packet) {
       if (packet.destinationMAC === BROADCAST_MAC) {
@@ -83,13 +85,14 @@ function createSim(graph) {
       routesReceivedCount += route.receivedCount;
 
       if (!isNaN(route.efficiency)) {
-        routing_efficiency += route.efficiency;
+        routing_efficiency_sum += route.efficiency;
+        routing_efficiency_count += 1;
       }
       // console.log(route.sourceMAC + ' => ' + route.targetMAC + ', e: ' + e);
     }
 
-    // Convert to medium and into percent
-    routingEfficiency /= routesCount * 0.01;
+    // Convert to medium percent
+    var routingEfficiency = 100 * routing_efficiency_sum / routing_efficiency_count;
 
     $$('sim_steps_total').nodeValue = self.sim_steps_total;
     $$('sim_duration').nodeValue = (self.sim_duration / 1000);
