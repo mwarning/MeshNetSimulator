@@ -80,6 +80,10 @@ fieldset input[type="button"] {
   padding: 0px;
 }
 
+fieldset td {
+  text-align: center;
+}
+
 input[type="checkbox"] {
   text-align: center;
   vertical-align: middle;

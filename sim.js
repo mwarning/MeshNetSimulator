@@ -136,12 +136,15 @@ function createSim(graph) {
     for (key in self.routes) {
       var route = self.routes[key];
       var tr = append(tbody, 'tr');
-      append(tr, 'td', route.sourceMAC);
-      append(tr, 'td', route.targetMAC);
-      append(tr, 'td', route.deployRate);
-      append(tr, 'td', route.sendCount);
-      append(tr, 'td', route.receivedCount);
-      append(tr, 'td', route.efficiency + '%');
+      var source_td = append(tr, 'td', route.sourceMAC.slice(-5));
+      var target_td = append(tr, 'td', route.targetMAC.slice(-5));
+      append(tr, 'td', route.deployRate.toString());
+      append(tr, 'td', route.sendCount.toString());
+      append(tr, 'td', route.receivedCount.toString());
+      append(tr, 'td', route.efficiency.toString() + '%');
+
+      source_td.title = route.sourceMAC
+      target_td.title = route.targetMAC;
     }
   }
 

@@ -191,12 +191,12 @@
           <table>
             <thead>
               <tr>
-                <th onclick="sortLexial(this)">From</th>
-                <th onclick="sortLexial(this)">To</th>
-                <th onclick="sortNumerical(this)">Rate</th>
-                <th onclick="sortNumerical(this)">Send</th>
-                <th onclick="sortNumerical(this)">Recv</th>
-                <th onclick="sortNumerical(this)">Eff</th>
+                <th onclick="sortLexial(this)" title="Source MAC address">From</th>
+                <th onclick="sortLexial(this)" title="Target MAC address">To</th>
+                <th onclick="sortNumerical(this)" title="Packet deploy rate">Rate</th>
+                <th onclick="sortNumerical(this)" title="Number of packets send">Send</th>
+                <th onclick="sortNumerical(this)" title="Number of packets received">Recv</th>
+                <th onclick="sortNumerical(this)" title="Routing efficiency">Eff</th>
               </tr>
             </thead>
             <tbody id='sim_routes'>
