@@ -8,7 +8,8 @@ function createShow (graph) {
       if (key in o) {
         o = o[key];
       } else {
-        return [];
+        // Pretend we found an empty object instead of no object
+        return {};
       }
     }
     return o;
@@ -71,8 +72,11 @@ function createShow (graph) {
       } else { // object
         append(tr, 'td', '(' + Object.keys(value).length + ')');
         tr.onclick = createCallback(self, o, path.concat([key]));
-      } 
+      }
     }
+
+    var display = (tbody.children.length === 0);
+    displayElement($('show_no_elements'), display);
   }
 
   return self;

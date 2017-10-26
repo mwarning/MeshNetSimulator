@@ -44,6 +44,14 @@ function clearChildren(parent) {
   }
 }
 
+function displayElement(e, show) {
+  if (show) {
+    e.style.display = 'block';
+  } else {
+    e.style.display = 'none';
+  }
+}
+
 // Return random boolean value based on propability.
 function randomBoolean(propability) {
   return (propability != 0 && ((propability == 1) || propability > Math.random()));
