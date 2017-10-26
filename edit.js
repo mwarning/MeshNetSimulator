@@ -15,27 +15,36 @@ function createEdit(graph) {
     }
   }
 
-  self.changeLinkQuality = function changeLinkQuality(type_id, value_id) {
-    var type = getText(type_id);
-    var value = getFloat(value_id);
+  self.setLinkParameters = function setLinkParameters(bandwidth_id, quality_id, quality_generation_id) {
+    var intLinks = graph.getSelectedIntLinks();
+    var quality_generation = getText(quality_generation_id);
+    var quality = getFloat(quality_id);
+    var bandwidth = getFloat(bandwidth_id);
 
-    graph.getSelectedIntLinks().forEach(function(e) {
-      if (type == 'random') {
+    intLinks.forEach(function(e) {
+      if (quality_generation == 'random') {
         e.quality = 100 * Math.random();
       } else {
-        e.quality = value;
+        e.quality = quality;
       }
     });
+
+    intLinks.forEach(function(e) {
+      e.bandwidth = bandwidth;
+    });
+
     graph.redraw();
   }
 
-  self.changeLinkBandwidth = function changeLinkBandwidth(value_id) {
-    var value = getFloat(value_id);
-
-    graph.getSelectedIntLinks().forEach(function(e) {
-      e.bandwidth = value;
-    });
-    graph.redraw();
+  self.getLinkParameters = function getLinkParameters(bandwidth_id, quality_id) {
+    var intLinks = graph.getSelectedIntLinks();
+    if (intLinks.length > 0) {
+      var link = intLinks[intLinks.length - 1];
+      $(bandwidth_id).value = link.bandwidth;
+      $(quality_id).value = link.quality;
+    } else {
+      alert('Select at least one link.');
+    }
   }
 
   self.addSingle = function addSingle () {
@@ -53,7 +62,7 @@ function createEdit(graph) {
     }
 
     for (var i = 0; i < count; i++) {
-      nodes.push({x: (i * NODE_SPACING), y: (0.8 * (i % 2))});
+      nodes.push({x: (i * NODE_SPACING), y: (1.1 * (i % 2))});
       if (i > 0) {
         var source = nodes[i - 1];
         var target = nodes[i];
