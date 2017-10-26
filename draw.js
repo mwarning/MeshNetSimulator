@@ -35,7 +35,11 @@ function createDraw() {
   var selectedNodes = [];
   var selectedLinks = [];
 
+  var highlightedNodes = [];
+  var highlightedLinks = [];
+
   var clientColor = '#e6324b';
+  var selectColor = 'rgba(255, 255, 255, 0.2)';
   var highlightColor = 'rgba(255, 255, 255, 0.2)';
   var linkScale = d3.interpolate('#F02311', '#04C714');
   var bandwidthWidthScale = d3.interpolateNumber(1.0, 3.0);
@@ -71,7 +75,7 @@ function createDraw() {
   }
 
   function drawHighlightNode(d) {
-    if (selectedNodes.includes(d)) {
+    if (highlightedNodes.includes(d)) {
       ctx.arc(d.x, d.y, NODE_RADIUS * 1.5, 0, 2 * Math.PI);
       ctx.fillStyle = highlightColor;
       ctx.fill();
@@ -79,10 +83,31 @@ function createDraw() {
     }
   }
 
+  function drawSelectedNode(d) {
+    if (selectedNodes.includes(d)) {
+      ctx.arc(d.x, d.y, NODE_RADIUS * 1.5, 0, 2 * Math.PI);
+      ctx.fillStyle = selectColor;
+      ctx.fill();
+      ctx.beginPath();
+    }
+  }
+
   function drawHighlightLink(d, to) {
-    if (selectedLinks.includes(d)) {
+    if (highlightedLinks.includes(d)) {
       ctx.lineTo(to[0], to[1]);
       ctx.strokeStyle = highlightColor;
+      ctx.lineWidth = LINE_RADIUS * 2;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      to = [d.source.x, d.source.y];
+    }
+    return to;
+  }
+
+  function drawSelectLink(d, to) {
+    if (selectedLinks.includes(d)) {
+      ctx.lineTo(to[0], to[1]);
+      ctx.strokeStyle = selectColor;
       ctx.lineWidth = LINE_RADIUS * 2;
       ctx.lineCap = 'round';
       ctx.stroke();
@@ -97,6 +122,7 @@ function createDraw() {
     }
     ctx.beginPath();
 
+    drawSelectedNode(d);
     drawHighlightNode(d);
 
     ctx.moveTo(d.x + 3, d.y);
@@ -118,6 +144,7 @@ function createDraw() {
     ctx.moveTo(d.source.x, d.source.y);
     var to = [d.target.x, d.target.y];
 
+    to = drawSelectLink(d, to);
     to = drawHighlightLink(d, to);
 
     ctx.lineTo(to[0], to[1]);
@@ -149,6 +176,16 @@ function createDraw() {
   self.setSelection = function setSelection(nodes, links) {
     selectedNodes = nodes;
     selectedLinks = links;
+  };
+
+  self.setHighlight = function setHighlight(nodes, links) {
+    highlightedNodes = nodes;
+    highlightedLinks = links;
+  };
+
+  self.clearHighlight = function clearHighlight() {
+    highlightedNodes = [];
+    highlightedLinks = [];
   };
 
   self.selectNode = function selectNode(node) {
