@@ -169,26 +169,42 @@
       <div id="sim" class="tabcontent">
         <fieldset>
           <legend>Simulator</legend>
-          <input type="button" onclick="sim.step('sim_steps', 'deploy_packets')" value="step">
-          <select id="sim_steps">
-            <option value="1">1</option>
-            <option value="10">10</option>
-            <option value="100">100</option>
-            <option value="1000">1000</option>
-            <option value="10000">10000</option>
-          </select>
-          <br />
-          <label>Total Steps:</label><span id="sim_steps_total">0</span><br />
-          <label>Steps Duration:</label><span id="sim_duration">0</span><br />
-          <input type="button" onclick="sim.reset()" value="reset">
+          <div>
+            <select id="sim_steps">
+              <option value="1">1</option>
+              <option value="10">10</option>
+              <option value="100">100</option>
+              <option value="1000">1000</option>
+              <option value="10000">10000</option>
+            </select>
+            <input type="button" onclick="sim.step('sim_steps', 'deploy_packets')" value="step">
+            <input type="button" onclick="sim.reset()" value="reset">
+          </div>
+          <div>
+            <label>Total Steps:</label>
+            <span id="sim_steps_total">0</span>
+          </div>
+          <div>
+            <label>Steps Duration:</label>
+            <span id="sim_duration">0</span>
+          </div>
         </fieldset>
         <fieldset>
           <legend>Packet Placement</legend>
-          <input type="button" onclick="sim.addRoutes()" value="Add Routes">
-          <!-- <label>Deploy on every step<label> -->
-          <input type="checkbox" id="deploy_packets">
-          <input type="button" onclick="sim.deployPackets()" value="Deploy"><br />
-          <label>Total Routes:</label><span id="sim_routes_total">0</span><br />
+          <div>
+            <input type="button" onclick="sim.deployPackets()" value="Deploy Packets">
+            <div>
+              <label>On every step</label>
+              <input type="checkbox" id="deploy_packets">
+            </div>
+          </div>
+          <div>
+            <input type="button" onclick="sim.addRoutes()" value="Add Routes">
+            <div>
+              <label>Total Routes:</label>
+              <span id="sim_routes_total">0</span>
+            </div>
+          </div>
           <table>
             <thead>
               <tr>
@@ -206,26 +222,59 @@
         </fieldset>
         <fieldset>
           <legend>Routing Statistics</legend>
-          <label>Routes:</label><span id="routes_count">0</span><br />
-          <label>Send:</label><span id="routes_packets_send">0</span><br />
-          <label>Received:</label><span id="routes_packets_received">0</span><br />
-          <label>Transit:</label><span id="routes_packets_transit">0</span><br />
-          <label>Lost:</label><span id="routes_packets_lost">0</span>
+          <div>
+            <label>Routes:</label>
+            <span id="routes_count">0</span>
+          </div>
+          <div>
+            <label>Send:</label>
+            <span id="routes_packets_send">0</span>
+          </div>
+          <div>
+            <label>Received:</label>
+            <span id="routes_packets_received">0</span>
+          </div>
+          <div>
+            <label>Transit:</label>
+            <span id="routes_packets_transit">0</span>
+          </div>
+          <div>
+            <label>Lost:</label>
+            <span id="routes_packets_lost">0</span>
+          </div>
         </fieldset>
         <fieldset>
           <legend>Routing Efficiency</legend>
-          <label>Efficiency:</label><span id="routing_efficiency">0</span>
+          <div>
+            <label>Efficiency:</label>
+            <span id="routing_efficiency">0</span>
+          </div>
         </fieldset>
         <fieldset>
           <legend>Packet Statistics</legend>
-          <label>Unicast:</label><span id="packets_unicast_count">0</span><br />
-          <label>Broadcast:</label><span id="packets_broadcast_count">0</span>
+          <div>
+            <label>Unicast:</label>
+            <span id="packets_unicast_count">0</span>
+          </div>
+          <div>
+            <label>Broadcast:</label>
+            <span id="packets_broadcast_count">0</span>
+          </div>
         </fieldset>
         <fieldset>
           <legend>Graph Statistics</legend>
-          <label>Links:</label><span id="graph_links_count">0</span><br />
-          <label>Nodes:</label><span id="graph_nodes_count">0</span><br />
-          <label>Clients:</label><span id="sim_clients_count">0</span>
+          <div>
+            <label>Links:</label>
+            <span id="graph_links_count">0</span>
+          </div>
+          <div>
+            <label>Nodes:</label>
+            <span id="graph_nodes_count">0</span>
+          </div>
+          <div>
+           <label>Clients:</label>
+           <span id="sim_clients_count">0</span>
+          </div>
         </fieldset>
       </div>
     </div>

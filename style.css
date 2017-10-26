@@ -98,7 +98,8 @@ fieldset {
 
 fieldset label {
   float: left;
-  width: 6em;
+  width: 8em;
+  white-space: nowrap;
 }
 
 fieldset > div {
