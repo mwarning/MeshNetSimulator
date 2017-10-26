@@ -49,10 +49,10 @@ function randomBoolean(propability) {
   return (propability != 0 && ((propability == 1) || propability > Math.random()));
 }
 
-function append(parent, name, content = '') {
+function append(parent, name, content) {
   var e = document.createElement(name);
-  if (content.length) {
-    var text = document.createTextNode(content)
+  if ((typeof content === 'string') || (typeof content === 'number')) {
+    var text = document.createTextNode(content.toString());
     e.appendChild(text);
   }
   parent.appendChild(e);
