@@ -7,13 +7,13 @@ function Route(sourceMAC, targetMAC, deployRate = 1) {
   this.sendCount = 0;
   this.receivedCount = 0;
   this.receivedStepCount = 0;
-  this.efficiency = 0;
+  this.efficiency = NaN;
 
   this.reset = function reset() {
     this.sendCount = 0;
     this.receivedCount = 0;
     this.receivedStepCount = 0;
-    this.efficiency = 0;
+    this.efficiency = NaN;
   }
 }
 
@@ -37,14 +37,18 @@ function createSim(graph) {
       intNodes[i].o.reset();
     }
 
-    for (var id in routes) {
-      routes[id].reset();
+    for (var id in self.routes) {
+      self.routes[id].reset();
     }
 
     self.sim_steps_total = 0;
     self.sim_duration = 0;
 
     updateSimStatistics();
+  }
+
+  function num(v, suffix = '') {
+    return isNaN(v) ? '-' : (v.toString() + suffix);
   }
 
   function updateSimStatistics() {
@@ -88,7 +92,6 @@ function createSim(graph) {
         routing_efficiency_sum += route.efficiency;
         routing_efficiency_count += 1;
       }
-      // console.log(route.sourceMAC + ' => ' + route.targetMAC + ', e: ' + e);
     }
 
     // Convert to medium percent
@@ -112,7 +115,7 @@ function createSim(graph) {
     var routesLostCount = (routesSendCount - routesReceivedCount - routesTransitCount);
     $$('routes_packets_lost').nodeValue = routesLostCount + percent(routesLostCount);
 
-    $$('routing_efficiency').nodeValue = routingEfficiency;
+    $$('routing_efficiency').nodeValue = num(routingEfficiency);
   }
 
   function append(parent, name, content = '') {
@@ -141,7 +144,7 @@ function createSim(graph) {
       append(tr, 'td', route.deployRate.toString());
       append(tr, 'td', route.sendCount.toString());
       append(tr, 'td', route.receivedCount.toString());
-      append(tr, 'td', route.efficiency.toString() + '%');
+      append(tr, 'td', num(route.efficiency, '%'));
 
       source_td.title = route.sourceMAC
       target_td.title = route.targetMAC;
