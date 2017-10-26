@@ -64,10 +64,6 @@ div.tab button.active {
   border-top: none;
 }
 
-input, select {
-  margin: 0.1em;
-}
-
 fieldset input[type="number"] {
   width: 3em;
 }
@@ -94,6 +90,10 @@ fieldset {
   padding: 0.5em;
   width: 20em;
   border: 0.1em solid #000;
+}
+
+fieldset * {
+  margin: 0.12em;
 }
 
 fieldset label {
