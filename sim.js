@@ -62,8 +62,8 @@ function createSim(graph) {
     var routesTransitCount = 0;
     var routesCount = 0;
 
-    var routing_efficiency_sum = 0;
-    var routing_efficiency_count = 0;
+    var routingEfficiencySum = 0;
+    var routingEfficiencyCount = 0;
 
     function countPackets(packet) {
       if (packet.destinationMAC === BROADCAST_MAC) {
@@ -89,13 +89,13 @@ function createSim(graph) {
       routesReceivedCount += route.receivedCount;
 
       if (!isNaN(route.efficiency)) {
-        routing_efficiency_sum += route.efficiency;
-        routing_efficiency_count += 1;
+        routingEfficiencySum += route.efficiency;
+        routingEfficiencyCount += 1;
       }
     }
 
     // Convert to medium percent
-    var routingEfficiency = 100 * routing_efficiency_sum / routing_efficiency_count;
+    var routingEfficiency = 100 * routingEfficiencySum / routingEfficiencyCount;
 
     $$('sim_steps_total').nodeValue = self.sim_steps_total;
     $$('sim_duration').nodeValue = (self.sim_duration / 1000);
@@ -118,32 +118,20 @@ function createSim(graph) {
     $$('routing_efficiency').nodeValue = num(routingEfficiency);
   }
 
-  function append(parent, name, content = '') {
-    var e = document.createElement(name);
-    if (content.length) {
-      var text = document.createTextNode(content)
-      e.appendChild(text);
-    }
-    parent.appendChild(e);
-    return e;
-  }
-
   function updateRoutesTable() {
     var tbody = $('sim_routes');
 
     // Remove all elements
-    while (tbody.firstChild) {
-      tbody.removeChild(tbody.firstChild);
-    }
+    clearChildren(tbody);
 
     for (key in self.routes) {
       var route = self.routes[key];
       var tr = append(tbody, 'tr');
       var source_td = append(tr, 'td', route.sourceMAC.slice(-5));
       var target_td = append(tr, 'td', route.targetMAC.slice(-5));
-      append(tr, 'td', route.deployRate.toString());
-      append(tr, 'td', route.sendCount.toString());
-      append(tr, 'td', route.receivedCount.toString());
+      append(tr, 'td', route.deployRate);
+      append(tr, 'td', route.sendCount);
+      append(tr, 'td', route.receivedCount);
       append(tr, 'td', num(route.efficiency, '%'));
 
       source_td.title = route.sourceMAC
