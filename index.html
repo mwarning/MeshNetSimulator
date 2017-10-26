@@ -77,9 +77,28 @@
       </div>
 
       <div id="show" class="tabcontent">
-        <fieldset id="show_info">
+        <fieldset>
+          <legend>Inspect</legend>
+          <div>
+            <label>Type:</label>
+            <span id="show_type">-</span>
+          </div>
+          <div>
+            <label>Path:</label>
+            <span id="show_path">/</span>
+          </div>
+          <input type="button" onclick="show.showSelectedObject()" value="Show">
+          <div>
+            <table>
+              <thead>
+                <th>Key</th>
+                <th>Value</th>
+              </thead>
+              <tbody id="show_object_tbody">
+              </tbody>
+            </table>
+          </div>
         </fieldset>
-        <input type="button" onclick="show.showSelectedInfo()" value="Show">
       </div>
 
       <div id="edit" class="tabcontent">
