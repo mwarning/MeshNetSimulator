@@ -86,9 +86,9 @@ input[type="checkbox"] {
 }
 
 fieldset {
-  margin: 0.2em;
-  padding: 0.5em;
-  width: 20em;
+  margin: 0.1em;
+  padding: 0.4em;
+  width: 22em;
   border: 0.1em solid #000;
 }
 

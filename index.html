@@ -205,20 +205,22 @@
               <span id="sim_routes_total">0</span>
             </div>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th onclick="sortLexial(this)" title="Source MAC address">From</th>
-                <th onclick="sortLexial(this)" title="Target MAC address">To</th>
-                <th onclick="sortNumerical(this)" title="Packet deploy rate">Rate</th>
-                <th onclick="sortNumerical(this)" title="Number of packets send">Send</th>
-                <th onclick="sortNumerical(this)" title="Number of packets received">Recv</th>
-                <th onclick="sortNumerical(this)" title="Routing efficiency">Eff</th>
-              </tr>
-            </thead>
-            <tbody id='sim_routes'>
-            </tbody>
-          </table>
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th onclick="sortLexial(this)" title="Source MAC address">Source</th>
+                  <th onclick="sortLexial(this)" title="Target MAC address">Target</th>
+                  <th onclick="sortNumerical(this)" title="Packet deploy rate">Rate</th>
+                  <th onclick="sortNumerical(this)" title="Number of packets send">Send</th>
+                  <th onclick="sortNumerical(this)" title="Number of packets received">Recv</th>
+                  <th onclick="sortNumerical(this)" title="Routing efficiency">Eff</th>
+                </tr>
+              </thead>
+              <tbody id='sim_routes'>
+              </tbody>
+            </table>
+          </div>
         </fieldset>
         <fieldset>
           <legend>Routing Statistics</legend>
