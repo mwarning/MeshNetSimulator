@@ -67,10 +67,10 @@ function createShow (graph) {
         append(tr, 'td', value);
       } else if (Array.isArray(value)) {
         append(tr, 'td', '(' + value.length + ')');
-        td.onclick = createCallback(self, o, path.concat([key]));
+        tr.onclick = createCallback(self, o, path.concat([key]));
       } else { // object
         append(tr, 'td', '(' + Object.keys(value).length + ')');
-        td.onclick = createCallback(self, o, path.concat([key]));
+        tr.onclick = createCallback(self, o, path.concat([key]));
       } 
     }
   }
