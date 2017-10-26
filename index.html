@@ -106,19 +106,20 @@
         <fieldset>
           <legend>Add Primitives</legend>
           <input type="button" onclick="edit.addSingle()" value="Node">
-          <input type="button" onclick="edit.addLine('line_n', 'line_loop')" value="Line">
           <div>
+            <input type="button" onclick="edit.addLine('line_n', 'line_loop')" value="Line">
             <input type="number" id="line_n" min="1" max="999" value="3">
             <div>
               <input type="checkbox" id="line_loop">
               <span>Loop</span>
             </div>
           </div>
-          <input type="button" onclick="edit.addStar('star_n')" value="Star">
-          <input type="number" id="star_n" min="1" max="999" value="4">
-
-          <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="Lattice">
           <div>
+            <input type="button" onclick="edit.addStar('star_n')" value="Star">
+            <input type="number" id="star_n" min="1" max="999" value="4">
+          </div>
+          <div>
+            <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="Lattice">
             <div>
               <input type="number" id="lattice_x" min="1" max="999" value="3">
               <span>x</span>
