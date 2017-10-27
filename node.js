@@ -47,11 +47,11 @@ Node.prototype.step = function() {
       continue;
     }
 
-    if (packet.dstMAC == BROADCAST_MAC) {
-      if (packet.srcMAC in this.neighbors) {
-        this.neighbors[packet.srcMAC] += 1;
+    if (packet.receiverAddress == BROADCAST_MAC) {
+      if (packet.transmitterAddress in this.neighbors) {
+        this.neighbors[packet.transmitterAddress] += 1;
       } else {
-        this.neighbors[packet.srcMAC] = 1;
+        this.neighbors[packet.transmitterAddress] = 1;
       }
       console.log(this.mac + ' drops packet: broadcast');
       continue;
@@ -59,18 +59,18 @@ Node.prototype.step = function() {
 
     // Select destination
     var others = Object.keys(this.neighbors);
-    var senderMAC = packet.srcMAC;
+    var transmitterAddress = packet.transmitterAddress;
     if (others.length > 1) {
-      while (senderMAC == packet.srcMAC) {
-        senderMAC = others[Math.floor(Math.random() * others.length)];
+      while (transmitterAddress == packet.transmitterAddress) {
+        transmitterAddress = others[Math.floor(Math.random() * others.length)];
       }
     } else {
       console.log(this.mac + ' drop packet: no neighbors known');
       continue;
     }
 
-    packet.srcMAC = this.mac;
-    packet.dstMAC = senderMAC;
+    packet.transmitterAddress = this.mac;
+    packet.receiverAddress = transmitterAddress;
     packet.ttl -= 1;
 
     this.outgoing.push(packet);

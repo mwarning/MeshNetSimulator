@@ -1,16 +1,16 @@
 
 var BROADCAST_MAC = "ff:ff:ff:ff:ff:ff";
 
-function Packet(srcMAC, dstMAC, sourceMAC, destinationMAC, step = 0) {
+function Packet(receiverAddress, transmitterAddress , sourceAddress, destinationAddress, step = 0) {
 /* Required fields */
 
   // One hop source and target
-  this.srcMAC = srcMAC;
-  this.dstMAC = dstMAC;
+  this.receiverAddress = receiverAddress;
+  this.transmitterAddress  = transmitterAddress ;
 
   // Multi-hop source and target
-  this.sourceMAC = sourceMAC;
-  this.destinationMAC = destinationMAC;
+  this.sourceAddress = sourceAddress;
+  this.destinationAddress = destinationAddress;
 
   this.step = step; // rename to time
 

@@ -1,7 +1,7 @@
 
-function Route(sourceMAC, targetMAC, deployRate = 1) {
-  this.sourceMAC = sourceMAC;
-  this.targetMAC = targetMAC;
+function Route(sourceAddress, destinationAddress, deployRate = 1) {
+  this.sourceAddress = sourceAddress;
+  this.destinationAddress = destinationAddress;
   this.deployRate = deployRate;
 
   this.sendCount = 0;
@@ -71,7 +71,7 @@ function createSim(graph) {
       } else {
         packetsUnicastCount += 1;
 
-        var id = packet.sourceMAC + '=>' + packet.destinationMAC;
+        var id = packet.sourceAddress + '=>' + packet.destinationMAC;
         routesTransitCount += (id in self.routes);
       }
     }
@@ -127,15 +127,15 @@ function createSim(graph) {
     for (key in self.routes) {
       var route = self.routes[key];
       var tr = append(tbody, 'tr');
-      var source_td = append(tr, 'td', route.sourceMAC.slice(-5));
-      var target_td = append(tr, 'td', route.targetMAC.slice(-5));
+      var source_td = append(tr, 'td', route.sourceAddress.slice(-5));
+      var target_td = append(tr, 'td', route.destinationAddress.slice(-5));
       append(tr, 'td', route.deployRate);
       append(tr, 'td', route.sendCount);
       append(tr, 'td', route.receivedCount);
       append(tr, 'td', num(route.efficiency, '%'));
 
-      source_td.title = route.sourceMAC
-      target_td.title = route.targetMAC;
+      source_td.title = route.sourceAddress
+      target_td.title = route.destinationAddress;
     }
   }
 
@@ -162,9 +162,9 @@ function createSim(graph) {
 
   self.addRoutes = function addRoutes() {
     function addRoute(sourceNode, targetNode) {
-      var id = sourceMAC + '=>' + targetMAC;
+      var id = sourceAddress + '=>' + destinationAddress;
       if (!(id in self.routes)) {
-        self.routes[id] = new Route(sourceMAC, targetMAC, 1);
+        self.routes[id] = new Route(sourceAddress, destinationAddress, 1);
         updateSimStatistics();
       }
     }
@@ -175,10 +175,10 @@ function createSim(graph) {
       return;
     }
 
-    var sourceMAC = intNodes[0].o.mac;
+    var sourceAddress = intNodes[0].o.mac;
     for (var i = 1; i < intNodes.length; i += 1) {
-      var targetMAC = intNodes[i].o.mac;
-      addRoute(sourceMAC, targetMAC);
+      var destinationAddress = intNodes[i].o.mac;
+      addRoute(sourceAddress, destinationAddress);
     }
     updateRoutesTable();
   }
@@ -193,10 +193,10 @@ function createSim(graph) {
     for (var id in self.routes) {
       var route = self.routes[id];
       if (randomBoolean(route.deployRate)) {
-        var srcMAC = route.sourceMAC;
-        var dstMAC = route.targetMAC;
-        nodeMap[srcMAC].incoming.push(
-          new Packet(srcMAC, srcMAC, srcMAC, dstMAC, self.sim_steps_total)
+        var src = route.sourceAddress;
+        var dst = route.destinationAddress;
+        nodeMap[src].incoming.push(
+          new Packet(src, src, src, dst, self.sim_steps_total)
         );
         route.sendCount += 1
       }
@@ -218,8 +218,8 @@ function createSim(graph) {
 
     for (var id in self.routes) {
       var route = self.routes[id];
-      var sourceIntNode = intNodes.find(function(e) { return e.o.mac === route.sourceMAC; });
-      var targetIntNode = intNodes.find(function(e) { return e.o.mac === route.targetMAC; });
+      var sourceIntNode = intNodes.find(function(e) { return e.o.mac === route.sourceAddress; });
+      var targetIntNode = intNodes.find(function(e) { return e.o.mac === route.destinationAddress; });
       var shortestDistance = dijkstra.getShortestDistance(sourceIntNode, targetIntNode);
       /*
       * Efficiency as rate of optimal step count weighted by rate of received packets.
@@ -284,7 +284,7 @@ function createSim(graph) {
         // Send outgoing packets over links
         for (var p = 0; p < intNode.o.outgoing.length; p++) {
           var packet = intNode.o.outgoing[p];
-          if (packet.dstMAC === BROADCAST_MAC) {
+          if (packet.receiverAddress === BROADCAST_MAC) {
             // Handle broadcast packet
             // Send cloned apcket to all neighbors
             for (var k = 0; k < intLinks.length; k++) {
@@ -305,13 +305,13 @@ function createSim(graph) {
             for (var k = 0; k < intLinks.length; k++) {
               var intLink = intLinks[k];
               var intNeigh = getNeighbor(intLink, intNode);
-              if (packet.dstMAC === intNeigh.o.mac) {
+              if (packet.receiverAddress === intNeigh.o.mac) {
                 targetFound = true;
                 if (randomBoolean(intLink.quality / 100)) {
                   intNeigh.o.incoming.push(packet);
                   // Update route stats if packet reached final destination
                   if (packet.destinationMAC === intNeigh.o.mac) {
-                    var id = packet.sourceMAC + '=>' + packet.destinationMAC;
+                    var id = packet.sourceAddress + '=>' + packet.destinationMAC;
                     if (id in self.routes) {
                       var route = self.routes[id];
                       route.receivedCount += 1;
@@ -323,7 +323,7 @@ function createSim(graph) {
               }
 
               if (!targetFound) {
-                console.log('packet lost because next target not found: ' + packet.dstMAC);
+                console.log('packet lost because next target not found: ' + packet.receiverAddress);
               }
             }
           }
