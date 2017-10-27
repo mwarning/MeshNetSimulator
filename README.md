@@ -5,7 +5,7 @@ The code is written in plain JavaScript/HTML and [d3](https://d3js.org).
 
 Pull requests are welcome!
 
-![settings](screenshot.png)
+![settings](docs/screenshot.png)
 
 Features:
 - load MeshViewer nodes.json/graph.json data
@@ -19,6 +19,8 @@ Known issues:
 Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
 - [NetJSON](http://netjson.org/rfc.html#rfc.section.5) (not supported yet)
+
+For more information about mesh routing see [here](docs/about_mesh_networking.md).
 
 License: GPLv3
 
