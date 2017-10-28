@@ -80,7 +80,7 @@ function createShow (graph) {
     }
 
     var display = (tbody.children.length === 0);
-    displayElement($('show_no_elements'), display);
+    displayElement($('show_no_items'), display);
   }
 
   return self;

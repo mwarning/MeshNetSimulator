@@ -99,15 +99,15 @@
           <div>
             <table>
               <thead>
-                <th>Key</th>
-                <th>Value</th>
+                <th onclick="sortLexial(this)">Key</th>
+                <th onclick="sortLexial(this)">Value</th>
               </thead>
               <tbody id="show_object_tbody">
               </tbody>
+              <tr id="show_no_items">
+                <td colspan="2">No Items</td>
+              </tr>
             </table>
-          </div>
-          <div>
-            <label id="show_no_elements">No Elements</label>
           </div>
         </fieldset>
       </div>
@@ -261,6 +261,9 @@
               </thead>
               <tbody id='sim_routes'>
               </tbody>
+              <tr id="sim_no_routes">
+                <td colspan="6">No Routes</td>
+              </tr>
             </table>
           </div>
         </fieldset>

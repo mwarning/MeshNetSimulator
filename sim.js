@@ -137,6 +137,9 @@ function createSim(graph) {
       source_td.title = route.sourceAddress
       target_td.title = route.destinationAddress;
     }
+
+    var display = (tbody.children.length === 0);
+    displayElement($('sim_no_routes'), display);
   }
 
   self.delRoutes = function delRoutes() {

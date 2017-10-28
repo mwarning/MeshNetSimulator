@@ -64,6 +64,10 @@ div.tab button.active {
   border-top: none;
 }
 
+th {
+  width: 4em;
+}
+
 fieldset input[type="number"] {
   width: 3em;
 }
