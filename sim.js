@@ -229,6 +229,48 @@ function createSim(graph) {
     }
   }
 
+  function propagateBroadcastPacket(packet, intNode, intLinks) {
+    // Send cloned packet to all neighbors
+    for (var k = 0; k < intLinks.length; k++) {
+      var intLink = intLinks[k];
+      var intNeigh = getNeighbor(intLink, intNode);
+      packet = clonePacket(packet);
+
+      if (randomBoolean(intLink.quality / 100)) {
+        intNeigh.o.incoming.push(packet);
+      } else {
+        // Packet is lost
+      }
+    }
+  }
+
+  function propagateUnicastPacket(packet, intNode, intLinks) {
+    function updateRouteStats(route, packet) {
+      var id = packet.sourceAddress + '=>' + packet.destinationMAC;
+      if (id in self.routes) {
+        var route = self.routes[id];
+        route.receivedCount += 1;
+        route.receivedStepCount += (self.sim_steps_total - packet.step);
+      }
+    }
+
+    // Send to one neighbor
+    for (var k = 0; k < intLinks.length; k++) {
+      var intLink = intLinks[k];
+      var intNeigh = getNeighbor(intLink, intNode);
+      if (packet.receiverAddress === intNeigh.o.mac) {
+        if (randomBoolean(intLink.quality / 100)) {
+          intNeigh.o.incoming.push(packet);
+          // Final destination reached
+          if (packet.destinationMAC === intNeigh.o.mac) {
+            updateRouteStats(route, packet);
+          }
+        }
+        break;
+      }
+    }
+  }
+
   self.step = function step(steps_id, deploy_id) {
     var steps = getInteger(steps_id);
     var deployPacketsEnabled = getBoolean(deploy_id);
@@ -277,55 +319,16 @@ function createSim(graph) {
         intNode.o.step();
       }
 
-      // Move packets over links
+      // Propagate packets
       for (var i = 0; i < len; i++) {
         var intNode = intNodes[i];
         var intLinks = connections[intNode.index];
-        // Send outgoing packets over links
         for (var p = 0; p < intNode.o.outgoing.length; p++) {
           var packet = intNode.o.outgoing[p];
           if (packet.receiverAddress === BROADCAST_MAC) {
-            // Handle broadcast packet
-            // Send cloned apcket to all neighbors
-            for (var k = 0; k < intLinks.length; k++) {
-              var intLink = intLinks[k];
-              var intNeigh = getNeighbor(intLink, intNode);
-              packet = clonePacket(packet);
-
-              if (randomBoolean(intLink.quality / 100)) {
-                intNeigh.o.incoming.push(packet);
-              } else {
-                // Packet is lost
-              }
-            }
+            propagateBroadcastPacket(packet, intNode, intLinks);
           } else {
-            // Handle unicast packet
-            var targetFound = false;
-            // Send to one neighbor
-            for (var k = 0; k < intLinks.length; k++) {
-              var intLink = intLinks[k];
-              var intNeigh = getNeighbor(intLink, intNode);
-              if (packet.receiverAddress === intNeigh.o.mac) {
-                targetFound = true;
-                if (randomBoolean(intLink.quality / 100)) {
-                  intNeigh.o.incoming.push(packet);
-                  // Update route stats if packet reached final destination
-                  if (packet.destinationMAC === intNeigh.o.mac) {
-                    var id = packet.sourceAddress + '=>' + packet.destinationMAC;
-                    if (id in self.routes) {
-                      var route = self.routes[id];
-                      route.receivedCount += 1;
-                      route.receivedStepCount += (self.sim_steps_total - packet.step);
-                    }
-                  }
-                }
-                break;
-              }
-
-              if (!targetFound) {
-                console.log('packet lost because next target not found: ' + packet.receiverAddress);
-              }
-            }
+            propagateUnicastPacket(packet, intNode, intLinks);
           }
         }
 
