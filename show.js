@@ -27,6 +27,8 @@ function createShow (graph) {
       self.showObject(intNodes[0].o, []);
     } else if (intNodes.length == 0 && intLinks.length == 1) {
       self.showObject(intLinks[0].o, []);
+    } else if (intNodes.length == 0 && intLinks.length == 0) {
+      self.showObject(null, []);
     } else {
       alert('Select only one node/link.');
     }
@@ -47,31 +49,33 @@ function createShow (graph) {
     var tbody = document.getElementById('show_object_tbody');
 
     setPathSelect(o, path);
-    $$('show_type').nodeValue = o.constructor.name;
+    $$('show_type').nodeValue = o ? o.constructor.name : '-';
 
     clearChildren(tbody);
 
-    var obj = accessPath(o, path);
+    if (obj) {
+      var obj = accessPath(o, path);
 
-    for (var key in obj) {
-      var value = obj[key];
+      for (var key in obj) {
+        var value = obj[key];
 
-      if (typeof value === 'function') {
-        continue;
-      }
+        if (typeof value === 'function') {
+          continue;
+        }
 
-      // Create table rows of properties
-      var tr = append(tbody, 'tr');
-      var td = append(tr, 'td', key);
+        // Create table rows of properties
+        var tr = append(tbody, 'tr');
+        var td = append(tr, 'td', key);
 
-      if (typeof value === 'string' || typeof value === 'number') {
-        append(tr, 'td', value);
-      } else if (Array.isArray(value)) {
-        append(tr, 'td', '(' + value.length + ')');
-        tr.onclick = createCallback(self, o, path.concat([key]));
-      } else { // object
-        append(tr, 'td', '(' + Object.keys(value).length + ')');
-        tr.onclick = createCallback(self, o, path.concat([key]));
+        if (typeof value === 'string' || typeof value === 'number') {
+          append(tr, 'td', value);
+        } else if (Array.isArray(value)) {
+          append(tr, 'td', '(' + value.length + ')');
+          tr.onclick = createCallback(self, o, path.concat([key]));
+        } else { // object
+          append(tr, 'td', '(' + Object.keys(value).length + ')');
+          tr.onclick = createCallback(self, o, path.concat([key]));
+        }
       }
     }
 
