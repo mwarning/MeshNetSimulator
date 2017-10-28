@@ -64,12 +64,12 @@ function createDraw() {
       ctx.fillStyle = labelColor;
       ctx.fillText(d.o.name, d.x, d.y + 20);
 
-      var packetCount = d.o.getPacketCount();
-      if (packetCount > 0) {
+      var nodeLabel = d.o.getNodeLabel();
+      if (nodeLabel) {
         ctx.beginPath();
         ctx.textAlign = 'center';
         ctx.fillStyle = 'black';
-        ctx.fillText(packetCount, d.x, d.y + 3);
+        ctx.fillText(nodeLabel, d.x, d.y + 3);
       }
     }
   }

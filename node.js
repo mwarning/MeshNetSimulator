@@ -82,7 +82,7 @@ Node.prototype.step = function() {
   this.timer += 1;
 }
 
-Node.prototype.getPacketCount = function () {
+Node.prototype.getNodeLabel = function () {
   return (this.incoming.length + this.outgoing.length);
 }
 
