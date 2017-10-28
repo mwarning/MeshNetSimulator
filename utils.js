@@ -46,7 +46,7 @@ function clearChildren(parent) {
 
 function displayElement(e, show) {
   if (show) {
-    e.style.display = 'block';
+    e.style.display = '';
   } else {
     e.style.display = 'none';
   }
