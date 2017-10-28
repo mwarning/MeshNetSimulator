@@ -302,7 +302,7 @@ function createSim(graph) {
     var date = new Date();
     var simStartTime = date.getTime();
 
-    // _very_ simple simulation
+    // Simulation steps
     var len = intNodes.length;
     for (var step = 0; step < steps; step += 1) {
       self.sim_steps_total += 1;
@@ -311,6 +311,7 @@ function createSim(graph) {
         deployPackets_();
       }
 
+      // Guarantee random handling
       shuffleArray(intNodes);
 
       // Step nodes

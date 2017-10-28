@@ -16,7 +16,8 @@ function Node(mac, meta = {}) {
   this.neighbors = {};
 }
 
-// Process packets and transfer packets from incoming to outgoing list
+// Process packets and transfer packets from incoming to outgoing array.
+// This is where the routing algorithm needs to be implemented.
 Node.prototype.step = function() {
   function power_of_2(n) {
     return n && (n & (n - 1)) === 0;
