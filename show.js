@@ -40,7 +40,7 @@ function createShow (graph) {
 
     append(p, 'span', '/');
     for (var i = 0; i < path.length; i++) {
-      append(p, 'span', path[i]).onclick = createCallback(self, o, path);
+      append(p, 'span', path[i]).onclick = createCallback(self, o, path.slice(0, i));
       append(p, 'span', '/');
     }
   }
@@ -53,7 +53,7 @@ function createShow (graph) {
 
     clearChildren(tbody);
 
-    if (obj) {
+    if (o) {
       var obj = accessPath(o, path);
 
       for (var key in obj) {
