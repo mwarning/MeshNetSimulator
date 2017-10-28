@@ -77,7 +77,6 @@ Node.prototype.step = function() {
     this.outgoing.push(packet);
   }
 
-  //console.log(this.mac + ' step done (outgoing: ' + this.outgoing.length + ')');
   this.incoming = [];
   this.timer += 1;
 }
@@ -87,7 +86,7 @@ Node.prototype.getNodeLabel = function () {
 }
 
 Node.prototype.getClientCount = function () {
-  // Get info from meta info when ffmap is used
+  // Get info from meta info when meshviewer data is used
   return ('statistics' in this.meta) ? this.meta.statistics.clients : 0;
 }
 
@@ -102,6 +101,7 @@ Node.prototype.reset = function () {
   this.timer = 0;
 }
 
+// For changing the implementation during simulation
 Node.prototype.copyFromOldImplementation = function copyFromOldImplementation(oldNode) {
   copyExistingFields(oldNode, this);
 };
