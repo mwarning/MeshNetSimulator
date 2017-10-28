@@ -1,14 +1,7 @@
 ## What is mesh networking
 
-Mesh networks consist of arbritray connected nodes.
-In case of mesh networks
-The problem of mesh networking 
-Mesh networking is the problem to forward packets
-
-Routing loops
-Convergence
-Scalability
-split horizon
+Mesh networks consist of somewhat arbitrarily connected nodes. 
+In many cases these networks change frequently. In this case it is called Mobile Ad Hoc Networks (MANET).
 
 ## Categories
 
@@ -45,17 +38,22 @@ Link state protocols have a view of the whole network topology and it's link pro
 
 ### Routing Metric
 
-hopcount
-packet-loss
-throughput
-latency 
+The routing metric is used to decide what path to choose. It attaches a cost to a path through the network.
+
+Metric are based on hopcount, packet-loss, throughput, latency or even energy consumption.
+
+## 802.11s
+
+Ad-Hoc vs. Infrastructure Mode
+
+802.11s needs a special mentioning here, because it is implemented in wifi hardware and provides the base to run other routing protocols on top. This is done by disabling 802.11s meshing and only using the MAC layer for some other mesh routing software.
+802.11s alone provides a mesh network of up to 32 nodes, which is not sufficient for large scale networks.
+
+Note: Wireless Ad-Hoc mode can also be used to run mesh routing implementation on top. But it is old and often broken.
 
 ## Implemenation
 
 [Babel](https://www.irif.fr/~jch/software/babel/)
 [BATMAN-adv](https://www.open-mesh.org/projects/batman-adv/wiki)
 [OLSR](http://www.olsr.org/mediawiki/index.php/Main_Page)
-[802.11s]() Hardcoded limit of up to ~30 nodes.
-
-
-
+[802.11s]()
