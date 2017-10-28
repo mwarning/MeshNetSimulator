@@ -40,7 +40,7 @@ function createDraw() {
 
   var clientColor = '#e6324b';
   var selectColor = 'rgba(255, 255, 255, 0.2)';
-  var highlightColor = 'rgba(255, 255, 255, 0.2)';
+  var highlightColor = 'rgba(0, 0, 255, 0.2)';
   var linkScale = d3.interpolate('#F02311', '#04C714');
   var bandwidthWidthScale = d3.interpolateNumber(1.0, 3.0);
   var bandwidthAlphaScale = d3.interpolateNumber(0.1, 0.8);
