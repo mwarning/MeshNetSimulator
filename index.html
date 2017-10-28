@@ -63,23 +63,25 @@
       </div>
       <div id="file" class="tabcontent">
         <fieldset>
-        <legend>Graph Data</legend>
-        <div>
-          <label>graph.json:</label>
-          <input type="file" id="file_graph" value="">
-        </div>
-        <div>
-          <label>nodes.json:</label>
-          <input type="file" id="file_nodes" value="">
-        </div>
-        <div>
-          <input type="button" onclick="file.loadMeshViewerData('file_graph', 'file_nodes')" value="Load">
-          <input type="button" onclick="file.saveMeshViewerData()" value="Save">
-        </div>
+          <legend>Graph Data</legend>
+          <div class="enum">
+            <label>graph.json:</label>
+            <div>
+              <input type="file" id="file_graph" value="">
+            </div>
+          </div>
+          <div class="enum">
+            <label>nodes.json:</label>
+            <input type="file" id="file_nodes" value="">
+          </div>
+          <div class="equal">
+            <input type="button" onclick="file.loadMeshViewerData('file_graph', 'file_nodes')" value="Load">
+            <input type="button" onclick="file.saveMeshViewerData()" value="Save">
+          </div>
         </fieldset>
         <fieldset>
           <legend>Implementation</legend>
-          <div>
+          <div class="equal">
             <input type="button" onclick="file.reloadNodeImplementation()" value="reload node.js">
             <input type="button" onclick="file.reloadPacketImplementation()" value="reload packet.js">
           </div>
@@ -89,16 +91,18 @@
       <div id="show" class="tabcontent">
         <fieldset>
           <legend>Inspect</legend>
-          <div>
+          <div class="enum">
             <label>Type:</label>
             <span id="show_type">-</span>
           </div>
-          <div>
+          <div class="enum">
             <label>Path:</label>
             <span id="show_path">/</span>
           </div>
-          <input type="button" onclick="show.showSelectedObject()" value="Show">
-          <div>
+          <div class="equal">
+            <input type="button" onclick="show.showSelectedObject()" value="Show">
+          </div>
+          <div class="equal">
             <table>
               <thead>
                 <th onclick="sortLexial(this)">Key</th>
@@ -117,40 +121,44 @@
       <div id="edit" class="tabcontent">
         <fieldset>
           <legend>Selection</legend>
-          <div>
+          <div class="equal">
             <input type="button" onclick="graph.extendSelection()" value="extend">
             <input type="button" onclick="graph.clearSelection()" value="clear">
           </div>
         </fieldset>
         <fieldset>
           <legend>Nodes</legend>
-          <div>
+          <div class="equal">
             <input type="button" onclick="graph.connectSelectedNodes()" value="connect">
             <input type="button" onclick="graph.disconnectSelectedNodes()" value="disconnect">
           </div>
         </fieldset>
         <fieldset>
           <legend>Nodes&amp;Links</legend>
-          <div>
+          <div class="equal">
             <input type="button" onclick="graph.removeSelection()" value="remove">
           </div>
         </fieldset>
         <fieldset>
           <legend>Add Primitives</legend>
-          <input type="button" onclick="edit.addSingle()" value="Node">
-          <div>
+          <div class="enum">
+            <input type="button" onclick="edit.addSingle()" value="Node">
+          </div>
+          <div class="enum">
             <input type="button" onclick="edit.addLine('line_n', 'line_loop')" value="Line">
-            <input type="number" id="line_n" min="1" max="999" value="3">
-            <div>
-              <input type="checkbox" id="line_loop">
-              <span>Loop</span>
+            <div class="equal">
+              <input type="number" id="line_n" min="1" max="999" value="3">
+              <div>
+                <input type="checkbox" id="line_loop">
+                <span>Loop</span>
+              </div>
             </div>
           </div>
-          <div>
+          <div class="enum">
             <input type="button" onclick="edit.addStar('star_n')" value="Star">
             <input type="number" id="star_n" min="1" max="999" value="4">
           </div>
-          <div>
+          <div class="enum">
             <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="Lattice">
             <div>
               <input type="number" id="lattice_x" min="1" max="999" value="3">
@@ -166,22 +174,22 @@
         </fieldset>
         <fieldset>
           <legend>Link Parameters</legend>
-          <div>
+          <div class="enum">
             <div>
               <label>Quality:</label>
             </div>
-            <div>
+            <div class="equal">
+              <div>
+                <input type="number" id="quality_value" min="0" max="100" value="50">
+                <span>%</span>
+              </div>
               <select id="quality_generation">
                 <option value="fixed">Fixed</option>
                 <option value="random">Random</option>
               </select>
             </div>
-            <div>
-              <input type="number" id="quality_value" min="0" max="100" value="50">
-              <span>%</span>
-            </div>
           </div>
-          <div>
+          <div class="enum">
             <div>
               <label>Bandwidth:</label>
             </div>
@@ -190,20 +198,20 @@
               <span>%</span>
             </div>
           </div>
-          <div>
+          <div class="equal">
             <input type="button" onclick="edit.getLinkParameters('bandwidth_value', 'quality_value')" value="Get">
             <input type="button" onclick="edit.setLinkParameters('bandwidth_value', 'quality_value', 'quality_generation')" value="Set">
           </div>
         </fieldset>
         <fieldset>
           <legend>Animation</legend>
-          <div>
+          <div class="equal">
             <input type="button" onclick="graph.toggleAnimation()" value="toggle">
           </div>
         </fieldset>
         <fieldset>
           <legend>Misc</legend>
-          <div>
+          <div class="equal">
             <input type="button" onclick="graph.resetView()" value="reset view">
             <input type="button" onclick="graph.resetData()" value="remove graph">
           </div>
@@ -213,7 +221,7 @@
       <div id="sim" class="tabcontent">
         <fieldset>
           <legend>Simulator</legend>
-          <div>
+          <div class="equal">
             <select id="sim_steps">
               <option value="1">1</option>
               <option value="10">10</option>
@@ -224,32 +232,32 @@
             <input type="button" onclick="sim.step('sim_steps', 'deploy_packets')" value="step">
             <input type="button" onclick="sim.reset()" value="reset">
           </div>
-          <div>
+          <div class="enum">
             <label>Total Steps:</label>
             <span id="sim_steps_total">0</span>
           </div>
-          <div>
+          <div class="enum">
             <label>Steps Duration:</label>
             <span id="sim_duration">0</span>
           </div>
         </fieldset>
         <fieldset>
           <legend>Packet Placement</legend>
-          <div>
+          <div class="equal">
             <input type="button" onclick="sim.deployPackets()" value="Deploy Packets">
             <div>
-              <label>On every step</label>
+              <label>On every step:</label>
               <input type="checkbox" id="deploy_packets">
             </div>
           </div>
-          <div>
+          <div class="equal">
             <input type="button" onclick="sim.addRoutes()" value="Add Routes">
             <div>
               <label>Total Routes:</label>
               <span id="routes_count">0</span>
             </div>
           </div>
-          <div>
+          <div class="equal">
             <table>
               <thead>
                 <tr>
@@ -271,52 +279,52 @@
         </fieldset>
         <fieldset>
           <legend>Routing Statistics</legend>
-          <div>
+          <div class="enum">
             <label>Send:</label>
             <span id="routes_packets_send">0</span>
           </div>
-          <div>
+          <div class="enum">
             <label>Received:</label>
             <span id="routes_packets_received">0</span>
           </div>
-          <div>
+          <div class="enum">
             <label>Transit:</label>
             <span id="routes_packets_transit">0</span>
           </div>
-          <div>
+          <div class="enum">
             <label>Lost:</label>
             <span id="routes_packets_lost">0</span>
           </div>
         </fieldset>
         <fieldset>
           <legend>Routing Efficiency</legend>
-          <div>
+          <div class="enum">
             <label>Efficiency:</label>
             <span id="routing_efficiency">0</span>
           </div>
         </fieldset>
         <fieldset>
           <legend>Packet Statistics</legend>
-          <div>
+          <div class="enum">
             <label>Unicast:</label>
             <span id="packets_unicast_count">0</span>
           </div>
-          <div>
+          <div class="enum">
             <label>Broadcast:</label>
             <span id="packets_broadcast_count">0</span>
           </div>
         </fieldset>
         <fieldset>
           <legend>Graph Statistics</legend>
-          <div>
+          <div class="enum">
             <label>Links:</label>
             <span id="graph_links_count">0</span>
           </div>
-          <div>
+          <div class="enum">
             <label>Nodes:</label>
             <span id="graph_nodes_count">0</span>
           </div>
-          <div>
+          <div class="enum">
            <label>Clients:</label>
            <span id="sim_clients_count">0</span>
           </div>

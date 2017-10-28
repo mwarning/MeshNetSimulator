@@ -68,25 +68,29 @@ th {
   width: 4em;
 }
 
-fieldset input[type="number"] {
+input[type="number"] {
   width: 3em;
 }
 
-fieldset input[type="text"] {
+input[type="text"] {
   width: 8em;
 }
 
-fieldset input[type="button"] {
-  padding: 0px;
+input[type="button"] {
+  /*width: 6em;*/
 }
 
-fieldset td {
-  text-align: center;
+input[type="file"] {
+  width: 8.5em;
 }
 
 input[type="checkbox"] {
   text-align: center;
   vertical-align: middle;
+}
+
+fieldset td {
+  text-align: center;
 }
 
 fieldset {
@@ -98,15 +102,24 @@ fieldset {
 
 fieldset * {
   margin: 0.12em;
-}
-
-fieldset label {
-  float: left;
-  width: 8em;
   white-space: nowrap;
 }
 
-fieldset > div {
+fieldset .equal {
   display: flex;
   justify-content: space-around;
+
+}
+
+fieldset .enum > :first-child {
+  width: 8em;
+}
+
+fieldset .enum > * {
+  float: left;
+}
+
+fieldset > * {
+  clear: both;
+  /* border: 1px solid red; */
 }
