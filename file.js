@@ -2,6 +2,7 @@
 function createFile(graph) {
   var self = {};
 
+  /*
   function getJSON(url) {
     return new Promise(function (resolve, reject) {
       var req = new XMLHttpRequest();
@@ -21,6 +22,18 @@ function createFile(graph) {
 
       req.send();
     })(url).then(JSON.parse);
+  }
+  */
+
+  function readFileContent(id, callback) {
+    var file = document.getElementById(id).files[0];
+    if (file) {
+      var r = new FileReader();
+      r.onload = function(e) {
+        callback(e.target.result);
+      }
+      r.readAsText(file);
+    }
   }
 
   function reloadJavaScriptFile(src) {
@@ -144,7 +157,7 @@ function createFile(graph) {
     }
 
     intNodes.forEach(function(e) {
-      //var o = applyByScheme(e.o.meta, {}, nodesScheme);
+      var o = applyByScheme(e.o.meta, {}, nodesScheme);
 
       nodesDataNodes.push(e.o);
       graphDataNodes.push({

@@ -4,17 +4,6 @@ function createEdit(graph) {
 
   var NODE_SPACING = 40;
 
-  function readFileContent(id, callback) {
-    var file = document.getElementById(id).files[0];
-    if (file) {
-      var r = new FileReader();
-      r.onload = function(e) {
-        callback(e.target.result);
-      }
-      r.readAsText(file);
-    }
-  }
-
   self.setLinkParameters = function setLinkParameters(bandwidth_id, quality_id, quality_generation_id) {
     var intLinks = graph.getSelectedIntLinks();
     var quality_generation = getText(quality_generation_id);
