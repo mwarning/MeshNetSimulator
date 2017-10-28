@@ -100,3 +100,7 @@ Node.prototype.reset = function () {
   this.neighbors = {};
   this.timer = 0;
 }
+
+Packet.prototype.copyFromOldImplementation = function copyFromOldImplementation(oldNode) {
+  copyExistingFields(oldNode, this);
+};

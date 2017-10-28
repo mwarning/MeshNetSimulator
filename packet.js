@@ -18,3 +18,7 @@ function Packet(receiverAddress, transmitterAddress , sourceAddress, destination
 
   this.ttl = 10;
 }
+
+Packet.prototype.copyFromOldImplementation = function copyFromOldImplementation(oldPacket) {
+  copyExistingFields(oldPacket, this);
+};

@@ -106,3 +106,15 @@ function sortNumerical(th) {
   var col = findChildIndex(th);
   sortTableColumn(tbody, col, true);
 }
+
+function copyExistingFields(oldObject, newObject) {
+  for (var key in oldObject) {
+    if (key in newObject) {
+      var oldValue = oldObject[key];
+      var newValue = newObject[key];
+      if (typeof oldValue === typeof newValue) {
+        newObject[key] = oldValue;
+      }
+    }
+  }
+}

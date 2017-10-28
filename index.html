@@ -28,12 +28,14 @@
   <script src="packet.js"></script>
   <script src="draw.js"></script>
   <script src="graph.js"></script>
+  <script src="file.js"></script>
   <script src="edit.js"></script>
   <script src="sim.js"></script>
   <script src="show.js"></script>
 
   <script>
     var graph;
+    var file;
     var edit;
     var sim;
     var show;
@@ -43,6 +45,7 @@
       document.getElementsByClassName('tablinks')[0].click();
 
       graph = createGraph('graph');
+      file = createFile(graph);
       edit = createEdit(graph);
       sim = createSim(graph);
       show = createShow(graph);
@@ -60,19 +63,24 @@
       </div>
       <div id="file" class="tabcontent">
         <fieldset>
-        <legend>Files</legend>
+        <legend>Graph Data</legend>
         <div>
-          <label>Graph</label>
+          <label>graph.json:</label>
           <input type="file" id="file_graph" value="">
         </div>
         <div>
-          <label>Nodes</label>
+          <label>nodes.json:</label>
           <input type="file" id="file_nodes" value="">
         </div>
         <div>
-          <input type="button" onclick="edit.loadMeshViewerData('file_graph', 'file_nodes')" value="Load">
-          <input type="button" onclick="edit.saveMeshViewerData()" value="Save">
+          <input type="button" onclick="file.loadMeshViewerData('file_graph', 'file_nodes')" value="Load">
+          <input type="button" onclick="file.saveMeshViewerData()" value="Save">
         </div>
+        </fieldset>
+        <fieldset>
+          <legend>Implementation</legend>
+          <input type="button" onlick="file.reloadNodeImplementation()" value="reload node.js">
+          <input type="button" onlick="file.reloadPacketImplementation()" value="reload packet.js">
         </fieldset>
       </div>
 
