@@ -57,9 +57,9 @@ function createSim(graph) {
 
     var packetsBroadcastCount = 0;
     var packetsUnicastCount = 0;
-    var routesSendCount = 0;
-    var routesReceivedCount = 0;
-    var routesTransitCount = 0;
+    var packetsSendCount = 0;
+    var packetsReceivedCount = 0;
+    var packetsTransitCount = 0;
     var routesCount = 0;
 
     var routingEfficiencySum = 0;
@@ -72,7 +72,7 @@ function createSim(graph) {
         packetsUnicastCount += 1;
 
         var id = packet.sourceAddress + '=>' + packet.destinationMAC;
-        routesTransitCount += (id in self.routes);
+        packetsTransitCount += (id in self.routes);
       }
     }
 
@@ -85,8 +85,8 @@ function createSim(graph) {
     for (var id in self.routes) {
       var route = self.routes[id];
       routesCount += 1;
-      routesSendCount += route.sendCount;
-      routesReceivedCount += route.receivedCount;
+      packetsSendCount += route.sendCount;
+      packetsReceivedCount += route.receivedCount;
 
       if (!isNaN(route.efficiency)) {
         routingEfficiencySum += route.efficiency;
@@ -104,16 +104,16 @@ function createSim(graph) {
     $$('packets_broadcast_count').nodeValue = packetsBroadcastCount;
 
     function percent(value) {
-      var p = (100 * value / routesSendCount);
+      var p = (100 * value / packetsSendCount);
       return isNaN(p) ? '' : (' (' + p + '%)');
     };
 
     $$('routes_count').nodeValue = routesCount;
-    $$('routes_packets_send').nodeValue = routesSendCount;
-    $$('routes_packets_received').nodeValue = routesReceivedCount + percent(routesReceivedCount);
-    $$('routes_packets_transit').nodeValue = routesTransitCount + percent(routesTransitCount);
-    var routesLostCount = (routesSendCount - routesReceivedCount - routesTransitCount);
-    $$('routes_packets_lost').nodeValue = routesLostCount + percent(routesLostCount);
+    $$('routes_packets_send').nodeValue = packetsSendCount;
+    $$('routes_packets_received').nodeValue = packetsReceivedCount + percent(packetsReceivedCount);
+    $$('routes_packets_transit').nodeValue = packetsTransitCount + percent(packetsTransitCount);
+    var packetsLostCount = (packetsSendCount - packetsReceivedCount - packetsTransitCount);
+    $$('routes_packets_lost').nodeValue = packetsLostCount + percent(packetsLostCount);
 
     $$('routing_efficiency').nodeValue = num(routingEfficiency);
   }
