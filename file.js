@@ -25,8 +25,8 @@ function createFile(graph) {
 
   function reloadJavaScriptFile(src) {
     // Remove old script
-    var e = document.head.getElementsByTagName('script').find(function(e) {
-      return (e.src === src);
+    var e = Array.from(document.head.getElementsByTagName('script')).find(function(e) {
+      return e.src.endsWith('/' + src);
     });
     e.parentNode.removeChild(e);
 

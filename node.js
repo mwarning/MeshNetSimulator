@@ -101,6 +101,6 @@ Node.prototype.reset = function () {
   this.timer = 0;
 }
 
-Packet.prototype.copyFromOldImplementation = function copyFromOldImplementation(oldNode) {
+Node.prototype.copyFromOldImplementation = function copyFromOldImplementation(oldNode) {
   copyExistingFields(oldNode, this);
 };
