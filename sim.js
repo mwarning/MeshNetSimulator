@@ -66,12 +66,12 @@ function createSim(graph) {
     var routingEfficiencyCount = 0;
 
     function countPackets(packet) {
-      if (packet.destinationMAC === BROADCAST_MAC) {
+      if (packet.destinationAddress === BROADCAST_MAC) {
         packetsBroadcastCount += 1;
       } else {
         packetsUnicastCount += 1;
 
-        var id = packet.sourceAddress + '=>' + packet.destinationMAC;
+        var id = packet.sourceAddress + '=>' + packet.destinationAddress;
         packetsTransitCount += (id in self.routes);
       }
     }
@@ -246,7 +246,7 @@ function createSim(graph) {
 
   function propagateUnicastPacket(packet, intNode, intLinks) {
     function updateRouteStats(route, packet) {
-      var id = packet.sourceAddress + '=>' + packet.destinationMAC;
+      var id = packet.sourceAddress + '=>' + packet.destinationAddress;
       if (id in self.routes) {
         var route = self.routes[id];
         route.receivedCount += 1;
@@ -262,7 +262,7 @@ function createSim(graph) {
         if (randomBoolean(intLink.quality / 100)) {
           intNeigh.o.incoming.push(packet);
           // Final destination reached
-          if (packet.destinationMAC === intNeigh.o.mac) {
+          if (packet.destinationAddress === intNeigh.o.mac) {
             updateRouteStats(route, packet);
           }
         }
