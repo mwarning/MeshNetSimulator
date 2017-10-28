@@ -156,11 +156,13 @@
           </div>
           <div class="enum">
             <input type="button" onclick="edit.addStar('star_n')" value="Star">
-            <input type="number" id="star_n" min="1" max="999" value="4">
+            <div class="equal">
+              <input type="number" id="star_n" min="1" max="999" value="4">
+            </div>
           </div>
           <div class="enum">
             <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="Lattice">
-            <div>
+            <div class="equal">
               <input type="number" id="lattice_x" min="1" max="999" value="3">
               <span>x</span>
               <input type="number" id="lattice_y" min="1" max="999" value="3">
