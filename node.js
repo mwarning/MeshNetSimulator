@@ -2,18 +2,18 @@
 function Node(mac, meta = {}) {
 /* Required fields */
 
+  // Basic data
   this.mac = mac;
   this.name = mac;
   this.meta = meta;
 
-  // Array of incoming/outgoing packets
+  // Arrays of incoming/outgoing packets
   this.incoming = [];
   this.outgoing = [];
 
 /* Additional fields */
 
   this.timer = 0;
-  this.unicastPacketCount = 0;
   this.neighbors = {};
 }
 
