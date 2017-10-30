@@ -250,7 +250,7 @@ function createGraph(graph_id) {
 
     links.forEach(function(e) {
       // Make sure required fields are present
-      // We inject them into the d3 optject for simplicity...
+      // We inject them into the d3 object for simplicity...
       if (!('quality' in e)) e.quality = 100;
       if (!('bandwidth' in e)) e.bandwidth = 50;
     });
@@ -272,6 +272,8 @@ function createGraph(graph_id) {
 
     intNodes = [];
     intLinks = [];
+
+    updateGraphStatistics();
 
     force.nodes(intNodes);
     forceLink.links(intLinks);

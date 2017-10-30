@@ -216,7 +216,7 @@ function createFile(graph) {
 
         nodesDataNodes.forEach(function(e) {
           var mac = e.nodeinfo.network.mac;
-          var node = new Node(mac, e.nodeinfo);
+          var node = new Node(mac, e);
           node.name = e.nodeinfo.hostname;
           nodeDict[mac] = {o: node};
         });
@@ -240,7 +240,7 @@ function createFile(graph) {
         });
 
         nodes = Object.values(nodeDict);
-        addElements(nodes, links);
+        graph.addElements(nodes, links);
       });
     });
   }
