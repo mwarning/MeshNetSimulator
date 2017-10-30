@@ -29,12 +29,11 @@ Node.prototype.step = function() {
     );
   }
 
-  this.unicastPacketCount = 0;
   for (var i = 0; i < this.incoming.length; i++) {
     var packet = this.incoming[i];
 
     // Packet arrived at the destination
-    if (packet.destinationMAC == this.mac) {
+    if (packet.destinationAddress === this.mac) {
       console.log('packet arrived at the destination');
       continue;
     }
@@ -46,21 +45,26 @@ Node.prototype.step = function() {
     }
 
     // Catch broadcast packets an record neighbor
-    if (packet.receiverAddress == BROADCAST_MAC) {
+    if (packet.receiverAddress === BROADCAST_MAC) {
       this.neighbors[packet.transmitterAddress] = true;
       continue;
     }
 
     // Select random destination
     var others = Object.keys(this.neighbors);
-    var transmitterAddress = others[Math.floor(Math.random() * others.length)];
+    if (others.length) {
+      var nextHop = others[Math.floor(Math.random() * others.length)];
+      // Lower probability of sending the packet back to the same node
+      if (nextHop === packet.transmitterAddress) {
+        nextHop = others[Math.floor(Math.random() * others.length)];
+      }
 
-    packet.transmitterAddress = this.mac;
-    packet.receiverAddress = transmitterAddress;
-    packet.ttl -= 1;
+      packet.transmitterAddress = this.mac;
+      packet.receiverAddress = nextHop;
+      packet.ttl -= 1;
 
-    this.outgoing.push(packet);
-    this.unicastPacketCount += 1;
+      this.outgoing.push(packet);
+    }
   }
 
   this.incoming = [];
@@ -68,7 +72,12 @@ Node.prototype.step = function() {
 }
 
 Node.prototype.getNodeLabel = function () {
-  return this.unicastPacketCount;
+  function countUnicast(packets) {
+    return packets.reduce(function(acc, val) {
+      return acc + (val.receiverAddress !== BROADCAST_MAC);
+    }, 0);
+  }
+  return countUnicast(this.incoming) + countUnicast(this.outgoing);
 }
 
 Node.prototype.getClientCount = function () {

@@ -68,10 +68,6 @@ function createDijkstra(intNodes, intLinks) {
 
     distances[sourceIntNode.index] = 0;
 
-    function isEmpty(obj) {
-      return (Object.keys(obj).length === 0);
-    }
-
     function getSmallest() {
       var node = undefined;
       var distance = Infinity;
