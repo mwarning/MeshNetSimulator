@@ -20,8 +20,8 @@ function Route(sourceAddress, destinationAddress, deployRate = 1) {
 function createSim(graph) {
   var self = {};
 
-  self.sim_steps_total = 0;
-  self.sim_duration = 0;
+  self.simStep = 0;
+  self.simDuration = 0;
   self.routes = {};
 
   function shuffleArray(a) {
@@ -41,8 +41,8 @@ function createSim(graph) {
       self.routes[id].reset();
     }
 
-    self.sim_steps_total = 0;
-    self.sim_duration = 0;
+    self.simStep = 0;
+    self.simDuration = 0;
 
     updateSimStatistics();
 
@@ -99,8 +99,8 @@ function createSim(graph) {
     // Convert to medium percent
     var routingEfficiencyPercent = 100 * routingEfficiencySum / routingEfficiencyCount;
 
-    $$('sim_steps_total').nodeValue = self.sim_steps_total;
-    $$('sim_duration').nodeValue = (self.sim_duration / 1000);
+    $$('sim_steps_total').nodeValue = self.simStep;
+    $$('sim_duration').nodeValue = self.simDuration + ' ms';
 
     $$('packets_unicast_count').nodeValue = packetsUnicastCount
     $$('packets_broadcast_count').nodeValue = packetsBroadcastCount;
@@ -202,7 +202,7 @@ function createSim(graph) {
         var src = route.sourceAddress;
         var dst = route.destinationAddress;
         nodeMap[src].incoming.push(
-          new Packet(src, src, src, dst, self.sim_steps_total)
+          new Packet(src, src, src, dst, self.simStep)
         );
         route.sendCount += 1
       }
@@ -270,7 +270,7 @@ function createSim(graph) {
       if (id in self.routes) {
         var route = self.routes[id];
         route.receivedCount += 1;
-        route.receivedStepCount += (self.sim_steps_total - packet.step);
+        route.receivedStepCount += (self.simStep - packet.deployedAtStep);
       } else {
         console.log('Packet route not known: ' + id);
       }
@@ -319,7 +319,7 @@ function createSim(graph) {
     // Simulation steps
     var len = intNodes.length;
     for (var step = 0; step < steps; step += 1) {
-      self.sim_steps_total += 1;
+      self.simStep += 1;
 
       if (deployPacketsEnabled) {
         deployPackets_();
@@ -352,7 +352,7 @@ function createSim(graph) {
       }
     }
 
-    self.sim_duration = date.getTime() - simStartTime;
+    self.simDuration = date.getTime() - simStartTime;
 
     updateRouteEfficiency();
     updateRoutesTable();

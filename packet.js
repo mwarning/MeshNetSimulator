@@ -1,7 +1,7 @@
 
 var BROADCAST_MAC = "ff:ff:ff:ff:ff:ff";
 
-function Packet(transmitterAddress, receiverAddress, sourceAddress, destinationAddress, step = 0) {
+function Packet(transmitterAddress, receiverAddress, sourceAddress, destinationAddress, deployedAtStep = 0) {
 /* Required fields */
 
   // One hop receiver and transmitter address
@@ -13,7 +13,7 @@ function Packet(transmitterAddress, receiverAddress, sourceAddress, destinationA
   this.destinationAddress = destinationAddress;
 
   // Creation time of the packet
-  this.step = step;
+  this.deployedAtStep = deployedAtStep;
 
 /* Additional fields */
 
