@@ -14,10 +14,9 @@ Features:
 - create and edit graphs
 - run simple simulations
 
-Known issues:
-- animation toggle does not work properly
+TODO:
+- fix animation toggle
 - bandwidth is not handled in simulation
-- does not support changing topology and link properties (MANET simulation)
 
 Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
@@ -40,6 +39,7 @@ Either load nodes.json/graph.json (e.g. [nodes](https://regensburg.freifunk.net/
 
 For sketching a mesh routing strategy, you need to edit the node.js and packet.js files.
 Both files can be reloaded using the interface.
+A simple neighbor discovery and random neighbor routing algorithm is already implemented.
 
 ### Deploy packets
 Deploy packets manually or add defined routes to deploy continuous packets on each simulation step. The number of steps the packets need to arrive at the destination node will be used to calculate an overall efficiency value.
