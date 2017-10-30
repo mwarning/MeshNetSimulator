@@ -6,8 +6,6 @@ function Node(mac, meta = {}) {
   this.mac = mac;
   this.name = mac;
   this.meta = meta;
-
-  // Arrays of incoming/outgoing packets
   this.incoming = [];
   this.outgoing = [];
 
@@ -72,21 +70,25 @@ Node.prototype.step = function() {
 }
 
 Node.prototype.getNodeLabel = function () {
-  function countUnicast(packets) {
+  function countUnicastPackets(packets) {
     return packets.reduce(function(acc, val) {
       return acc + (val.receiverAddress !== BROADCAST_MAC);
     }, 0);
   }
-  return countUnicast(this.incoming) + countUnicast(this.outgoing);
+  var packets = countUnicastPackets(this.incoming) + countUnicastPackets(this.outgoing);
+  return packets ? packets.toString() : '';
+}
+
+Node.prototype.getRingColor = function () {
+  return isEmpty(this.neighbors) ? '' : '#008000';
+}
+
+Node.prototype.getBodyColor = function () {
+  return '#fff';
 }
 
 Node.prototype.getClientCount = function () {
-  // Get info from meta info when meshviewer data is used
   return ('statistics' in this.meta) ? this.meta.statistics.clients : 0;
-}
-
-Node.prototype.getNodeColor = function () {
-  return '#fff';
 }
 
 Node.prototype.reset = function () {

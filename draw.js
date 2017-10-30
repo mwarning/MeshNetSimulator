@@ -44,7 +44,6 @@ function createDraw() {
   var linkScale = d3.interpolate('#F02311', '#04C714');
   var bandwidthWidthScale = d3.interpolateNumber(1.0, 3.0);
   var bandwidthAlphaScale = d3.interpolateNumber(0.1, 0.8);
-  var labelColor = '#fff';
 
   var NODE_RADIUS = 15;
   var LINE_RADIUS = 12;
@@ -61,15 +60,15 @@ function createDraw() {
 
       ctx.beginPath();
       ctx.textAlign = 'center';
-      ctx.fillStyle = labelColor;
+      ctx.fillStyle = '#fff';
       ctx.fillText(d.o.name, d.x, d.y + 20);
 
       var nodeLabel = d.o.getNodeLabel();
-      if (nodeLabel) {
+      if (nodeLabel.length) {
         ctx.beginPath();
         ctx.textAlign = 'center';
         ctx.fillStyle = 'black';
-        ctx.fillText(nodeLabel, d.x, d.y + 3);
+        ctx.fillText(nodeLabel, d.x, d.y + 3.5);
       }
     }
   }
@@ -125,10 +124,21 @@ function createDraw() {
     drawSelectedNode(d);
     drawHighlightNode(d);
 
-    ctx.moveTo(d.x + 3, d.y);
-    ctx.arc(d.x, d.y, 8, 0, 2 * Math.PI);
-    ctx.fillStyle = d.o.getNodeColor();
-    ctx.fill();
+    var ringColor = d.o.getRingColor();
+    if (ringColor.length) {
+      //console.log(d.o.mac);
+      ctx.arc(d.x, d.y, 8, 0, 2 * Math.PI);
+      ctx.fillStyle = ringColor;
+      ctx.fill();
+      ctx.beginPath();
+    }
+
+    var bodyColor = d.o.getBodyColor();
+    if (bodyColor.length) {
+      ctx.arc(d.x, d.y, 7, 0, 2 * Math.PI);
+      ctx.fillStyle = bodyColor;
+      ctx.fill();
+    }
 
     drawDetailNode(d);
   };
