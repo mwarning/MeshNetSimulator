@@ -67,6 +67,10 @@ function append(parent, name, content) {
   return e;
 }
 
+function isEmpty(obj) {
+  return (Object.keys(obj).length === 0);
+}
+
 function findChildIndex(child) {
   var i = 0;
   while( (child = child.previousElementSibling) != null ) {
