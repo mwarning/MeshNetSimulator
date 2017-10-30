@@ -25,7 +25,6 @@ Format Documentation:
 
 For more information about mesh routing see [here](docs/about_mesh_networking.md).
 
-License: GPLv3
 
 ## How to Use
 
