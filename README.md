@@ -16,7 +16,9 @@ Features:
 
 TODO:
 - fix animation toggle
-- bandwidth is not handled in simulation
+- bandwidth link property is not handled
+- multiple packets on a links need to increase packet loss
+- network saving not yet implemented yet
 
 Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
