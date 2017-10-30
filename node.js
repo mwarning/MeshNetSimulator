@@ -13,26 +13,23 @@ function Node(mac, meta = {}) {
 /* Additional fields */
 
   this.timer = 0;
+  this.unicastPacketCount = 0;
   this.neighbors = {};
 }
 
-// Process packets and transfer packets from incoming to outgoing array.
-// This is where the routing algorithm needs to be implemented.
+/*
+* The simple routing algorithm here learns of its neigbhors once
+* and sends incoming packets to a random neighbor.
+*/
 Node.prototype.step = function() {
-  function power_of_2(n) {
-    return n && (n & (n - 1)) === 0;
-  }
-
   // Send a broadcast to direct neighbors
-  if (power_of_2(this.timer)) {
-    /*
+  if (this.timer === 0) {
     this.outgoing.push(
       new Packet(this.mac, BROADCAST_MAC, this.mac, BROADCAST_MAC)
     );
-    */
-    this.timer += 1;
   }
 
+  this.unicastPacketCount = 0;
   for (var i = 0; i < this.incoming.length; i++) {
     var packet = this.incoming[i];
 
@@ -48,33 +45,22 @@ Node.prototype.step = function() {
       continue;
     }
 
+    // Catch broadcast packets an record neighbor
     if (packet.receiverAddress == BROADCAST_MAC) {
-      if (packet.transmitterAddress in this.neighbors) {
-        this.neighbors[packet.transmitterAddress] += 1;
-      } else {
-        this.neighbors[packet.transmitterAddress] = 1;
-      }
-      console.log(this.mac + ' drops packet: broadcast');
+      this.neighbors[packet.transmitterAddress] = true;
       continue;
     }
 
-    // Select destination
+    // Select random destination
     var others = Object.keys(this.neighbors);
-    var transmitterAddress = packet.transmitterAddress;
-    if (others.length > 1) {
-      while (transmitterAddress == packet.transmitterAddress) {
-        transmitterAddress = others[Math.floor(Math.random() * others.length)];
-      }
-    } else {
-      console.log(this.mac + ' drop packet: no neighbors known');
-      continue;
-    }
+    var transmitterAddress = others[Math.floor(Math.random() * others.length)];
 
     packet.transmitterAddress = this.mac;
     packet.receiverAddress = transmitterAddress;
     packet.ttl -= 1;
 
     this.outgoing.push(packet);
+    this.unicastPacketCount += 1;
   }
 
   this.incoming = [];
@@ -82,7 +68,7 @@ Node.prototype.step = function() {
 }
 
 Node.prototype.getNodeLabel = function () {
-  return (this.incoming.length + this.outgoing.length);
+  return this.unicastPacketCount;
 }
 
 Node.prototype.getClientCount = function () {

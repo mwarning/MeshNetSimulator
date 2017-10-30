@@ -105,7 +105,7 @@ function createSim(graph) {
 
     function percent(value) {
       var p = (100 * value / packetsSendCount);
-      return isNaN(p) ? '' : (' (' + p + '%)');
+      return isNaN(p) ? '' : (' (' + p.toFixed(2) + '%)');
     };
 
     $$('routes_count').nodeValue = routesCount;
@@ -164,7 +164,7 @@ function createSim(graph) {
   }
 
   self.addRoutes = function addRoutes() {
-    function addRoute(sourceNode, targetNode) {
+    function addRoute(sourceAddress, destinationAddress) {
       var id = sourceAddress + '=>' + destinationAddress;
       if (!(id in self.routes)) {
         self.routes[id] = new Route(sourceAddress, destinationAddress, 1);
@@ -232,7 +232,16 @@ function createSim(graph) {
     }
   }
 
+  // Get other part of the link
+  function getNeighbor(intLink, intNode) {
+    return (intLink.source.index !== intNode.index) ? intLink.source : intLink.target;
+  }
+
   function propagateBroadcastPacket(packet, intNode, intLinks) {
+    function clonePacket(packet) {
+      return JSON.parse(JSON.stringify(packet));
+    }
+
     // Send cloned packet to all neighbors
     for (var k = 0; k < intLinks.length; k++) {
       var intLink = intLinks[k];
@@ -248,7 +257,7 @@ function createSim(graph) {
   }
 
   function propagateUnicastPacket(packet, intNode, intLinks) {
-    function updateRouteStats(route, packet) {
+    function updateRouteStats(packet) {
       var id = packet.sourceAddress + '=>' + packet.destinationAddress;
       if (id in self.routes) {
         var route = self.routes[id];
@@ -266,7 +275,7 @@ function createSim(graph) {
           intNeigh.o.incoming.push(packet);
           // Final destination reached
           if (packet.destinationAddress === intNeigh.o.mac) {
-            updateRouteStats(route, packet);
+            updateRouteStats(packet);
           }
         }
         break;
@@ -292,15 +301,6 @@ function createSim(graph) {
       connections[l.source.index].push(l);
       connections[l.target.index].push(l);
     });
-
-    function clonePacket(packet) {
-      return JSON.parse(JSON.stringify(packet));
-    }
-
-    // Get other part of the link
-    function getNeighbor(intLink, intNode) {
-      return (intLink.source.index !== intNode.index) ? intLink.source : intLink.target;
-    }
 
     var date = new Date();
     var simStartTime = date.getTime();
