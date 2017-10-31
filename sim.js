@@ -245,6 +245,12 @@ function createSim(graph) {
     return (intLink.source.index !== intNode.index) ? intLink.source : intLink.target;
   }
 
+  // Decide if a transmission is successful based on link properties
+  function isTransmissionSuccessful(intLink) {
+    var n = 100 * (Math.min(intLink.packetCount, intLink.bandwidth) / intLink.bandwidth);
+    return ((intLink.quality / 100) * Math.pow(0.999, n)) < Math.random();
+  }
+
   function propagateBroadcastPacket(packet, intNode, intLinks) {
     function clonePacket(packet) {
       return JSON.parse(JSON.stringify(packet));
@@ -254,12 +260,11 @@ function createSim(graph) {
     for (var k = 0; k < intLinks.length; k++) {
       var intLink = intLinks[k];
       var intNeigh = getNeighbor(intLink, intNode);
-      packet = clonePacket(packet);
 
-      if (randomBoolean(intLink.quality / 100)) {
+      intLink.packetCount += 1;
+      if (isTransmissionSuccessful(intLink)) {
+        packet = clonePacket(packet);
         intNeigh.o.incoming.push(packet);
-      } else {
-        // Packet is lost
       }
     }
   }
@@ -282,7 +287,8 @@ function createSim(graph) {
       var intNeigh = getNeighbor(intLink, intNode);
 
       if (packet.receiverAddress === intNeigh.o.mac) {
-        if (randomBoolean(intLink.quality / 100)) {
+        intLink.packetCount += 1;
+        if (isTransmissionSuccessful(intLink)) {
           intNeigh.o.incoming.push(packet);
           // Final destination reached
           if (packet.destinationAddress === intNeigh.o.mac) {
@@ -311,6 +317,8 @@ function createSim(graph) {
     intLinks.forEach(function(l) {
       connections[l.source.index].push(l);
       connections[l.target.index].push(l);
+      // Count packets over the link for packet loss calculation
+      l.packetCount = 0;
     });
 
     var date = new Date();
