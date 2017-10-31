@@ -50,7 +50,7 @@ function createSim(graph) {
   }
 
   function num(v, suffix = '') {
-    return isNaN(v) ? '-' : (v.toFixed(2) + suffix);
+    return isNaN(v) ? '-' : (v.toFixed(1) + suffix);
   }
 
   function updateSimStatistics() {
@@ -107,7 +107,7 @@ function createSim(graph) {
 
     function percent(value) {
       var p = (100 * value / packetsSendCount);
-      return isNaN(p) ? '' : (' (' + p.toFixed(2) + '%)');
+      return isNaN(p) ? '' : (' (' + p.toFixed(1) + '%)');
     };
 
     $$('routes_count').nodeValue = routesCount;
