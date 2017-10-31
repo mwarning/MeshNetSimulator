@@ -11,7 +11,7 @@ function Node(mac, meta = {}) {
 
 /* Additional fields */
 
-  this.timer = 0;
+  // Record next hop neighbors
   this.neighbors = {};
 }
 
@@ -21,7 +21,7 @@ function Node(mac, meta = {}) {
 */
 Node.prototype.step = function() {
   // Send a broadcast to direct neighbors
-  if (this.timer === 0) {
+  if (isEmpty(this.neighbors)) {
     this.outgoing.push(
       new Packet(this.mac, BROADCAST_MAC, this.mac, BROADCAST_MAC)
     );
@@ -33,12 +33,6 @@ Node.prototype.step = function() {
     // Packet arrived at the destination
     if (packet.destinationAddress === this.mac) {
       console.log('packet arrived at the destination');
-      continue;
-    }
-
-    // Drop packet when counter reached 0
-    if (packet.ttl <= 0) {
-      console.log(this.mac + ' drops packet: ttl <= 0');
       continue;
     }
 
@@ -59,14 +53,12 @@ Node.prototype.step = function() {
 
       packet.transmitterAddress = this.mac;
       packet.receiverAddress = nextHop;
-      packet.ttl -= 1;
 
       this.outgoing.push(packet);
     }
   }
 
   this.incoming = [];
-  this.timer += 1;
 }
 
 Node.prototype.getNodeLabel = function () {
@@ -95,7 +87,6 @@ Node.prototype.reset = function () {
   this.incoming = [];
   this.outgoing = [];
   this.neighbors = {};
-  this.timer = 0;
 }
 
 // For changing the implementation during simulation

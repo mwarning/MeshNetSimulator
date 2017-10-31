@@ -14,10 +14,6 @@ function Packet(transmitterAddress, receiverAddress, sourceAddress, destinationA
 
   // Creation time of the packet
   this.deployedAtStep = deployedAtStep;
-
-/* Additional fields */
-
-  this.ttl = 10;
 }
 
 // For changing the implementation during simulation
