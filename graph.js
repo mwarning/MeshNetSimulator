@@ -241,7 +241,7 @@ function createGraph(graph_id) {
       if ('x' in e) e.x += px;
       if ('y' in e) e.y += py;
 
-      // Make sure a Node object exists
+      // Make sure a node object exists
       if (!('o' in e)) {
         var mac = getUniqueMAC();
         e.o = new Node(mac);
