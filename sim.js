@@ -162,6 +162,7 @@ function createSim(graph) {
       var targetNode = intNodes[i].o;
       delRoute(sourceNode, targetNode);
     }
+
     updateRoutesTable();
   }
 
@@ -185,6 +186,7 @@ function createSim(graph) {
       var destinationAddress = intNodes[i].o.mac;
       addRoute(sourceAddress, destinationAddress);
     }
+
     updateRoutesTable();
   }
 
@@ -201,10 +203,14 @@ function createSim(graph) {
       if (randomBoolean(route.deployRate)) {
         var src = route.sourceAddress;
         var dst = route.destinationAddress;
-        nodeMap[src].incoming.push(
-          new Packet(src, src, src, dst, self.simStep)
-        );
-        route.sendCount += 1
+        if (src in nodeMap && dst in nodeMap) {
+          nodeMap[src].incoming.push(
+            new Packet(src, src, src, dst, self.simStep)
+          );
+          route.sendCount += 1;
+        } else {
+          console.log('Route does not exists: ' + src  + ' => ' + dst);
+        }
       }
     }
   }
