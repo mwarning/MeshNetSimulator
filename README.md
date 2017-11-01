@@ -3,7 +3,7 @@
 Community networks such as [Freifunk](https://freifunk.net) struggle with scaling issues and data overhead beyond a few hundred nodes.
 
 This is a simple simulator for exploring/sketching mesh network routing strategies in the hopes to find better approaches.
-The code is written in plain JavaScript/HTML using [d3](https://d3js.org).
+The code is written in plain JavaScript/HTML using the [d3](https://d3js.org) visualization library. Files graph.js and draw.js originate from the [meshviewer](https://github.com/ffrgb/meshviewer) project.
 
 Pull requests are welcome!
 
@@ -17,8 +17,7 @@ Features:
 TODO:
 - fix animation toggle
 - bandwidth link property is not handled
-- multiple packets on a links need to increase packet loss
-- network saving not yet implemented yet
+- network export not implemented yet
 
 Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
@@ -35,17 +34,26 @@ Get the content of the repository and open the file index.html in a browser.
 
 ### Create a topology
 
-Either load nodes.json/graph.json (e.g. [nodes](https://regensburg.freifunk.net/data/nodes.json)/[graph](https://regensburg.freifunk.net/data/graph.json)) or create some network using the `Edit` tab.
+Create some network using the `Edit` tab and click on the `lattice` button to create a 3x3 lattice.
+You can also load meshviewer nodes.json/graph.json data files (e.g. [nodes](https://regensburg.freifunk.net/data/nodes.json)/[graph](https://regensburg.freifunk.net/data/graph.json)).
 
 ### Implement a routing strategy (optional)
 
-For sketching a mesh routing strategy, you need to edit the node.js and packet.js files.
-Both files can be reloaded using the interface.
-A simple neighbor discovery and random neighbor routing algorithm is already implemented.
+A simple routing algorithm is already implemented. It will discovery neighbors and route packets to random neighbors.
+For sketching your own mesh routing strategy, you need to edit the node.js and packet.js files.
 
 ### Deploy packets
-Deploy packets manually or add defined routes to deploy continuous packets on each simulation step. The number of steps the packets need to arrive at the destination node will be used to calculate an overall efficiency value.
+Select a start and end node for a route to deploy packets on. Keep the control key pressed to select multiple nodes.
+Click the 'Add route' button on the 'sim' tab to create a route on which packets can be deployed.
 
 ### Simulate
 
-Click the sim button to let the nodes forward the packets to neighbors.
+Click the `step` button two times to let the nodes discover its neighbors with special broadcast packets.
+Now to click the 'Deploy Packets' button once to place packets on the created routes.
+The number of (unicast) packets will be displayed on the node.
+Use the `step` button to let the nodes propagate through the network in a random fashion until the destionation is reached.
+
+### Evaluate (optional)
+
+The `sim` tab will show the efficiency of the routing approach once a packet has reached its destination.
+Use the `show` tab to inspect the state of selected nodes and its current packets.
