@@ -27,7 +27,7 @@ function createFile(graph) {
   }
 
   self.reloadNodeImplementation = function reloadNodeImplementation () {
-    reloadJavaScriptFile('node.js');
+    reloadJavaScriptFile('src/node.js');
 
     // Recreate all Node objects 
     var intNodes = graph.getIntNodes();
@@ -45,7 +45,7 @@ function createFile(graph) {
   }
 
   self.reloadPacketImplementation = function reloadPacketImplementation () {
-    reloadJavaScriptFile('packet.js');
+    reloadJavaScriptFile('src/packet.js');
 
     function renewPackets(packets) {
       for (var i = 0; i < packets.length; i++) {
