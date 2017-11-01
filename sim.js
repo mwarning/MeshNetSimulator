@@ -254,7 +254,7 @@ function createSim(graph) {
   // Decide if a transmission is successful based on link properties
   function isTransmissionSuccessful(intLink) {
     var n = 100 * (Math.min(intLink.packetCount, intLink.bandwidth) / intLink.bandwidth);
-    return ((intLink.quality / 100) * Math.pow(0.999, n)) < Math.random();
+    return ((intLink.quality / 100) * Math.pow(0.999, n)) > Math.random();
   }
 
   function propagateBroadcastPacket(packet, intNode, intLinks) {
