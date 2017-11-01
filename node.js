@@ -4,7 +4,6 @@ function Node(mac, meta = {}) {
 
   // Basic data
   this.mac = mac;
-  this.name = mac;
   this.meta = meta;
   this.incoming = [];
   this.outgoing = [];
@@ -16,8 +15,8 @@ function Node(mac, meta = {}) {
 }
 
 /*
-* The simple routing algorithm here learns of its neigbhors once
-* and sends incoming packets to a random neighbor.
+* The simple routing algorithm here learns of its neigbhors
+* once and sends incoming packets to a random neighbor.
 */
 Node.prototype.step = function() {
   // Send a broadcast to direct neighbors
@@ -61,6 +60,12 @@ Node.prototype.step = function() {
   this.incoming = [];
 }
 
+// Name displayed under the node
+Node.prototype.getNodeName = function () {
+  return ('nodeinfo' in this.meta) ? this.meta.nodeinfo.hostname : this.mac;
+}
+
+// Label on top of the node body
 Node.prototype.getNodeLabel = function () {
   function countUnicastPackets(packets) {
     return packets.reduce(function(acc, val) {
@@ -71,14 +76,18 @@ Node.prototype.getNodeLabel = function () {
   return packets ? packets.toString() : '';
 }
 
+// Color of the ring around the node body
 Node.prototype.getRingColor = function () {
   return isEmpty(this.neighbors) ? '' : '#008000';
 }
 
+// Color of the round node body
 Node.prototype.getBodyColor = function () {
   return '#fff';
 }
 
+// Number of small red circles around the node
+// body indicating the number of connected clients
 Node.prototype.getClientCount = function () {
   return ('statistics' in this.meta) ? this.meta.statistics.clients : 0;
 }
@@ -89,7 +98,7 @@ Node.prototype.reset = function () {
   this.neighbors = {};
 }
 
-// For changing the implementation during simulation
+// For the transition to new implementations
 Node.prototype.copyFromOldImplementation = function copyFromOldImplementation(oldNode) {
   copyExistingFields(oldNode, this);
 };

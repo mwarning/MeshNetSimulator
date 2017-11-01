@@ -2,29 +2,6 @@
 function createFile(graph) {
   var self = {};
 
-  /*
-  function getJSON(url) {
-    return new Promise(function (resolve, reject) {
-      var req = new XMLHttpRequest();
-      req.open('GET', url);
-
-      req.onload = function onload() {
-        if (req.status === 200) {
-          resolve(req.response);
-        } else {
-          reject(Error(req.statusText));
-        }
-      };
-
-      req.onerror = function onerror() {
-        reject(Error('Network Error'));
-      };
-
-      req.send();
-    })(url).then(JSON.parse);
-  }
-  */
-
   function readFileContent(id, callback) {
     var file = document.getElementById(id).files[0];
     if (file) {
@@ -217,7 +194,6 @@ function createFile(graph) {
         nodesDataNodes.forEach(function(e) {
           var mac = e.nodeinfo.network.mac;
           var node = new Node(mac, e);
-          node.name = e.nodeinfo.hostname;
           nodeDict[mac] = {o: node};
         });
 

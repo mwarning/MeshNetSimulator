@@ -58,10 +58,13 @@ function createDraw() {
         ctx.fill();
       }
 
-      ctx.beginPath();
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#fff';
-      ctx.fillText(d.o.name, d.x, d.y + 20);
+      var nodeName = d.o.getNodeName();
+      if (nodeName.length) {
+        ctx.beginPath();
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(nodeName, d.x, d.y + 20);
+      }
 
       var nodeLabel = d.o.getNodeLabel();
       if (nodeLabel.length) {
