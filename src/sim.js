@@ -246,41 +246,8 @@ function createSim(graph) {
     }
   }
 
-  // Get other part of the link
-  function getNeighbor(intLink, intNode) {
-    return (intLink.source.index !== intNode.index) ? intLink.source : intLink.target;
-  }
-
-  // Decide if a transmission is successful based on link properties
-  function isTransmissionSuccessful(intLink, cumulatedPacketCount) {
-    var n = 100 * (Math.min(cumulatedPacketCount, intLink.o.bandwidth) / intLink.o.bandwidth);
-    return ((intLink.o.quality / 100) * Math.pow(0.999, n)) > Math.random();
-  }
-
-  function propagateBroadcastPacket(packet, intNode, intLinks) {
-    function clonePacket(packet) {
-      return JSON.parse(JSON.stringify(packet));
-    }
-
-    // Assume all packets are send over the same channel
-    var cumulatedPacketCount = 1 + intLinks.reduce(function(acc, val)) {
-      return acc + val.o.packetCount;
-    }, 0);
-
-    // Send cloned packet to all neighbors
-    for (var k = 0; k < intLinks.length; k++) {
-      var intLink = intLinks[k];
-      var intNeigh = getNeighbor(intLink, intNode);
-
-      intLink.o.packetCount += 1;
-      if (isTransmissionSuccessful(intLink, cumulatedPacketCount)) {
-        packet = clonePacket(packet);
-        intNeigh.o.incoming.push(packet);
-      }
-    }
-  }
-
-  function propagateUnicastPacket(packet, intNode, intLinks) {
+  self.step = function step(steps_id, deploy_id) {
+    // Record successful transmissions
     function updateRouteStats(packet) {
       var id = packet.sourceAddress + '=>' + packet.destinationAddress;
       if (id in self.routes) {
@@ -292,39 +259,18 @@ function createSim(graph) {
       }
     }
 
-    // Assume all packets are send over the same channel
-    var cumulatedPacketCount = 1 + intLinks.reduce(function(acc, val)) {
-      return acc + val.o.packetCount;
-    }, 0);
-
-    // Send to one neighbor
-    for (var k = 0; k < intLinks.length; k++) {
-      var intLink = intLinks[k];
-      var intNeigh = getNeighbor(intLink, intNode);
-
-      if (packet.receiverAddress === intNeigh.o.mac) {
-        intLink.o.packetCount += 1;
-
-        if (isTransmissionSuccessful(intLink, cumulatedPacketCount)) {
-          intNeigh.o.incoming.push(packet);
-          // Final destination reached
-          if (packet.destinationAddress === intNeigh.o.mac) {
-            updateRouteStats(packet);
-          }
-        }
-        break;
-      }
+    // Create unique link + channel identifier (assume index < 2^16)
+    function getChannelId(intLink) {
+      return (intLink.index << 16) + intLink.o.channel;
     }
-  }
 
-  self.step = function step(steps_id, deploy_id) {
     var steps = getInteger(steps_id);
     var deployPacketsEnabled = getBoolean(deploy_id);
 
     var intNodes = graph.getIntNodes();
     var intLinks = graph.getIntLinks();
 
-    // Map internal node index to array of link objects
+    // Map of internal node index to array of d3 link objects
     var connections = {};
 
     intNodes.forEach(function(n) {
@@ -348,10 +294,8 @@ function createSim(graph) {
         deployPackets_();
       }
 
-      // Reset packets count over the link
-      intLinks.forEach(function(l) {
-        l.packetCount = 0;
-      });
+      // Cumulated packet count for each link+channel
+      var packetCounts = {};
 
       // Randomize order
       shuffleArray(intNodes);
@@ -366,12 +310,31 @@ function createSim(graph) {
       for (var i = 0; i < len; i++) {
         var intNode = intNodes[i];
         var intLinks = connections[intNode.index];
+
         for (var p = 0; p < intNode.o.outgoing.length; p++) {
           var packet = intNode.o.outgoing[p];
-          if (packet.receiverAddress === BROADCAST_MAC) {
-            propagateBroadcastPacket(packet, intNode, intLinks);
-          } else {
-            propagateUnicastPacket(packet, intNode, intLinks);
+          for (var j = 0; j < intLinks.length; j++) {
+            var intLink = intLinks[j];
+
+            // Packet count per link and channel
+            var channelId = getChannelId(intLink);
+            var packetCount = 0;
+
+            if (channelId in packetCounts) {
+              packetCount = packetCounts[channelId];
+            } else {
+              packetCounts[channelId] = 0;
+            }
+
+            if (intLink.o.transmit(packet, intNode.o.mac, packetCount)) {
+              packetCounts[channelId] += 1;
+              // Final destination reached (and unicast)
+              var link = intLink.o;
+              var dstMAC = packet.destinationAddress;
+              if (dstMAC === link.sourceNode.mac || dstMAC === link.targetNode.mac) {
+                updateRouteStats(packet);
+              }
+            }
           }
         }
 

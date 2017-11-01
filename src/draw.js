@@ -161,9 +161,9 @@ function createDraw() {
     to = drawHighlightLink(d, to);
 
     ctx.lineTo(to[0], to[1]);
-    ctx.strokeStyle = linkScale(d.quality / 100);
-    ctx.lineWidth = bandwidthWidthScale(d.bandwidth / 100);
-    ctx.globalAlpha = bandwidthAlphaScale(d.bandwidth / 100);
+    ctx.strokeStyle = linkScale(d.o.quality / 100);
+    ctx.lineWidth = bandwidthWidthScale(d.o.bandwidth / 100);
+    ctx.globalAlpha = bandwidthAlphaScale(d.o.bandwidth / 100);
 
     ctx.stroke();
     ctx.globalAlpha = 1;

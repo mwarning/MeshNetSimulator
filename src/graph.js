@@ -152,16 +152,16 @@ function createGraph(graph_id) {
 
   forceLink = d3Force.forceLink()
     .distance(function (d) {
-      if (d.bandwidth > 50) {
+      if (d.o.bandwidth > 50) {
         return 0;
       }
       return 75;
     })
     .strength(function (d) {
-      if (d.bandwidth > 50) {
+      if (d.o.bandwidth > 50) {
         return 0.02;
       }
-      return Math.max(0.5, 1 / d.quality);
+      return Math.max(0.5, 1 / d.o.quality);
     });
 
   var zoom = d3Zoom.zoom()
@@ -249,10 +249,9 @@ function createGraph(graph_id) {
     });
 
     links.forEach(function(e) {
-      // Make sure required fields are present
-      // We inject them into the d3 object for simplicity...
-      if (!('quality' in e)) e.quality = 100;
-      if (!('bandwidth' in e)) e.bandwidth = 50;
+      if (!('o' in e)) {
+        e.o = new Link(e.source.o, e.target.o, 100, 50);
+      }
     });
 
     intNodes = intNodes.concat(nodes);
@@ -325,19 +324,19 @@ function createGraph(graph_id) {
     var dict = {};
     var links = [];
 
-    // Create link identifier (assume index < 2^16)
-    function getLinkNum(source, target) {
+    // Create unique link identifier (assume index < 2^16)
+    function getLinkId(source, target) {
       return (source.index << 16) + target.index;
     }
 
     intLinks.forEach(function(e) {
-      dict[getLinkNum(e.source, e.target)] = null;
+      dict[getLinkId(e.source, e.target)] = null;
     });
 
     selectedNodes.forEach(function (e1) {
       selectedNodes.forEach(function (e2) {
         if (e1.index < e2.index) {
-          var n = getLinkNum(e1, e2);
+          var n = getLinkId(e1, e2);
           if (!(n in dict)) {
             links.push({source: e1, target: e2});
             dict[n] = null;

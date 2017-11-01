@@ -16,7 +16,7 @@ function createFile(graph) {
   function reloadJavaScriptFile(src) {
     // Remove old script
     var e = Array.from(document.head.getElementsByTagName('script')).find(function(e) {
-      return e.src.endsWith('/' + src);
+      return e.src.endsWith(src);
     });
     e.parentNode.removeChild(e);
 
@@ -28,6 +28,8 @@ function createFile(graph) {
 
   self.reloadNodeImplementation = function reloadNodeImplementation () {
     reloadJavaScriptFile('src/node.js');
+
+    var nodeMap = {};
 
     // Recreate all Node objects 
     var intNodes = graph.getIntNodes();
@@ -41,6 +43,16 @@ function createFile(graph) {
 
       // Replace old node instance
       intNode.o = newNode;
+
+      nodeMap[newNode.mac] = newNode;
+    }
+
+    // Update node references in all link objects
+    var intLinks = graph.getIntLinks();
+    for (var i = 0; i < intLinks.length; i++) {
+      var intLink = intLinks[i];
+      intLink.sourceNode = nodeMap[intLink.sourceNode.o.mac];
+      intLink.targetNode = nodeMap[intLink.targetNode.o.mac];
     }
   }
 
@@ -65,6 +77,24 @@ function createFile(graph) {
       var intNode = intNodes[i];
       renewPackets(intNode.incoming);
       renewPackets(intNode.outgoing);
+    }
+  }
+
+  self.reloadLinkImplementation = function reloadLinkImplementation () {
+    reloadJavaScriptFile('src/link.js');
+
+    // Recreate all node objects
+    var intLinks = graph.getIntLinks();
+    for (var i = 0; i < intLinks.length; i++) {
+      var intLink = intLinks[i];
+      var oldLink = intLink.o;
+      var newLink = new Node();
+
+      // Copy over fields
+      newLink.copyFromOldImplementation(oldLink);
+
+      // Replace old link instance
+      intLink.o = newLink;
     }
   }
 
@@ -148,8 +178,8 @@ function createFile(graph) {
         bidirect: true,
         source: e.source.index,
         target: e.target.index,
-        tq: (100 / e.quality),
-        vpn: (e.bandwidth > 50)
+        tq: (100 / e.o.quality),
+        vpn: (e.o.bandwidth > 50)
       });
     });
 
@@ -207,11 +237,12 @@ function createFile(graph) {
         graphDataLinks.map(function(e) {
           var sid = graphDataNodes[e.source].id;
           var tid = graphDataNodes[e.target].id;
+          var source = nodeDict[sid];
+          var target = nodeDict[tid];
           links.push({
-            source: nodeDict[sid],
-            target: nodeDict[tid],
-            quality: (100 / e.tq),
-            bandwidth: (e.vpn ? 80 : 20)
+            source: source,
+            target: target,
+            o: new Link(source.o, target.o, (100 / e.tq), e.vpn ? 80 : 20)
           });
         });
 

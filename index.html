@@ -26,6 +26,7 @@
   <script src="src/dijkstra.js"></script>
   <script src="src/node.js"></script>
   <script src="src/packet.js"></script>
+  <script src="src/link.js"></script>
   <script src="src/draw.js"></script>
   <script src="src/graph.js"></script>
   <script src="src/file.js"></script>
@@ -83,7 +84,12 @@
           <legend>Implementation</legend>
           <div class="equal">
             <input type="button" onclick="file.reloadNodeImplementation()" value="reload node.js">
+          </div>
+          <div class="equal">
             <input type="button" onclick="file.reloadPacketImplementation()" value="reload packet.js">
+          </div>
+          <div class="equal">
+            <input type="button" onclick="file.reloadLinkImplementation()" value="reload link.js">
           </div>
         </fieldset>
       </div>
@@ -246,17 +252,17 @@
         <fieldset>
           <legend>Packet Placement</legend>
           <div class="equal">
-            <input type="button" onclick="sim.deployPackets()" value="Deploy Packets">
-            <div>
-              <label>On every step:</label>
-              <input type="checkbox" id="deploy_packets">
-            </div>
-          </div>
-          <div class="equal">
             <input type="button" onclick="sim.addRoutes()" value="Add Routes">
             <div>
               <label>Total Routes:</label>
               <span id="routes_count">0</span>
+            </div>
+          </div>
+          <div class="equal">
+            <input type="button" onclick="sim.deployPackets()" value="Deploy Packets">
+            <div>
+              <label>On every step:</label>
+              <input type="checkbox" id="deploy_packets">
             </div>
           </div>
           <div class="equal">

@@ -10,14 +10,14 @@ Pull requests are welcome!
 ![settings](docs/screenshot.png)
 
 Features:
-- load MeshViewer nodes.json/graph.json data
+- load Meshviewer nodes.json/graph.json data
 - create and edit graphs
+- live editing of node, link, packet implementation
 - run simple simulations
 
 TODO:
-- fix animation toggle
-- refactor code into a link.js file
-- network export not implemented yet
+- animation toggle does not work
+- network export not implemented
 
 Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)

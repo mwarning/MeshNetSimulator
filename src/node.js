@@ -18,7 +18,7 @@ function Node(mac, meta = {}) {
 * The simple routing algorithm here learns of its neigbhors
 * once and sends incoming packets to a random neighbor.
 */
-Node.prototype.step = function() {
+Node.prototype.step = function () {
   // Send a broadcast to direct neighbors
   if (isEmpty(this.neighbors)) {
     this.outgoing.push(
@@ -99,6 +99,6 @@ Node.prototype.reset = function () {
 }
 
 // For the transition to new implementations
-Node.prototype.copyFromOldImplementation = function copyFromOldImplementation(oldNode) {
+Node.prototype.copyFromOldImplementation = function (oldNode) {
   copyExistingFields(oldNode, this);
 };

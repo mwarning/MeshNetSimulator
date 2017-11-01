@@ -12,14 +12,14 @@ function createEdit(graph) {
 
     intLinks.forEach(function(e) {
       if (quality_generation == 'random') {
-        e.quality = 100 * Math.random();
+        e.o.quality = 100 * Math.random();
       } else {
-        e.quality = quality;
+        e.o.quality = quality;
       }
     });
 
     intLinks.forEach(function(e) {
-      e.bandwidth = bandwidth;
+      e.o.bandwidth = bandwidth;
     });
 
     graph.redraw();
@@ -28,7 +28,7 @@ function createEdit(graph) {
   self.getLinkParameters = function getLinkParameters(bandwidth_id, quality_id) {
     var intLinks = graph.getSelectedIntLinks();
     if (intLinks.length > 0) {
-      var link = intLinks[intLinks.length - 1];
+      var link = intLinks[intLinks.length - 1].o;
       $(bandwidth_id).value = link.bandwidth;
       $(quality_id).value = link.quality;
     } else {
