@@ -5,7 +5,7 @@ function Packet(transmitterAddress, receiverAddress, sourceAddress, destinationA
 /* Required fields */
 
   // One hop receiver and transmitter address
-  this.transmitterAddress  = transmitterAddress ;
+  this.transmitterAddress  = transmitterAddress;
   this.receiverAddress = receiverAddress;
 
   // Multi-hop source and destination address
