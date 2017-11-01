@@ -252,9 +252,9 @@ function createSim(graph) {
   }
 
   // Decide if a transmission is successful based on link properties
-  function isTransmissionSuccessful(intLink) {
-    var n = 100 * (Math.min(intLink.packetCount, intLink.bandwidth) / intLink.bandwidth);
-    return ((intLink.quality / 100) * Math.pow(0.999, n)) > Math.random();
+  function isTransmissionSuccessful(intLink, cumulatedPacketCount) {
+    var n = 100 * (Math.min(cumulatedPacketCount, intLink.o.bandwidth) / intLink.o.bandwidth);
+    return ((intLink.o.quality / 100) * Math.pow(0.999, n)) > Math.random();
   }
 
   function propagateBroadcastPacket(packet, intNode, intLinks) {
@@ -262,13 +262,18 @@ function createSim(graph) {
       return JSON.parse(JSON.stringify(packet));
     }
 
+    // Assume all packets are send over the same channel
+    var cumulatedPacketCount = 1 + intLinks.reduce(function(acc, val)) {
+      return acc + val.o.packetCount;
+    }, 0);
+
     // Send cloned packet to all neighbors
     for (var k = 0; k < intLinks.length; k++) {
       var intLink = intLinks[k];
       var intNeigh = getNeighbor(intLink, intNode);
 
-      intLink.packetCount += 1;
-      if (isTransmissionSuccessful(intLink)) {
+      intLink.o.packetCount += 1;
+      if (isTransmissionSuccessful(intLink, cumulatedPacketCount)) {
         packet = clonePacket(packet);
         intNeigh.o.incoming.push(packet);
       }
@@ -287,14 +292,20 @@ function createSim(graph) {
       }
     }
 
+    // Assume all packets are send over the same channel
+    var cumulatedPacketCount = 1 + intLinks.reduce(function(acc, val)) {
+      return acc + val.o.packetCount;
+    }, 0);
+
     // Send to one neighbor
     for (var k = 0; k < intLinks.length; k++) {
       var intLink = intLinks[k];
       var intNeigh = getNeighbor(intLink, intNode);
 
       if (packet.receiverAddress === intNeigh.o.mac) {
-        intLink.packetCount += 1;
-        if (isTransmissionSuccessful(intLink)) {
+        intLink.o.packetCount += 1;
+
+        if (isTransmissionSuccessful(intLink, cumulatedPacketCount)) {
           intNeigh.o.incoming.push(packet);
           // Final destination reached
           if (packet.destinationAddress === intNeigh.o.mac) {
