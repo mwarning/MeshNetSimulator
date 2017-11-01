@@ -323,8 +323,6 @@ function createSim(graph) {
     intLinks.forEach(function(l) {
       connections[l.source.index].push(l);
       connections[l.target.index].push(l);
-      // Count packets over the link for packet loss calculation
-      l.packetCount = 0;
     });
 
     var date = new Date();
@@ -339,7 +337,12 @@ function createSim(graph) {
         deployPackets_();
       }
 
-      // Guarantee random handling
+      // Reset packets count over the link
+      intLinks.forEach(function(l) {
+        l.packetCount = 0;
+      });
+
+      // Randomize order
       shuffleArray(intNodes);
 
       // Step nodes
