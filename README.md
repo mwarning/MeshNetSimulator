@@ -16,7 +16,7 @@ Features:
 
 TODO:
 - fix animation toggle
-- bandwidth link property is not handled
+- refactor code into a link.js file
 - network export not implemented yet
 
 Format Documentation:
