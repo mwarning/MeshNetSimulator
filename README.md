@@ -44,12 +44,12 @@ For sketching your own mesh routing strategy, you need to edit the node.js and p
 
 ### Deploy packets
 Select a start and end node for a route to deploy packets on. Keep the control key pressed to select multiple nodes.
-Click the 'Add route' button on the `Sim` tab to create a route on which packets can be deployed.
+Click the `Add Routes` button on the `Sim` tab to create a route on which packets can be deployed.
 
 ### Simulate
 
 Click the `step` button two times to let the nodes discover its neighbors with special broadcast packets.
-Now to click the 'Deploy Packets' button once to place packets on the created routes.
+Now to click the `Deploy Packets` button once to place packets on the created routes.
 The number of (unicast) packets will be displayed on the node.
 Use the `step` button to let the nodes propagate through the network in a random fashion until the destionation is reached.
 
