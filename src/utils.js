@@ -8,17 +8,17 @@ function $$(id) {
 }
 
 function showTab(evt, tabname) {
-  var tabcontent = document.getElementsByClassName("tabcontent");
+  var tabcontent = document.getElementsByClassName('tabcontent');
   for (var i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
+    tabcontent[i].style.display = 'none';
   }
 
-  var tablinks = document.getElementsByClassName("tablinks");
+  var tablinks = document.getElementsByClassName('tablinks');
   for (var i = 0; i < tablinks.length; i++) {
     tablinks[i].classList.remove('active');
   }
 
-  document.getElementById(tabname).style.display = "block";
+  document.getElementById(tabname).style.display = 'block';
   evt.currentTarget.classList.add('active');
 }
 

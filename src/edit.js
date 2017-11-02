@@ -26,6 +26,7 @@ function createEdit(graph) {
 
   self.getLinkParameters = function getLinkParameters(bandwidth_id, quality_id, channel_id) {
     var intLinks = graph.getSelectedIntLinks();
+
     if (intLinks.length > 0) {
       var link = intLinks[intLinks.length - 1].o;
       $(bandwidth_id).value = link.bandwidth;
@@ -40,12 +41,12 @@ function createEdit(graph) {
     graph.addElements([{}], []);
   }
 
-  self.addLine = function addLine (count, loop) {
+  self.addLine = function addLine (count_id, loop_id) {
+    var count = getInteger(count_id);
+    var loop = getBoolean(loop_id);
     var nodes = [];
     var links = [];
 
-    count = getInteger(count);
-    loop = getBoolean(loop);
     if (count < 1 || isNaN(count)) {
       return;
     }
@@ -68,11 +69,11 @@ function createEdit(graph) {
     graph.addElements(nodes, links);
   }
 
-  self.addStar = function addStar(count) {
+  self.addStar = function addStar(count_id) {
+    var count = getInteger(count_id);
     var nodes = [];
     var links = [];
 
-    count = getInteger(count);
     if (count < 1 || isNaN(count)) {
       return;
     }
@@ -94,12 +95,11 @@ function createEdit(graph) {
   }
 
   /*
-  self.addLayer = function addLayer(x_count, y_count) {
+  self.addLayer = function addLayer(x_count_id, y_count_id) {
+    var x_count = getInteger(x_count);
+    var y_count = getInteger(y_count);
     var nodes = [];
     var links = [];
-
-    x_count = getInteger(x_count);
-    y_count = getInteger(y_count);
 
     if (x_count < 1 || y_count < 1 || isNaN(x_count) || isNaN(y_count)) {
       return;
@@ -122,12 +122,11 @@ function createEdit(graph) {
   }
   */
 
-  self.addLattice = function addLattice(x_count, y_count) {
+  self.addLattice = function addLattice(x_count_id, y_count_id) {
+    var x_count = getInteger(x_count_id);
+    var y_count = getInteger(y_count_id);
     var nodes = [];
     var links = [];
-
-    x_count = getInteger(x_count);
-    y_count = getInteger(y_count);
 
     if (x_count < 1 || y_count < 1 || isNaN(x_count) || isNaN(y_count)) {
       return;

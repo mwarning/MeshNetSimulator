@@ -1,5 +1,5 @@
 
-var BROADCAST_MAC = "ff:ff:ff:ff:ff:ff";
+var BROADCAST_MAC = 'ff:ff:ff:ff:ff:ff';
 
 function Packet(transmitterAddress, receiverAddress, sourceAddress, destinationAddress, deployedAtStep = 0) {
 /* Required fields */
