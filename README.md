@@ -12,14 +12,14 @@ Pull requests are welcome!
 Features:
 - load Meshviewer nodes.json/graph.json data
 - create and edit graphs
-- live editing of [node](src/node.js), [link](src/link.js), [packet](src/packet.js) implementation
+- live editing of [Node](src/node.js), [Link](src/link.js)and [Packet](src/packet.js) implementations
 - run simple simulations
 
-TODO:
+To be done:
 - animation toggle does not work
 - network export not implemented
 
-Format Documentation:
+Import Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
 - [NetJSON](http://netjson.org/rfc.html#rfc.section.5) (not supported yet)
 
