@@ -20,6 +20,6 @@ Link.prototype.transmit = function (packet, packetCount) {
 };
 
 // For changing the implementation during simulation
-Link.prototype.copyFromOldImplementation = function (oldNode) {
-  copyExistingFields(oldNode, this);
+Link.prototype.copyFromOldImplementation = function (oldLink) {
+  copyExistingFields(oldLink, this);
 };
