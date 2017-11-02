@@ -250,7 +250,7 @@ function createGraph(graph_id) {
 
     links.forEach(function(e) {
       if (!('o' in e)) {
-        e.o = new Link(e.source.o, e.target.o, 100, 50);
+        e.o = new Link(100, 50);
       }
     });
 

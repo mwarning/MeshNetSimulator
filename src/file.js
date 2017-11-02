@@ -46,14 +46,6 @@ function createFile(graph) {
 
       nodeMap[newNode.mac] = newNode;
     }
-
-    // Update node references in all link objects
-    var intLinks = graph.getIntLinks();
-    for (var i = 0; i < intLinks.length; i++) {
-      var intLink = intLinks[i];
-      intLink.sourceNode = nodeMap[intLink.sourceNode.o.mac];
-      intLink.targetNode = nodeMap[intLink.targetNode.o.mac];
-    }
   }
 
   self.reloadPacketImplementation = function reloadPacketImplementation () {
@@ -242,7 +234,7 @@ function createFile(graph) {
           links.push({
             source: source,
             target: target,
-            o: new Link(source.o, target.o, (100 / e.tq), e.vpn ? 80 : 20)
+            o: new Link(100 / e.tq, e.vpn ? 80 : 20)
           });
         });
 
