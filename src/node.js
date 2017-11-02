@@ -72,8 +72,8 @@ Node.prototype.getNodeLabel = function () {
       return acc + (val.receiverAddress !== BROADCAST_MAC);
     }, 0);
   }
-  var packets = countUnicastPackets(this.incoming) + countUnicastPackets(this.outgoing);
-  return packets ? packets.toString() : '';
+  var packetCount = countUnicastPackets(this.incoming) + countUnicastPackets(this.outgoing);
+  return packetCount ? packetCount.toString() : '';
 }
 
 // Color of the ring around the node body
