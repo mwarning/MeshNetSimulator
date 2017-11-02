@@ -4,11 +4,12 @@ function createEdit(graph) {
 
   var NODE_SPACING = 40;
 
-  self.setLinkParameters = function setLinkParameters(bandwidth_id, quality_id, quality_generation_id) {
+  self.setLinkParameters = function setLinkParameters(bandwidth_id, quality_id, quality_generation_id, channel_id) {
     var intLinks = graph.getSelectedIntLinks();
     var quality_generation = getText(quality_generation_id);
     var quality = getFloat(quality_id);
     var bandwidth = getFloat(bandwidth_id);
+    var channel = getInteger(channel_id);
 
     intLinks.forEach(function(e) {
       if (quality_generation == 'random') {
@@ -16,21 +17,20 @@ function createEdit(graph) {
       } else {
         e.o.quality = quality;
       }
-    });
-
-    intLinks.forEach(function(e) {
       e.o.bandwidth = bandwidth;
+      e.o.channel = channel;
     });
 
     graph.redraw();
   }
 
-  self.getLinkParameters = function getLinkParameters(bandwidth_id, quality_id) {
+  self.getLinkParameters = function getLinkParameters(bandwidth_id, quality_id, channel_id) {
     var intLinks = graph.getSelectedIntLinks();
     if (intLinks.length > 0) {
       var link = intLinks[intLinks.length - 1].o;
       $(bandwidth_id).value = link.bandwidth;
       $(quality_id).value = link.quality;
+      $(quality_id).value = link.channel;
     } else {
       alert('Select at least one link.');
     }

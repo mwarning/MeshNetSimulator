@@ -6,7 +6,7 @@ function Link(quality = 100, bandwidth = 50) {
   this.quality = quality;
   // Number of packets allowed to be transmitted in one simulation step
   this.bandwidth = bandwidth;
-  // Transmission medium (0 is always distinct, >0 shared)
+  // Transmission medium (0 is always distinct, >0 is shared)
   this.channel = 0;
 }
 

@@ -199,12 +199,19 @@
             </div>
             <div>
               <input type="number" id="bandwidth_value" min="0" max="100" value="50">
-              <span>%</span>
+            </div>
+          </div>
+          <div class="enum">
+            <div>
+              <label>Channel:</label>
+            </div>
+            <div>
+              <input type="number" id="channel_value" min="0" max="100" value="0">
             </div>
           </div>
           <div class="equal">
-            <input type="button" onclick="edit.getLinkParameters('bandwidth_value', 'quality_value')" value="Get">
-            <input type="button" onclick="edit.setLinkParameters('bandwidth_value', 'quality_value', 'quality_generation')" value="Set">
+            <input type="button" onclick="edit.getLinkParameters('bandwidth_value', 'quality_value', 'channel_value')" value="Get">
+            <input type="button" onclick="edit.setLinkParameters('bandwidth_value', 'quality_value', 'quality_generation', 'channel_value')" value="Set">
           </div>
         </fieldset>
         <fieldset>
