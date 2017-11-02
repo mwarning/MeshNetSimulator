@@ -1,13 +1,17 @@
 
 function Link(quality = 100, bandwidth = 50) {
-  /* Required fields */
+/* Required fields */
+
+  // Packet loss in percent
   this.quality = quality;
+  // Number of packets allowed to be transmitted in one simulation step
   this.bandwidth = bandwidth;
+  // Transmission medium (0 is always distinct, >0 shared)
   this.channel = 0;
 }
 
 // Move a packet to a target node
-Link.prototype.transmit = function (packet, targetNode, packetCount) {
+Link.prototype.transmit = function (packet, packetCount) {
   // Calculate packet transmission probability
   // The formula needs improvments!
   function getProbability(link, packetCount) {
@@ -15,12 +19,7 @@ Link.prototype.transmit = function (packet, targetNode, packetCount) {
     return (link.quality / 100) * Math.pow(0.999, n);
   }
 
-  if (getProbability(this, packetCount) > Math.random()) {
-    targetNode.incoming.push(packet);
-    return true;
-  }
-
-  return false;
+  return (getProbability(this, packetCount) > Math.random());
 };
 
 // For changing the implementation during simulation

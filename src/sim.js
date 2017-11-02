@@ -260,8 +260,8 @@ function createSim(graph) {
     }
 
     // All links are bidirectional
-    function getOtherNode(link, mac) {
-      return (mac === link.targetNode.mac) ? link.sourceNode : link.targetNode;
+    function getOtherNode(intLink, mac) {
+      return (mac === intLink.target.o.mac) ? intLink.source.o : intLink.target.o;
     }
 
     function clonePacket(packet) {
@@ -334,7 +334,7 @@ function createSim(graph) {
             var intLink = intLinks[j];
             var link = intLink.o;
 
-            var otherNode = getOtherNode(link, node.mac);
+            var otherNode = getOtherNode(intLink, node.mac);
 
             if (isBroadcast || (packet.receiverAddress === otherNode.mac)) {
               if (isBroadcast) {
@@ -343,17 +343,20 @@ function createSim(graph) {
               }
 
               // Packet count per link and channel
-              var channelId = getChannelId(intLink);
               var packetCount = 1;
-
-              if (channelId in packetCounts) {
-                packetCount = packetCounts[channelId] + 1;
-                packetCounts[channelId] += 1;
-              } else {
-                packetCounts[channelId] = 1;
+              if (link.channel > 0) {
+                // Link on shared medium
+                var id = getChannelId(intLink);
+                if (id in packetCounts) {
+                  packetCount = packetCounts[id] + 1;
+                  packetCounts[id] += 1;
+                } else {
+                  packetCounts[id] = 1;
+                }
               }
 
-              if (link.transmit(packet, otherNode, packetCount)) {
+              if (link.transmit(packet, packetCount)) {
+                otherNode.incoming.push(packet);
                 // Final destination reached (and unicast)
                 if (packet.destinationAddress === otherNode.mac) {
                   updateRouteStats(packet);
