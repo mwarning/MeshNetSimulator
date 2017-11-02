@@ -1,11 +1,13 @@
 ## What is mesh networking
 
-Mesh networks consist of somewhat arbitrarily connected nodes. 
-In many cases these networks change frequently. In this case it is called Mobile Ad Hoc Networks (MANET).
+Mesh networks consist of nodes connected via links. The links might be wired or wireless connections.
+These networks change frequently due to nodes going offline/online and connections getting disturbed.
+Also, nodes might be mobile and connect to other nodes. These networks are called Mobile Ad Hoc Networks (MANET).
 
 ## Categories
 
-Mesh routing algorithms can be categorized by different distinct properties.
+Mesh routing algorithms can be categorized by different properties to distinguish those protocols.
+Note that hybrid approaches are alway possible.
 
 ### Layer 2 vs. Layer3
 Emulating OSI model layer 2 or 3 as part of the mesh network protocol has some pros and cons.
