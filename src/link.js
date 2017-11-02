@@ -14,12 +14,9 @@ function Link(quality = 100, bandwidth = 50) {
 Link.prototype.transmit = function (packet, packetCount) {
   // Calculate packet transmission probability
   // The formula needs improvments!
-  function getProbability(link, packetCount) {
-    var n = 100 * (Math.min(packetCount, link.bandwidth) / link.bandwidth);
-    return (link.quality / 100) * Math.pow(0.999, n);
-  }
-
-  return (getProbability(this, packetCount) > Math.random());
+  var n = 100 * (Math.min(packetCount, this.bandwidth) / this.bandwidth);
+  var probability = (this.quality / 100) * Math.pow(0.999, n);
+  return probability > Math.random();
 };
 
 // For changing the implementation during simulation
