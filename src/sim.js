@@ -296,8 +296,7 @@ function createSim(graph) {
       connections[l.target.index].push(l);
     });
 
-    var date = new Date();
-    var simStartTime = date.getTime();
+    var simStartTime = (new Date()).getTime();
 
     // Simulation steps
     var len = intNodes.length;
@@ -375,7 +374,7 @@ function createSim(graph) {
       }
     }
 
-    self.simDuration = date.getTime() - simStartTime;
+    self.simDuration = (new Date()).getTime() - simStartTime;
 
     updateRouteEfficiency();
     updateRoutesTable();
