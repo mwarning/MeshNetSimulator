@@ -260,8 +260,8 @@ function createSim(graph) {
     }
 
     // All links are bidirectional
-    function getOtherNode(intLink, mac) {
-      return (mac === intLink.target.o.mac) ? intLink.source.o : intLink.target.o;
+    function getOtherIntNode(intLink, mac) {
+      return (mac === intLink.target.o.mac) ? intLink.source : intLink.target;
     }
 
     function clonePacket(packet) {
@@ -271,11 +271,6 @@ function createSim(graph) {
       newPacket.copyFromOldImplementation(packet);
       return newPacket;
       */
-    }
-
-    // Create unique link + channel identifier (assume index < 2^16)
-    function getChannelId(intLink) {
-      return (intLink.index << 16) + intLink.o.channel;
     }
 
     var steps = getInteger(steps_id);
@@ -298,17 +293,18 @@ function createSim(graph) {
 
     var simStartTime = (new Date()).getTime();
 
+    // Cumulated packet count for each link
+    var packetCount = {};
+
     // Simulation steps
     var len = intNodes.length;
     for (var step = 0; step < steps; step += 1) {
       self.simStep += 1;
 
-      if (deployPacketsEnabled) {
-        deployPackets_();
-      }
-
-      // Cumulated packet count for each link+channel
-      var packetCounts = {};
+      // Initialize packet count
+      intLinks.forEach(function(l) {
+        packetCount[l.index] = 0;
+      });
 
       // Randomize order
       shuffleArray(intNodes);
@@ -322,42 +318,41 @@ function createSim(graph) {
       // Propagate packets
       for (var i = 0; i < len; i++) {
         var intNode = intNodes[i];
-        var node = intNode.o;
         var intLinks = connections[intNode.index];
 
-        for (var p = 0; p < node.outgoing.length; p++) {
-          var packet = node.outgoing[p];
+        // Randomize order
+        shuffleArray(intLinks);
+
+        for (var p = 0; p < intNode.o.outgoing.length; p++) {
+          var packet = intNode.o.outgoing[p];
           var isBroadcast = (packet.receiverAddress === BROADCAST_MAC);
 
           for (var j = 0; j < intLinks.length; j++) {
             var intLink = intLinks[j];
-            var link = intLink.o;
+            var otherIntNode = getOtherIntNode(intLink, intNode.o.mac);
 
-            var otherNode = getOtherNode(intLink, node.mac);
-
-            if (isBroadcast || (packet.receiverAddress === otherNode.mac)) {
+            if (isBroadcast || (packet.receiverAddress === otherIntNode.o.mac)) {
               if (isBroadcast) {
                 // Necessary for broadcast
                 packet = clonePacket(packet);
               }
 
-              // Packet count per link and channel
-              var packetCount = 1;
-              if (link.channel > 0) {
-                // Link on shared medium
-                var id = getChannelId(intLink);
-                if (id in packetCounts) {
-                  packetCount = packetCounts[id] + 1;
-                  packetCounts[id] += 1;
-                } else {
-                  packetCounts[id] = 1;
-                }
+              // Update count per node and channel to
+              // simulate a shared transmission medium
+              if (intLink.o.channel > 0) {
+                intLinks.forEach(function(l) {
+                  if (l.o.channel === intLink.o.channel) {
+                    packetCount[l.index] += 1;
+                  }
+                });
+              } else {
+                packetCount[intLink.index] += 1;
               }
 
-              if (link.transmit(packet, packetCount)) {
-                otherNode.incoming.push(packet);
+              if (intLink.o.transmit(packet, packetCount[intLink.index])) {
+                otherIntNode.o.incoming.push(packet);
                 // Final destination reached (and unicast)
-                if (packet.destinationAddress === otherNode.mac) {
+                if (packet.destinationAddress === otherIntNode.o.mac) {
                   updateRouteStats(packet);
                 }
               }
@@ -371,6 +366,10 @@ function createSim(graph) {
 
         // All packets should have been handled
         intNode.o.outgoing = [];
+      }
+
+      if (deployPacketsEnabled) {
+        deployPackets_();
       }
     }
 
