@@ -25,6 +25,13 @@ Import Format Documentation:
 
 For more information about mesh routing see [here](docs/about_mesh_networking.md).
 
+## FAQ
+
+* **Why JavaScript?**  
+  Because of d3.js for visualisation. Also, JavaScript is easy enough for sketching ideas.
+
+* **How fast is the simulation?**  
+  10000 steps for a lattice of 10000 nodes and 19800 links with ~36000 packets took about three minutes on my mobile i7 CPU.
 
 ## How to Use
 
