@@ -35,7 +35,7 @@ Node.prototype.step = function () {
       continue;
     }
 
-    // Catch broadcast packets an record neighbor
+    // Catch broadcast packets and record neighbor
     if (packet.receiverAddress === BROADCAST_MAC) {
       this.neighbors[packet.transmitterAddress] = true;
       continue;

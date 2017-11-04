@@ -12,7 +12,7 @@ Pull requests are welcome!
 Features:
 - load Meshviewer nodes.json/graph.json data
 - create and edit graphs
-- live editing of [Node](src/node.js), [Link](src/link.js)and [Packet](src/packet.js) implementations
+- live editing of [Node](src/node.js), [Link](src/link.js) and [Packet](src/packet.js) implementations
 - run simple simulations
 
 To be done:
