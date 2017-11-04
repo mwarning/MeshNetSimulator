@@ -33,6 +33,12 @@ function createSim(graph) {
 
   self.reset = function reset() {
     var intNodes = graph.getIntNodes();
+    var intLinks = graph.getIntLinks();
+
+    for (var i = 0; i < intLinks.length; i++) {
+      intLinks[i].o.reset();
+    }
+
     for (var i = 0; i < intNodes.length; i++) {
       intNodes[i].o.reset();
     }
@@ -297,26 +303,26 @@ function createSim(graph) {
     var packetCount = {};
 
     // Simulation steps
-    var len = intNodes.length;
     for (var step = 0; step < steps; step += 1) {
       self.simStep += 1;
 
       // Initialize packet count
-      intLinks.forEach(function(l) {
-        packetCount[l.index] = 0;
-      });
+      for (var i = 0; i < intLinks.length; i++) {
+        var intLink = intLinks[i];
+        packetCount[intLink.index] = 0;
+      }
 
       // Randomize order
       shuffleArray(intNodes);
 
       // Step nodes
-      for (var i = 0; i < len; i++) {
+      for (var i = 0; i < intNodes.length; i++) {
         var intNode = intNodes[i];
         intNode.o.step();
       }
 
       // Propagate packets
-      for (var i = 0; i < len; i++) {
+      for (var i = 0; i < intNodes.length; i++) {
         var intNode = intNodes[i];
         var intLinks = connections[intNode.index];
 
