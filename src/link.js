@@ -2,11 +2,24 @@
 function Link(quality = 100, bandwidth = 50) {
 /* Required fields */
 
-  // Packet loss in percent
+  /*
+  [0..100] Link quality in percent
+  The quality is 100% minus expected packet loss.
+  A wireless link usually has a medium packet loss of 25%. A wired link maybe 2%.
+  */
   this.quality = quality;
-  // Number of packets allowed to be transmitted in one simulation step
+  /*
+  [0..] Number of packets
+  The bandwidth is the number of packets that can be transmitted in one simulation step
+  How this value is applied is decided in the transmit() method.
+  */
   this.bandwidth = bandwidth;
-  // Transmission medium (0 is always distinct, >0 is shared)
+  /*
+  [0..] Transmission medium
+  Channel 0 represents a link over its own medium. The link does not influence any other links.
+  Influence means that the packetCount for the transmit() method is not cumulated over multiple links.
+  With channels >0 link can be grouped together, e.g. as to simulate multiple (e.g. wireless) interfaces.
+  */
   this.channel = 0;
 }
 
