@@ -150,11 +150,9 @@
             <input type="button" onclick="edit.addLine('line_n', 'line_loop')" value="Line">
             <div class="equal">
               <input type="number" id="line_n" min="1" max="999" value="3">
-              <div>
-                <input type="checkbox" id="line_loop">
+              <input type="checkbox" id="line_loop">
                 <span>Loop</span>
               </div>
-            </div>
           </div>
           <div class="enum">
             <input type="button" onclick="edit.addStar('star_n')" value="Star">
@@ -178,19 +176,15 @@
         </fieldset>
         <fieldset>
           <legend>Link Parameters</legend>
-          <div class="enum">
-            <div>
-              <label>Quality:</label>
-            </div>
+          <div class="enum">            
+              <label>Quality:</label>              
             <div class="equal">
-              <div>
                 <input type="number" id="quality_value" min="0" max="100" value="50">
                 <span>%</span>
-              </div>
-              <select id="quality_generation">
+                <select id="quality_generation">
                 <option value="fixed">Fixed</option>
                 <option value="random">Random</option>
-              </select>
+                </select>
             </div>
           </div>
           <div class="enum">
