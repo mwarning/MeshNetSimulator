@@ -31,7 +31,10 @@ For more information about mesh routing see [here](docs/about_mesh_networking.md
   Because of d3.js for visualisation. Also, JavaScript is easy enough for sketching ideas.
 
 * **How fast is the simulation?**  
-  10000 steps for a lattice of 10000 nodes and 19800 links with ~36000 packets took about three minutes on my mobile i7 CPU.
+  10000 steps for a lattice of 10000 nodes and 19800 links with ~36000 packets took about three minutes on a i7.
+
+* **How is the routing efficiency value calculated?**  
+  Overall efficiency is computed as the medium efficiency of each route. Route efficiency is the `received packets` / `send packets` * `medium hop count of received packets` / `optimal hop count`.
 
 ## How to Use
 
