@@ -21,7 +21,7 @@ To be done:
 
 Import Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
-- [NetJSON](http://netjson.org/rfc.html#rfc.section.5) (not supported yet)
+- [NetJSON](http://netjson.org/rfc.html) (not supported yet)
 
 For more information about mesh routing see [here](docs/about_mesh_networking.md).
 
