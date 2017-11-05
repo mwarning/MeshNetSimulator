@@ -60,7 +60,6 @@ div.tab button.active {
 /* Style the tab content */
 .tabcontent {
   display: none;
-  /*padding: 6px 12px;*/
   border-top: none;
 }
 
@@ -130,7 +129,6 @@ fieldset .enum > * {
 
 fieldset > * {
   clear: both;
-  /* border: 1px solid red; */
 }
 
 body {
