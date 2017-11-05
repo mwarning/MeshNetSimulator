@@ -69,7 +69,9 @@ th {
 }
 
 input[type="number"] {
-  width: 3em;
+  width: auto;
+  margin: auto;
+  max-width: 3.2em;
 }
 
 input[type="text"] {
@@ -88,6 +90,7 @@ input[type="file"] {
 input[type="checkbox"] {
   text-align: center;
   vertical-align: middle;
+  margin: 0 0 0 0.5em;
 }
 
 fieldset td {
@@ -108,16 +111,21 @@ fieldset * {
 }
 
 fieldset .equal {
-  display: flex;
+  display: inline-block;
   justify-content: space-around;
 }
 
+fieldset .enum {
+  height: 1.75em;
+}
+
 fieldset .enum > :first-child {
-  width: 8em;
+  width: 6.5em;
 }
 
 fieldset .enum > * {
   float: left;
+  margin: 0.1em;
 }
 
 fieldset > * {
