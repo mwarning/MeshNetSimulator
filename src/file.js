@@ -2,6 +2,18 @@
 function createFile(graph) {
   var self = {};
 
+  function offerDownload(filename, text) {
+    var a = document.createElement('a');
+    a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    a.setAttribute('download', filename);
+
+    a.style.display = 'none';
+    document.body.appendChild(a);
+
+    a.click();
+    document.body.removeChild(a);
+  }
+
   function readFileContent(id, callback) {
     var file = document.getElementById(id).files[0];
     if (file) {
@@ -188,12 +200,14 @@ function createFile(graph) {
 
     var nodes_json = {
       meta: {
-        timestamp: Date.now().format('DD.MM.Y HH:mm')
+        timestamp: (new Date).toISOString().slice(0, 19)
       },
       nodes: [],
       version: 2
     };
-    // TODO: write files here
+
+    offerDownload('graph.json', JSON.stringify(graph_json));
+    offerDownload('nodes.json', JSON.stringify(nodes_json));
   }
 
   self.loadMeshViewerData = function loadMeshViewerData(graph_id, nodes_id) {

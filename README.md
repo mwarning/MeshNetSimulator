@@ -17,7 +17,6 @@ Features:
 
 To be done:
 - animation toggle does not work
-- network export not implemented
 
 Import Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
