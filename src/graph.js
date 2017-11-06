@@ -8,7 +8,7 @@ function createGraph(graph_id) {
   var d3Selection = d3;
   var d3Timer = d3;
   var d3Ease = d3;
-  var animationEnabled = true; //TODO: fix or replace...
+  var animationEnabled = true;
 
   var self = this;
   var lastClick = [0, 0];
@@ -349,7 +349,7 @@ function createGraph(graph_id) {
   }
 
   self.toggleAnimation = function toggleAnimation() {
-    //TODO: prevent animation restart on drag/click etc.
+    // Note: Animation will restart on drag/click etc.
     if (animationEnabled) {
       force.stop();
     } else {

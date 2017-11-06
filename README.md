@@ -15,9 +15,6 @@ Features:
 - live editing of [Node](src/node.js), [Link](src/link.js) and [Packet](src/packet.js) implementations
 - run simple simulations
 
-To be done:
-- animation toggle does not work
-
 Import Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
 - [NetJSON](http://netjson.org/rfc.html) (not supported yet)
