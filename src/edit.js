@@ -38,7 +38,7 @@ function createEdit(graph) {
   }
 
   self.addSingle = function addSingle () {
-    graph.addElements([{}], []);
+    graph.addElements([{x: 0, y: 0}], []);
   }
 
   self.addLine = function addLine (count_id, loop_id) {

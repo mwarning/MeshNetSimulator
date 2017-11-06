@@ -233,8 +233,13 @@ function createGraph(graph_id) {
   }
 
   this.addElements = function addElements(nodes, links) {
-    var px = lastClick[0];
-    var py = lastClick[1];
+    // Nodes center
+    var mx = nodes.reduce(function(acc, e) { return acc + ('x' in e) ? e.x : 0; }, 0) / nodes.length;
+    var my = nodes.reduce(function(acc, e) { return acc + ('y' in e) ? e.y : 0; }, 0) / nodes.length;
+
+    // Combine with center
+    var px = lastClick[0] - mx;
+    var py = lastClick[1] - my;
 
     nodes.forEach(function(e) {
       // Add base position
