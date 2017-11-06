@@ -125,7 +125,8 @@
           <legend>Selection</legend>
           <div class="equal">
             <input type="button" onclick="graph.extendSelection()" value="extend">
-            <input type="button" onclick="graph.clearSelection()" value="clear">
+            <input type="button" onclick="graph.clearSelection()" value="unselect">
+            <input type="button" onclick="graph.removeSelection()" value="remove">
           </div>
         </fieldset>
         <fieldset>
@@ -133,12 +134,6 @@
           <div class="equal">
             <input type="button" onclick="graph.connectSelectedNodes()" value="connect">
             <input type="button" onclick="graph.disconnectSelectedNodes()" value="disconnect">
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend>Nodes&amp;Links</legend>
-          <div class="equal">
-            <input type="button" onclick="graph.removeSelection()" value="remove">
           </div>
         </fieldset>
         <fieldset>
