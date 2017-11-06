@@ -63,3 +63,9 @@ Use the `step` button to let the nodes propagate through the network in a random
 
 The `Sim` tab will show the efficiency of the routing approach once a packet has reached its destination.
 Use the `show` tab to inspect the state of selected nodes and its current packets.
+
+## Related software
+
+[OMNeT++](https://www.omnetpp.org/): OMNeT++ is an extensible, modular, component-based C++ simulation library and framework, primarily for building network simulators.
+
+[ns-3](https://www.nsnam.org/): ns-3 is a discrete-event network simulator for Internet systems, targeted primarily for research and educational use. 
