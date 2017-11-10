@@ -5,3 +5,4 @@ The examples are run by replacing (node.js)[src/node.js] with the content of the
 
 
 * (Max number consensus)[src/node_max_num_consensus.js]
+* (Distance enumeration)[src/node_distance_enumeration.js]
