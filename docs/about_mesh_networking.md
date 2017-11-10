@@ -2,7 +2,7 @@
 
 Mesh networks consist of nodes connected via links. The links might be wired or wireless connections.
 These networks change frequently due to nodes going offline/online and connections getting disturbed.
-Also, nodes might be mobile and connect to other nodes. These networks are called Mobile Ad Hoc Networks (MANET).
+Also, nodes might be mobile and connect to other nodes, vanish or appear. These networks are called Mobile Ad Hoc Networks (MANET).
 
 ## Categories
 
@@ -36,7 +36,8 @@ This approach is popular in existing implementations, but need a steady overhead
 ### Distance-Vector vs. Link State
 
 Distance-vector approaches only try to decide the next neighbor a packet needs to be send to. 
-Link state protocols have a view of the whole network topology and it's link properties on each node.
+In Link state protocols every node has a view of the whole network topology and it's link properties.
+There are also hybrid approaches.
 
 ### Routing Metric
 
@@ -46,14 +47,12 @@ Metric are based on hopcount, packet-loss, throughput, latency or even energy co
 
 ## 802.11s
 
-Ad-Hoc vs. Infrastructure Mode
-
-802.11s needs a special mentioning here, because it is implemented in wifi hardware and provides the base to run other routing protocols on top. This is done by disabling 802.11s meshing and only using the MAC layer for some other mesh routing software.
+802.11s needs a special mentioning here, because it is implemented in wireless hardware and provides the base to run other routing protocols on top. This is done by disabling 802.11s meshing and only using the MAC layer for some other mesh routing software.
 802.11s alone provides a mesh network of up to 32 nodes, which is not sufficient for large scale networks.
 
 Note: Wireless Ad-Hoc mode can also be used to run mesh routing implementation on top. But it is old and often broken.
 
-## Implemenation
+## Implemenations
 
 [Babel](https://www.irif.fr/~jch/software/babel/)
 [BATMAN-adv](https://www.open-mesh.org/projects/batman-adv/wiki)
