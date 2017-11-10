@@ -12,7 +12,7 @@ function Packet(transmitterAddress, receiverAddress, sourceAddress, destinationA
   this.sourceAddress = sourceAddress;
   this.destinationAddress = destinationAddress;
 
-  // Creation time of the packet
+  // Creation time of the packet (for route efficiency calculation)
   this.deployedAtStep = deployedAtStep;
 }
 
