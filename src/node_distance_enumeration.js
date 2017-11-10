@@ -1,6 +1,5 @@
 /*
-* Example node implementation for enumration of nodes from the node of the .
-* The nodes agree on a specific but random node (highest num) and enumerate distance from there.
+* The nodes agree on a specific but random node (highest num) and evaluate their distance from the choosen node.
 *
 * How to use: Replace node.js with this file.
 */
