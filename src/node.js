@@ -1,3 +1,7 @@
+/*
+* Example Node implementation.
+* Every node routes a packet to a random neighbor until it reaches the final destination.
+*/
 
 function Node(mac, meta = {}) {
 /* Required fields */

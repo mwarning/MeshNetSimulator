@@ -19,7 +19,7 @@ Import Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
 - [NetJSON](http://netjson.org/rfc.html) (not supported yet)
 
-For more information about mesh routing see [here](docs/about_mesh_networking.md).
+Available are [basic information](docs/about_mesh_networking.md) about mesh routing and a collection of [examples](docs/node_examples.js).
 
 ## FAQ
 
