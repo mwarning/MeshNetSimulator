@@ -57,7 +57,6 @@ Node.prototype.step = function () {
     // Packet enumerate to be able to filter duplicates
     packet.packetCounter = this.packetCounter;
 
-    console.log('spawn new broadcast packet');
     this.outgoing.push(packet);
   }
 
@@ -80,7 +79,6 @@ Node.prototype.step = function () {
 
       // Forward new broadcast packets
       if (!entry || (packet.packetCounter > entry.packetCounter)) {
-        console.log('forward broadcast');
         // The new one hop sender is this node
         packet.transmitterAddress = this.mac;
         packet.stepCounter += 1;
