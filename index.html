@@ -81,7 +81,7 @@
           </div>
         </fieldset>
         <fieldset>
-          <legend>Reload Implementations</legend>
+          <legend>Reload</legend>
           <div class="equal">
             <input type="button" onclick="file.reloadNodeImplementation()" value="node.js">
             <input type="button" onclick="file.reloadPacketImplementation()" value="packet.js">
@@ -146,8 +146,8 @@
             <div class="equal">
               <input type="number" id="line_n" min="1" max="999" value="3">
               <input type="checkbox" id="line_loop">
-                <span>Loop</span>
-              </div>
+              <span>Loop</span>
+            </div>
           </div>
           <div class="enum">
             <input type="button" onclick="edit.addStar('star_n')" value="Star">
@@ -171,15 +171,15 @@
         </fieldset>
         <fieldset>
           <legend>Link Parameters</legend>
-          <div class="enum">            
-              <label>Quality:</label>              
+          <div class="enum">
+            <label>Quality:</label>
             <div class="equal">
-                <input type="number" id="quality_value" min="0" max="100" value="50">
-                <span>%</span>
-                <select id="quality_generation">
-                  <option value="fixed">Fixed</option>
-                  <option value="random">Random</option>
-                </select>
+              <input type="number" id="quality_value" min="0" max="100" value="50">
+              <span>%</span>
+              <select id="quality_generation">
+                <option value="fixed">Fixed</option>
+                <option value="random">Random</option>
+              </select>
             </div>
           </div>
           <div class="enum">
@@ -295,9 +295,6 @@
             <label>Lost:</label>
             <span id="routes_packets_lost">0</span>
           </div>
-        </fieldset>
-        <fieldset>
-          <legend>Routing Efficiency</legend>
           <div class="enum">
             <label>Efficiency:</label>
             <span id="routing_efficiency">-</span>
