@@ -3,7 +3,7 @@
 Community networks such as [Freifunk](https://freifunk.net) struggle with scaling issues and data overhead beyond a few hundred nodes.
 
 This is a simple simulator for exploring/sketching mesh network routing strategies in the hopes to find better approaches.
-The code is written in plain JavaScript/HTML using the [d3](https://d3js.org) visualization library. Files graph.js and draw.js originate from the [meshviewer](https://github.com/ffrgb/meshviewer) project.
+The code is written in plain JavaScript/HTML using the [d3](https://d3js.org) visualization library.
 
 Pull requests are welcome!
 
@@ -57,7 +57,7 @@ Click the `Add Routes` button on the `Sim` tab to create a route on which packet
 Click the `step` button two times to let the nodes discover its neighbors with special broadcast packets.
 Now to click the `Deploy Packets` button once to place packets on the created routes.
 The number of (unicast) packets will be displayed on the node.
-Use the `step` button to let the nodes propagate through the network in a random fashion until the destionation is reached.
+Use the `step` button to let the nodes propagate through the network in a random fashion until the destination is reached.
 
 ### Evaluate (optional)
 
@@ -69,3 +69,5 @@ Use the `show` tab to inspect the state of selected nodes and its current packet
 [OMNeT++](https://www.omnetpp.org/): OMNeT++ is an extensible, modular, component-based C++ simulation library and framework, primarily for building network simulators.
 
 [ns-3](https://www.nsnam.org/): ns-3 is a discrete-event network simulator for Internet systems, targeted primarily for research and educational use. 
+
+[MeshViewer](https://github.com/ffrgb/meshviewer): A visualization tool for mesh networks. Primarily used by Freifunk. Files graph.js and draw.js originate from this project.
