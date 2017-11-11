@@ -24,7 +24,6 @@ pros:
 
 As always, things are not clear cut as many properties can be achieved in some other way.
 
-
 ### Pro-Active vs. Reactive
 
 Reactive routing protocols try to gather the information need for routing when a packet arrives.
@@ -43,7 +42,12 @@ There are also hybrid approaches.
 
 The routing metric is used to decide what path to choose. It attaches a cost to a path through the network.
 
-Metric are based on hopcount, packet-loss, throughput, latency or even energy consumption.
+Metric can be based on hopcount, packet-loss, throughput, latency and energy consumption.
+
+### Convergence
+
+A network is said to have converged, if all nodes have come to an angreement of its structure.
+In MANETs, there will be packets send all the time to keep moving towards a convergence state in case the network changes.
 
 ## 802.11s
 
