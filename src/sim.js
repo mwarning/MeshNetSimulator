@@ -313,12 +313,12 @@ function createSim(graph) {
 
     for (var i = 0; i < incoming.length; i += 1) {
       var isBroadcast = (incoming[i].receiverAddress === BROADCAST_MAC);
-      if (outgoing.indexOf(incoming[i]) == -1) {
+      if (outgoing.indexOf(incoming[i]) === -1) {
         consumed_unicast += !isBroadcast;
         consumed_broadcast += isBroadcast;
 
         if (!isBroadcast) {
-          packetOnRouteArrived(node, packet);
+          packetOnRouteConsumed(node, incoming[i]);
         }
       } else {
         transit_unicast += !isBroadcast;
@@ -328,12 +328,11 @@ function createSim(graph) {
 
     for (var i = 0; i < outgoing.length; i += 1) {
       var isBroadcast = (outgoing[i].receiverAddress === BROADCAST_MAC);
-      if (incoming.indexOf(outgoing[i]) == -1) {
+      if (incoming.indexOf(outgoing[i]) === -1) {
         created_broadcast += isBroadcast;
         created_unicast += !isBroadcast;
-
         if (!isBroadcast) {
-          packetOnRouteCreated(node, packet);
+          packetOnRouteCreated(node, outgoing[i]);
         }
       } else {
         // Already counted
