@@ -7,12 +7,16 @@ function Route(sourceAddress, destinationAddress, deployRate = 1) {
   this.sendCount = 0;
   this.receivedCount = 0;
   this.receivedStepCount = 0;
+  this.transitCount = 0;
+  this.lostCount = 0;
   this.efficiency = NaN;
 
   this.reset = function reset() {
     this.sendCount = 0;
     this.receivedCount = 0;
     this.receivedStepCount = 0;
+    this.transitCount = 0;
+    this.lostCount = 0;
     this.efficiency = NaN;
   }
 }
@@ -22,7 +26,17 @@ function createSim(graph) {
 
   self.simStep = 0;
   self.simDuration = 0;
+
   self.routes = {};
+
+  self.transit_unicast = 0;
+  self.transit_broadcast = 0;
+  self.created_unicast = 0;
+  self.created_broadcast = 0;
+  self.consumed_unicast = 0;
+  self.consumed_broadcast = 0;
+  self.lost_unicast = 0;
+  self.lost_broadcast = 0;
 
   function shuffleArray(a) {
     for (let i = a.length; i; i--) {
@@ -43,14 +57,11 @@ function createSim(graph) {
       intNodes[i].o.reset();
     }
 
-    for (var id in self.routes) {
-      self.routes[id].reset();
-    }
-
     self.simStep = 0;
     self.simDuration = 0;
 
-    updateSimStatistics();
+    self.clearPacketCounter();
+    self.clearRouteCounter();
 
     graph.redraw();
   }
@@ -60,68 +71,64 @@ function createSim(graph) {
   }
 
   function updateSimStatistics() {
-    var intNodes = graph.getIntNodes();
-    var intLinks = graph.getIntLinks();
-
-    var packetsBroadcastCount = 0;
-    var packetsUnicastCount = 0;
-    var packetsSendCount = 0;
-    var packetsReceivedCount = 0;
-    var packetsTransitCount = 0;
+    var routesSend = 0;
+    var routesReceived = 0;
+    var routesTransit = 0;
+    var routesLost = 0;
     var routesCount = 0;
-
-    var routingEfficiencySum = 0;
-    var routingEfficiencyCount = 0;
-
-    function countPackets(packet) {
-      if (packet.destinationAddress === BROADCAST_MAC) {
-        packetsBroadcastCount += 1;
-      } else {
-        packetsUnicastCount += 1;
-
-        var id = packet.sourceAddress + '=>' + packet.destinationAddress;
-        packetsTransitCount += (id in self.routes);
-      }
-    }
-
-    for (var i in intNodes) {
-      var node = intNodes[i].o;
-      node.incoming.forEach(countPackets);
-      node.outgoing.forEach(countPackets);
-    }
+    var routesEfficiencySum = 0;
+    var routesEfficiencyCount = 0;
 
     for (var id in self.routes) {
       var route = self.routes[id];
       routesCount += 1;
-      packetsSendCount += route.sendCount;
-      packetsReceivedCount += route.receivedCount;
+      routesSend += route.sendCount;
+      routesReceived += route.receivedCount;
+      routesTransit += route.transitCount;
+      routesLost += route.lostCount;
 
       if (!isNaN(route.efficiency)) {
-        routingEfficiencySum += route.efficiency;
-        routingEfficiencyCount += 1;
+        routesEfficiencySum += route.efficiency;
+        routesEfficiencyCount += 1;
       }
     }
 
     // Convert to medium percent
-    var routingEfficiencyPercent = 100 * routingEfficiencySum / routingEfficiencyCount;
+    var routingEfficiencyPercent = 100 * routesEfficiencySum / routesEfficiencyCount;
+
+    function withPercent(val, all) {
+      if (isNaN(all) || isNaN(val)) {
+        return '-';
+      }
+      var ret = '' + val;
+      if (all !== 0) {
+        ret += ' (' + (100 * val / all).toFixed(1) + '%)';
+      }
+      return ret;
+    };
 
     $$('sim_steps_total').nodeValue = self.simStep;
     $$('sim_duration').nodeValue = self.simDuration + ' ms';
 
-    $$('packets_unicast_count').nodeValue = packetsUnicastCount
-    $$('packets_broadcast_count').nodeValue = packetsBroadcastCount;
+    var created = self.created_unicast + self.created_broadcast;
+    var consumed = self.consumed_unicast + self.consumed_broadcast;
+    var transit = self.transit_unicast + self.transit_broadcast;
+    var lost = self.transit_unicast + self.lost_broadcast;
 
-    function percent(value) {
-      var p = (100 * value / packetsSendCount);
-      return isNaN(p) ? '' : (' (' + p.toFixed(1) + '%)');
-    };
+    $$('packets_transit_unicast').nodeValue = withPercent(self.transit_unicast, transit);
+    $$('packets_transit_broadcast').nodeValue = withPercent(self.transit_broadcast, transit);
+    $$('packets_created_unicast').nodeValue = withPercent(self.created_unicast, created);
+    $$('packets_created_broadcast').nodeValue = withPercent(self.created_broadcast, created);
+    $$('packets_consumed_unicast').nodeValue = withPercent(self.consumed_unicast, consumed);
+    $$('packets_consumed_broadcast').nodeValue = withPercent(self.consumed_broadcast, consumed);
+    $$('packets_lost_unicast').nodeValue = withPercent(self.lost_unicast, lost);
+    $$('packets_lost_broadcast').nodeValue = withPercent(self.lost_broadcast, lost);
 
     $$('routes_count').nodeValue = routesCount;
-    $$('routes_packets_send').nodeValue = packetsSendCount;
-    $$('routes_packets_received').nodeValue = packetsReceivedCount + percent(packetsReceivedCount);
-    $$('routes_packets_transit').nodeValue = packetsTransitCount + percent(packetsTransitCount);
-    var packetsLostCount = (packetsSendCount - packetsReceivedCount - packetsTransitCount);
-    $$('routes_packets_lost').nodeValue = packetsLostCount + percent(packetsLostCount);
+    $$('routes_packets_send').nodeValue = routesSend;
+    $$('routes_packets_received').nodeValue = withPercent(routesReceived, routesSend);
+    $$('routes_packets_transit').nodeValue = withPercent(routesTransit, routesSend);
+    $$('routes_packets_lost').nodeValue = withPercent(routesLost, routesSend);
 
     $$('routing_efficiency').nodeValue = num(routingEfficiencyPercent, '%');
   }
@@ -142,6 +149,7 @@ function createSim(graph) {
       append(tr, 'td', route.receivedCount);
       append(tr, 'td', num(route.efficiency * 100, '%'));
 
+      // Hover text
       source_td.title = route.sourceAddress
       target_td.title = route.destinationAddress;
     }
@@ -210,10 +218,10 @@ function createSim(graph) {
         var src = route.sourceAddress;
         var dst = route.destinationAddress;
         if (src in nodeMap && dst in nodeMap) {
-          nodeMap[src].incoming.push(
-            new Packet(src, src, src, dst, self.simStep)
-          );
-          route.sendCount += 1;
+          var packet = new Packet(src, src, src, dst);
+          // For route efficiency calculation
+          packet.deployedAtStep = self.simStep;
+          nodeMap[src].incoming.push(packet);
         } else {
           console.log('Route does not exists: ' + src  + ' => ' + dst);
         }
@@ -234,7 +242,7 @@ function createSim(graph) {
     graph.redraw();
   }
 
-  function updateRouteEfficiency() {
+  function updateRoutesEfficiency() {
     var intNodes = graph.getIntNodes();
     var intLinks = graph.getIntLinks();
     var dijkstra = createDijkstra(intNodes, intLinks);
@@ -252,19 +260,118 @@ function createSim(graph) {
     }
   }
 
-  self.step = function step(steps_id, deploy_id) {
-    // Record successful transmissions
-    function updateRouteStats(packet) {
+  function packetOnRouteConsumed(node, packet) {
+    if ('deployedAtStep' in packet) {
       var id = packet.sourceAddress + '=>' + packet.destinationAddress;
       if (id in self.routes) {
         var route = self.routes[id];
-        route.receivedCount += 1;
-        route.receivedStepCount += (self.simStep - packet.deployedAtStep);
+        if (route.destinationAddress === node.mac) {
+          route.receivedCount += 1;
+          route.receivedStepCount += (self.simStep - packet.deployedAtStep);
+        } else {
+          console.log('Packet on route got comsumed by some other node: ' + node.mac);
+        }
+      }
+    }
+  }
+
+  function packetOnRouteLost(packet) {
+    if ('deployedAtStep' in packet) {
+      var id = packet.sourceAddress + '=>' + packet.destinationAddress;
+      if (id in self.routes) {
+        var route = self.routes[id];
+        route.lostCount += 1;
+      }
+    }
+  }
+
+  function packetOnRouteCreated(node, packet) {
+    if ('deployedAtStep' in packet) {
+      // Check if the creator was the one mentioned in the route!
+      var id = packet.sourceAddress + '=>' + packet.destinationAddress;
+      if (id in self.routes) {
+        var route = self.routes[id];
+        if (route.sourceAddress === node.mac) {
+          route.sendCount += 1;
+        } else {
+          console.log('Packet on route got created by some other node: ' + node.mac);
+        }
+      }
+    }
+  }
+
+  function updatePacketStatistics(node) {
+    var created_unicast = 0;
+    var created_broadcast = 0;
+    var consumed_unicast = 0;
+    var consumed_broadcast = 0;
+    var transit_unicast = 0;
+    var transit_broadcast = 0;
+
+    var incoming = node.incoming;
+    var outgoing = node.outgoing;
+
+    for (var i = 0; i < incoming.length; i += 1) {
+      var isBroadcast = (incoming[i].receiverAddress === BROADCAST_MAC);
+      if (outgoing.indexOf(incoming[i]) == -1) {
+        consumed_unicast += !isBroadcast;
+        consumed_broadcast += isBroadcast;
+
+        if (!isBroadcast) {
+          packetOnRouteArrived(node, packet);
+        }
       } else {
-        console.log('Packet route not known: ' + id);
+        transit_unicast += !isBroadcast;
+        transit_broadcast += isBroadcast;
       }
     }
 
+    for (var i = 0; i < outgoing.length; i += 1) {
+      var isBroadcast = (outgoing[i].receiverAddress === BROADCAST_MAC);
+      if (incoming.indexOf(outgoing[i]) == -1) {
+        created_broadcast += isBroadcast;
+        created_unicast += !isBroadcast;
+
+        if (!isBroadcast) {
+          packetOnRouteCreated(node, packet);
+        }
+      } else {
+        // Already counted
+        //transit_unicast += !isBroadcast;
+        //transit_broadcast += isBroadcast;
+      }
+    }
+
+    self.transit_unicast += transit_unicast;
+    self.transit_broadcast += transit_broadcast;
+    self.created_unicast += created_unicast;
+    self.created_broadcast += created_broadcast;
+    self.consumed_unicast += consumed_unicast;
+    self.consumed_broadcast += consumed_broadcast;
+  }
+
+  self.clearPacketCounter = function clearPacketCounter() {
+    self.transit_unicast = 0;
+    self.transit_broadcast = 0;
+    self.created_unicast = 0;
+    self.created_broadcast = 0;
+    self.consumed_unicast = 0;
+    self.consumed_broadcast = 0;
+    self.lost_unicast = 0;
+    self.lost_broadcast = 0;
+
+    updateSimStatistics();
+  }
+
+  self.clearRouteCounter = function clearRouteCounter() {
+    for (var id in self.routes) {
+      self.routes[id].reset();
+    }
+
+    updateSimStatistics();
+  }
+
+  self.step = function step(steps_id, deploy_id) {
     // All links are bidirectional
     function getOtherIntNode(intLink, mac) {
       return (mac === intLink.target.o.mac) ? intLink.source : intLink.target;
@@ -272,11 +379,6 @@ function createSim(graph) {
 
     function clonePacket(packet) {
       return JSON.parse(JSON.stringify(packet));
-      /*
-      var newPacket = new Packet();
-      newPacket.copyFromOldImplementation(packet);
-      return newPacket;
-      */
     }
 
     var steps = getInteger(steps_id);
@@ -317,8 +419,10 @@ function createSim(graph) {
 
       // Step nodes
       for (var i = 0; i < intNodes.length; i++) {
-        var intNode = intNodes[i];
-        intNode.o.step();
+        var node = intNodes[i].o;
+        node.step();
+        updatePacketStatistics(node);
+        node.incoming = [];
       }
 
       // Propagate packets
@@ -357,9 +461,12 @@ function createSim(graph) {
 
               if (intLink.o.transmit(packet, packetCount[intLink.index])) {
                 otherIntNode.o.incoming.push(packet);
-                // Final destination reached (and unicast)
-                if (packet.destinationAddress === otherIntNode.o.mac) {
-                  updateRouteStats(packet);
+              } else {
+                // Update statistics
+                self.lost_unicast += !isBroadcast;
+                self.lost_broadcast += isBroadcast;
+                if (!isBroadcast) {
+                  packetOnRouteLost(packet);
                 }
               }
 
@@ -381,7 +488,7 @@ function createSim(graph) {
 
     self.simDuration = (new Date()).getTime() - simStartTime;
 
-    updateRouteEfficiency();
+    updateRoutesEfficiency();
     updateRoutesTable();
     updateSimStatistics();
 

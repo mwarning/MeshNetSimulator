@@ -119,7 +119,6 @@ Node.prototype.step = function () {
   }
 */
   this.timer += 1;
-  this.incoming = [];
 }
 
 // Name displayed under the node

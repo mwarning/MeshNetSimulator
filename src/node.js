@@ -60,8 +60,6 @@ Node.prototype.step = function () {
       this.outgoing.push(packet);
     }
   }
-
-  this.incoming = [];
 }
 
 // Name displayed under the node

@@ -29,7 +29,6 @@ Node.prototype.step = function () {
       this.enum = packet.enum + 1;
     }
   }
-  this.incoming = [];
 
   // Send own num to all direct neighbors
   var packet = new Packet(this.mac, BROADCAST_MAC, this.mac, BROADCAST_MAC);
