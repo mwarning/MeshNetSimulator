@@ -290,10 +290,6 @@
             <span id="routes_packets_received">0</span>
           </div>
           <div class="enum">
-            <label>Transit:</label>
-            <span id="routes_packets_transit">0</span>
-          </div>
-          <div class="enum">
             <label>Lost:</label>
             <span id="routes_packets_lost">0</span>
           </div>
@@ -303,44 +299,19 @@
           </div>
         </fieldset>
         <fieldset>
-          <legend>Packet Statistics</legend>
-          <div class="equal">
-            <table>
-              <thead>
-                <th></th>
-                <th>Unicast</th>
-                <th>Broadcast</th>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Created:</td>
-                  <td id="packets_created_unicast">0</td>
-                  <td id="packets_created_broadcast">0</td>
-                </tr>
-                <tr>
-                  <td>Transit:</td>
-                  <td id="packets_transit_unicast">0</td>
-                  <td id="packets_transit_broadcast">0</td>
-                </tr>
-                <tr>
-                  <td>Consumed:</td>
-                  <td id="packets_consumed_unicast">0</td>
-                  <td id="packets_consumed_broadcast">0</td>
-                </tr>
-                <tr>
-                  <td>Lost:</td>
-                  <td id="packets_lost_unicast">0</td>
-                  <td id="packets_lost_broadcast">0</td>
-                </tr>
-              </tbody>
-            </table>
+          <legend>Other Packets</legend>
+          <div class="enum">
+            <label>Broadcast:</label>
+            <span id="packets_broadcast">0</span>
           </div>
-          <!--
-          <div class="equal">
-            <input type="button" onclick="sim.clearPacketCounter()" value="packet counter">
-            <input type="button" onclick="sim.clearRouteCounter()" value="route counter">
+          <div class="enum">
+            <label>Unicast:</label>
+            <span id="packets_unicast">0</span>
           </div>
-          -->
+          <div class="enum">
+            <label>Packets/Node:</label>
+            <span id="packets_per_node">-</span>
+          </div>
         </fieldset>
         <fieldset>
           <legend>Graph Statistics</legend>

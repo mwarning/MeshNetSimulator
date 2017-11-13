@@ -119,7 +119,7 @@ fieldset .enum {
 }
 
 fieldset .enum > :first-child {
-  width: 6.5em;
+  width: 8em;
 }
 
 fieldset .enum > * {
