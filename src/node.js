@@ -30,7 +30,7 @@ Node.prototype.step = function () {
     );
   }
 
-  for (var i = 0; i < this.incoming.length; i++) {
+  for (var i = 0; i < this.incoming.length; i += 1) {
     var packet = this.incoming[i];
 
     // Packet arrived at the destination
@@ -49,10 +49,6 @@ Node.prototype.step = function () {
     var others = Object.keys(this.neighbors);
     if (others.length) {
       var nextHop = others[Math.floor(Math.random() * others.length)];
-      // Lower probability of sending the packet back to the same node
-      if (nextHop === packet.transmitterAddress) {
-        nextHop = others[Math.floor(Math.random() * others.length)];
-      }
 
       packet.transmitterAddress = this.mac;
       packet.receiverAddress = nextHop;
