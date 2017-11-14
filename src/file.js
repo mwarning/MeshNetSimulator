@@ -25,80 +25,113 @@ function createFile(graph) {
     }
   }
 
-  function reloadJavaScriptFile(src) {
+  function reloadJavaScriptFile(id, src) {
     // Remove old script
-    var e = Array.from(document.head.getElementsByTagName('script')).find(function(e) {
-      return e.src.endsWith(src);
-    });
+    var e = document.getElementById(id);
     e.parentNode.removeChild(e);
 
     // Load new script
     var s = document.createElement('script');
-    s.src = src;
+    s.id = id;
+    if (src.indexOf('\n') === -1) {
+      s.src = src;
+    } else {
+      s.textContent = src;
+    }
     document.head.appendChild(s);
   }
 
-  self.reloadNodeImplementation = function reloadNodeImplementation () {
-    reloadJavaScriptFile('src/node.js');
+  self.reloadNodeImplementation = function reloadNodeImplementation (id) {
+    function changeImpl() {
+      var nodeMap = {};
 
-    var nodeMap = {};
+      // Recreate all Node objects 
+      var intNodes = graph.getIntNodes();
+      for (var i = 0; i < intNodes.length; i++) {
+        var intNode = intNodes[i];
+        var oldNode = intNode.o;
+        var newNode = new Node();
 
-    // Recreate all Node objects 
-    var intNodes = graph.getIntNodes();
-    for (var i = 0; i < intNodes.length; i++) {
-      var intNode = intNodes[i];
-      var oldNode = intNode.o;
-      var newNode = new Node();
+        // Copy over fields
+        newNode.copyFromOldImplementation(oldNode);
 
-      // Copy over fields
-      newNode.copyFromOldImplementation(oldNode);
+        // Replace old node instance
+        intNode.o = newNode;
 
-      // Replace old node instance
-      intNode.o = newNode;
+        nodeMap[newNode.mac] = newNode;
+      }
+    }
 
-      nodeMap[newNode.mac] = newNode;
+    if ($(id).files.length) {
+      readFileContent(id, function(content) {
+        reloadJavaScriptFile('node_js', content);
+        changeImpl();
+      });
+    } else {
+      reloadJavaScriptFile('node_js', 'src/node.js');
+      changeImpl();
     }
   }
 
   self.reloadPacketImplementation = function reloadPacketImplementation () {
-    reloadJavaScriptFile('src/packet.js');
+    function changeImpl() {
+      function renewPackets(packets) {
+        for (var i = 0; i < packets.length; i++) {
+          var oldPacket = packets[i];
+          var newPacket = new Packet();
 
-    function renewPackets(packets) {
-      for (var i = 0; i < packets.length; i++) {
-        var oldPacket = packets[i];
-        var newPacket = new Packet();
+          // Copy over fields
+          newPacket.copyFromOldImplementation(oldPacket);
 
-        // Copy over fields
-        newPacket.copyFromOldImplementation(oldPacket);
+          // Replace old packet instance
+          packets[i] = newPacket;
+        }
+      }
 
-        // Replace old packet instance
-        packets[i] = newPacket;
+      var intNodes = graph.getIntNodes();
+      for (var i = 0; i < intNodes.length; i++) {
+        var intNode = intNodes[i];
+        renewPackets(intNode.incoming);
+        renewPackets(intNode.outgoing);
       }
     }
 
-    var intNodes = graph.getIntNodes();
-    for (var i = 0; i < intNodes.length; i++) {
-      var intNode = intNodes[i];
-      renewPackets(intNode.incoming);
-      renewPackets(intNode.outgoing);
+    if ($(id).files.length) {
+      readFileContent(id, function(content) {
+        reloadJavaScriptFile('packet_js', content);
+        changeImpl();
+      });
+    } else {
+      reloadJavaScriptFile('packet_js', 'src/packet.js');
+      changeImpl();
     }
   }
 
   self.reloadLinkImplementation = function reloadLinkImplementation () {
-    reloadJavaScriptFile('src/link.js');
+    function changeImpl() {
+      // Recreate all link objects
+      var intLinks = graph.getIntLinks();
+      for (var i = 0; i < intLinks.length; i++) {
+        var intLink = intLinks[i];
+        var oldLink = intLink.o;
+        var newLink = new Node();
 
-    // Recreate all node objects
-    var intLinks = graph.getIntLinks();
-    for (var i = 0; i < intLinks.length; i++) {
-      var intLink = intLinks[i];
-      var oldLink = intLink.o;
-      var newLink = new Node();
+        // Copy over fields
+        newLink.copyFromOldImplementation(oldLink);
 
-      // Copy over fields
-      newLink.copyFromOldImplementation(oldLink);
+        // Replace old link instance
+        intLink.o = newLink;
+      }
+    }
 
-      // Replace old link instance
-      intLink.o = newLink;
+    if ($(id).files.length) {
+      readFileContent(id, function(content) {
+        reloadJavaScriptFile('link_js', content);
+        changeImpl();
+      });
+    } else {
+      reloadJavaScriptFile('link_js', 'src/link.js');
+      changeImpl();
     }
   }
 

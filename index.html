@@ -24,9 +24,9 @@
 
   <script src="src/utils.js"></script>
   <script src="src/dijkstra.js"></script>
-  <script src="src/node.js"></script>
-  <script src="src/packet.js"></script>
-  <script src="src/link.js"></script>
+  <script src="src/node.js" id="node_js"></script>
+  <script src="src/packet.js" id="packet_js"></script>
+  <script src="src/link.js" id="link_js"></script>
   <script src="src/draw.js"></script>
   <script src="src/graph.js"></script>
   <script src="src/file.js"></script>
@@ -82,10 +82,32 @@
         </fieldset>
         <fieldset>
           <legend>Reload</legend>
+          <div class="enum">
+            <label>Node:</label>
+            <div>
+              <input type="file" id="node_js_file">
+            </div>
+          </div>
           <div class="equal">
-            <input type="button" onclick="file.reloadNodeImplementation()" value="node.js">
-            <input type="button" onclick="file.reloadPacketImplementation()" value="packet.js">
-            <input type="button" onclick="file.reloadLinkImplementation()" value="link.js">
+            <input type="button" onclick="file.reloadNodeImplementation('node_js_file')" value="reload">
+          </div>
+          <div class="enum">
+            <label>Packet:</label>
+            <div>
+              <input type="file" id="packet_js_file">
+            </div>
+          </div>
+          <div class="equal">
+            <input type="button" onclick="file.reloadPacketImplementation('packet_js_file')" value="reload">
+          </div>
+          <div class="enum">
+            <label>Link:</label>
+            <div>
+              <input type="file" id="link_js_file">
+            </div>
+          </div>
+          <div class="equal">
+            <input type="button" onclick="file.reloadLinkImplementation('link_js_file')" value="reload">
           </div>
         </fieldset>
       </div>
