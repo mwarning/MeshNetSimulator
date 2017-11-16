@@ -61,6 +61,7 @@ Node.prototype.reset = function () {
   this.incoming = [];
   this.outgoing = [];
   this.num = Math.floor(Math.random() * 1000);
+  this.enum = 0;
 }
 
 // For the transition to new implementations
