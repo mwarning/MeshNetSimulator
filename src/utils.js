@@ -116,7 +116,7 @@ function copyExistingFields(oldObject, newObject) {
     if (key in newObject) {
       var oldValue = oldObject[key];
       var newValue = newObject[key];
-      if (typeof oldValue === typeof newValue) {
+      if (typeof oldValue !== 'function' && typeof oldValue === typeof newValue) {
         newObject[key] = oldValue;
       }
     }

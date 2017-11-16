@@ -60,6 +60,8 @@ function createFile(graph) {
 
         nodeMap[newNode.mac] = newNode;
       }
+
+      graph.redraw();
     }
 
     if ($(id).files.length) {
@@ -94,6 +96,8 @@ function createFile(graph) {
         renewPackets(intNode.incoming);
         renewPackets(intNode.outgoing);
       }
+
+      graph.redraw();
     }
 
     if ($(id).files.length) {
@@ -122,6 +126,8 @@ function createFile(graph) {
         // Replace old link instance
         intLink.o = newLink;
       }
+
+      graph.redraw();
     }
 
     if ($(id).files.length) {
