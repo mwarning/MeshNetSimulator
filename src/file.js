@@ -52,7 +52,7 @@ function createFile(graph) {
       for (var i = 0; i < intNodes.length; i++) {
         var intNode = intNodes[i];
         var oldNode = intNode.o;
-        var newNode = new Node();
+        var newNode = new Node(oldNode.mac, oldNode.meta);
 
         // Copy over fields
         newNode.copyFromOldImplementation(oldNode);
@@ -82,7 +82,12 @@ function createFile(graph) {
       function renewPackets(packets) {
         for (var i = 0; i < packets.length; i++) {
           var oldPacket = packets[i];
-          var newPacket = new Packet();
+          var newPacket = new Packet(
+            oldPacket.transmitterAddress,
+            oldPacket.receiverAddress,
+            oldPacket.sourceAddress,
+            oldPacket.destinationAddress
+          );
 
           // Copy over fields
           newPacket.copyFromOldImplementation(oldPacket);
@@ -120,7 +125,7 @@ function createFile(graph) {
       for (var i = 0; i < intLinks.length; i++) {
         var intLink = intLinks[i];
         var oldLink = intLink.o;
-        var newLink = new Node();
+        var newLink = new Link(oldLink.quality, oldLink.bandwidth, oldLink.channel);
 
         // Copy over fields
         newLink.copyFromOldImplementation(oldLink);
