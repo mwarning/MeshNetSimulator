@@ -22,6 +22,8 @@ function createFile(graph) {
         callback(e.target.result);
       }
       r.readAsText(file);
+    } else {
+      alert('No file selected.');
     }
   }
 
