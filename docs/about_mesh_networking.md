@@ -26,11 +26,15 @@ As always, things are not clear cut as many properties can be achieved in some o
 
 ### Pro-Active vs. Reactive
 
-Reactive routing protocols try to gather the information need for routing when a packet arrives.
+Reactive (also on demand) routing protocols try to gather the information need for routing when a packet arrives.
 This usually means that there is less traffic to keep local routing information up to date. It is only updated/gatheres when a packet actually needs to be routed. On the other hand this adds latency.
 
-Pro-active approaches keep all information ready and up to date for when a packet needs to be routed.
-This approach is popular in existing implementations, but need a steady overhead to keep the routing information updated.
+Example: DSR, AODV
+
+Pro-active (also table driven) protocols keep all information ready and up to date for when a packet needs to be routed. For this a table of all received routing information is maintained.
+This approach is popular in existing implementations, but needs a steady overhead to keep the routing information up to date.
+
+Examples: DSDV, OLSR, BATMAN-adv
 
 ### Distance-Vector vs. Link State
 
@@ -62,3 +66,7 @@ Note: Wireless Ad-Hoc mode can also be used to run mesh routing implementation o
 [BATMAN-adv](https://www.open-mesh.org/projects/batman-adv/wiki)
 [OLSR](http://www.olsr.org/mediawiki/index.php/Main_Page)
 [802.11s]()
+
+## Further Reading
+
+[MANET, its types, Challenges, goals and Approaches: A Review](https://www.ijsr.net/archive/v5i5/NOV163727.pdf) (And linked articles)
