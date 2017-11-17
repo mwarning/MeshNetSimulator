@@ -1,5 +1,5 @@
 
-function Link(quality = 100, bandwidth = 50) {
+function Link(quality = 100, bandwidth = 50, channel = 0) {
 /* Required fields */
 
   /*
@@ -20,7 +20,7 @@ function Link(quality = 100, bandwidth = 50) {
   Influence means that the packetCount for the transmit() method is not cumulated over multiple links.
   With channels >0 link can be grouped together, e.g. as to simulate multiple (e.g. wireless) interfaces.
   */
-  this.channel = 0;
+  this.channel = channel;
 }
 
 Link.prototype.reset = function () {
