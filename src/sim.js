@@ -118,7 +118,7 @@ function createSim(graph) {
 
     $$('packets_broadcast').nodeValue = withPercent(packets_broadcast, packets_unicast + packets_broadcast);
     $$('packets_unicast').nodeValue = withPercent(packets_unicast, packets_unicast + packets_broadcast);
-    $$('packets_per_node').nodeValue = (intNodes.length === 0) ? '-' : ((packets_unicast + packets_broadcast) / intNodes.length).toFixed(2);
+    $$('packets_per_node').nodeValue = intNodes.length ? ((packets_unicast + packets_broadcast) / intNodes.length).toFixed(2) : '-';
 
     $$('routes_count').nodeValue = routesCount;
     $$('routes_packets_send').nodeValue = routesSend;
