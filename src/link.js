@@ -26,6 +26,10 @@ function Link(quality = 100, bandwidth = 50, channel = 0) {
 Link.prototype.reset = function () {
 }
 
+Link.prototype.getLinkLabel = function () {
+  return '';
+}
+
 // Move a packet to a target node
 Link.prototype.transmit = function (packet, packetCount) {
   // Calculate packet transmission probability

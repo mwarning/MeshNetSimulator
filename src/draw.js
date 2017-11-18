@@ -129,7 +129,6 @@ function createDraw() {
 
     var ringColor = d.o.getRingColor();
     if (ringColor.length) {
-      //console.log(d.o.mac);
       ctx.arc(d.x, d.y, 8, 0, 2 * Math.PI);
       ctx.fillStyle = ringColor;
       ctx.fill();
@@ -167,6 +166,14 @@ function createDraw() {
 
     ctx.stroke();
     ctx.globalAlpha = 1;
+
+    var linkLabel = d.o.getLinkLabel();
+    if (linkLabel.length) {
+      ctx.beginPath();
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'black';
+      ctx.fillText(linkLabel, (d.source.x + to[0]) / 2, (d.source.y + to[1]) / 2 + 3);
+    }
   };
 
   self.setCTX = function setCTX(newValue) {
