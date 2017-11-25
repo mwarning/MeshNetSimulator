@@ -32,7 +32,7 @@ function createSim(graph) {
   self.routes = {};
 
   // Keep track of setTimeout id
-  self.timerId
+  self.timerId = null;
 
   function shuffleArray(a) {
     for (let i = a.length; i; i--) {
@@ -291,14 +291,18 @@ function createSim(graph) {
 
   self.start = function start(steps, delay, deployPacketsEnabled) {
     function trigger(steps, delay, deployPacketsEnabled) {
-      self.run(1, deployPacketsEnabled);
       if (steps > 0) {
+        self.run(1, deployPacketsEnabled);
         self.timerId = setTimeout(trigger, delay, steps - 1, delay, deployPacketsEnabled);
+      } else {
+        self.timerId = null;
       }
     }
 
     if (self.timerId) {
       clearTimeout(self.timerId);
+      self.timerId = null;
+      return;
     }
 
     if (delay > 0) {
