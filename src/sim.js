@@ -31,6 +31,9 @@ function createSim(graph) {
   // Routes to deploy packet on
   self.routes = {};
 
+  // Keep track of setTimeout id
+  self.timerId
+
   function shuffleArray(a) {
     for (let i = a.length; i; i--) {
       let j = Math.floor(Math.random() * i);
@@ -287,6 +290,25 @@ function createSim(graph) {
   }
 
   self.start = function start(steps, delay, deployPacketsEnabled) {
+    function trigger(steps, delay, deployPacketsEnabled) {
+      self.run(1, deployPacketsEnabled);
+      if (steps > 0) {
+        self.timerId = setTimeout(trigger, delay, steps - 1, delay, deployPacketsEnabled);
+      }
+    }
+
+    if (self.timerId) {
+      clearTimeout(self.timerId);
+    }
+
+    if (delay > 0) {
+      trigger(steps, delay, deployPacketsEnabled);
+    } else {
+      self.run(steps, deployPacketsEnabled);
+    }
+  }
+
+  self.run = function run(steps, deployPacketsEnabled) {
     // All links are bidirectional
     function getOtherIntNode(intLink, mac) {
       return (mac === intLink.target.o.mac) ? intLink.source : intLink.target;
@@ -302,14 +324,16 @@ function createSim(graph) {
     // Map of internal node index to array of d3 link objects
     var connections = {};
 
-    intNodes.forEach(function(n) {
+    for (var i = 0; i < intNodes.length; i += 1) {
+      var n = intNodes[i];
       connections[n.index] = [];
-    });
+    }
 
-    intLinks.forEach(function(l) {
+    for (var i = 0; i < intLinks.length; i += 1) {
+      var l = intLinks[i];
       connections[l.source.index].push(l);
       connections[l.target.index].push(l);
-    });
+    }
 
     var simStartTime = (new Date()).getTime();
 
