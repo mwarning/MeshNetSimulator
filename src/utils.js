@@ -26,7 +26,7 @@ function getText(id) {
   return $(id).value;
 }
 
-function getInteger(id) {
+function getInt(id) {
   return Math.floor(parseInt($(id).value, 10));
 }
 
@@ -34,7 +34,7 @@ function getFloat(id) {
   return parseInt($(id).value, 10);
 }
 
-function getBoolean(id) {
+function getBool(id) {
   return $(id).checked;
 }
 

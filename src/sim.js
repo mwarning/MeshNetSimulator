@@ -22,8 +22,13 @@ function Route(sourceAddress, destinationAddress, deployRate = 1) {
 function createSim(graph) {
   var self = {};
 
+  // Number of steps the simulation has run
   self.simStep = 0;
+
+  // Duration of the last simulation run
   self.simDuration = 0;
+
+  // Routes to deploy packet on
   self.routes = {};
 
   function shuffleArray(a) {
@@ -281,7 +286,7 @@ function createSim(graph) {
     updateSimStatistics();
   }
 
-  self.step = function step(steps_id, deploy_id) {
+  self.start = function start(steps, delay, deployPacketsEnabled) {
     // All links are bidirectional
     function getOtherIntNode(intLink, mac) {
       return (mac === intLink.target.o.mac) ? intLink.source : intLink.target;
@@ -290,9 +295,6 @@ function createSim(graph) {
     function clonePacket(packet) {
       return JSON.parse(JSON.stringify(packet));
     }
-
-    var steps = getInteger(steps_id);
-    var deployPacketsEnabled = getBoolean(deploy_id);
 
     var intNodes = graph.getIntNodes();
     var intLinks = graph.getIntLinks();

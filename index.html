@@ -244,14 +244,24 @@
         <fieldset>
           <legend>Simulator</legend>
           <div class="equal">
-            <select id="sim_steps">
+            <select id="sim_steps" title="Steps to execute in succession">
               <option value="1">1</option>
               <option value="10">10</option>
               <option value="100">100</option>
               <option value="1000">1000</option>
-              <option value="10000">10000</option>
+              <option value="10000">10^4</option>
+              <option value="100000">10^5</option>
+              <option value="1000000">10^6</option>
             </select>
-            <input type="button" onclick="sim.step('sim_steps', 'deploy_packets')" value="step">
+            <select id="sim_delay" title="Delay between single steps">
+              <option value="0">0s</option>
+              <option value="250">1/4s</option>
+              <option value="500">1/2s</option>
+              <option value="1000">1s</option>
+              <option value="2000">2s</option>
+              <option value="5000">5s</option>
+            </select>
+            <input type="button" onclick="sim.start(getInt('sim_steps'), getFloat('sim_delay'), getBool('deploy_packets'))" id="sim_toggle" value="start">
             <input type="button" onclick="sim.reset()" value="reset">
           </div>
           <div class="equal">

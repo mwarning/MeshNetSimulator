@@ -9,7 +9,7 @@ function createEdit(graph) {
     var quality_generation = getText(quality_generation_id);
     var quality = getFloat(quality_id);
     var bandwidth = getFloat(bandwidth_id);
-    var channel = getInteger(channel_id);
+    var channel = getInt(channel_id);
 
     intLinks.forEach(function(e) {
       if (quality_generation == 'random') {
@@ -42,8 +42,8 @@ function createEdit(graph) {
   }
 
   self.addLine = function addLine (count_id, loop_id) {
-    var count = getInteger(count_id);
-    var loop = getBoolean(loop_id);
+    var count = getInt(count_id);
+    var loop = getBool(loop_id);
     var nodes = [];
     var links = [];
 
@@ -70,7 +70,7 @@ function createEdit(graph) {
   }
 
   self.addStar = function addStar(count_id) {
-    var count = getInteger(count_id);
+    var count = getInt(count_id);
     var nodes = [];
     var links = [];
 
@@ -96,8 +96,8 @@ function createEdit(graph) {
 
   /*
   self.addLayer = function addLayer(x_count_id, y_count_id) {
-    var x_count = getInteger(x_count);
-    var y_count = getInteger(y_count);
+    var x_count = getInt(x_count);
+    var y_count = getInt(y_count);
     var nodes = [];
     var links = [];
 
@@ -123,8 +123,8 @@ function createEdit(graph) {
   */
 
   self.addLattice = function addLattice(x_count_id, y_count_id) {
-    var x_count = getInteger(x_count_id);
-    var y_count = getInteger(y_count_id);
+    var x_count = getInt(x_count_id);
+    var y_count = getInt(y_count_id);
     var nodes = [];
     var links = [];
 

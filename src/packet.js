@@ -4,8 +4,8 @@ var BROADCAST_MAC = 'ff:ff:ff:ff:ff:ff';
 function Packet(transmitterAddress, receiverAddress, sourceAddress, destinationAddress) {
 /* Required fields */
 
-  // One hop receiver and transmitter address
-  this.transmitterAddress  = transmitterAddress;
+  // One hop transmitter and receiver address
+  this.transmitterAddress = transmitterAddress;
   this.receiverAddress = receiverAddress;
 
   // Multi-hop source and destination address
