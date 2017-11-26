@@ -3,7 +3,7 @@
 * Every node routes a packet to a random neighbor until it reaches the final destination.
 */
 
-function Node(mac, meta = {}) {
+function Node(mac, meta = null) {
 /* Required fields */
 
   // Basic data
@@ -60,7 +60,7 @@ Node.prototype.step = function () {
 
 // Name displayed under the node
 Node.prototype.getNodeName = function () {
-  return ('nodeinfo' in this.meta) ? this.meta.nodeinfo.hostname : this.mac;
+  return (this.meta && ('nodeinfo' in this.meta)) ? this.meta.nodeinfo.hostname : this.mac;
 }
 
 // Label on top of the node body
@@ -87,7 +87,7 @@ Node.prototype.getBodyColor = function () {
 // Number of small red circles around the node
 // body indicating the number of connected clients
 Node.prototype.getClientCount = function () {
-  return ('statistics' in this.meta) ? this.meta.statistics.clients : 0;
+  return (this.meta && ('statistics' in this.meta)) ? this.meta.statistics.clients : 0;
 }
 
 Node.prototype.reset = function () {
