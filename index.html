@@ -178,15 +178,23 @@
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addLattice(getInt('lattice_x'), getInt('lattice_y'))" value="Lattice">
+            <input type="button" onclick="edit.addLattice4(getInt('lattice4_x'), getInt('lattice4_y'))" value="4-Lattice">
             <div class="equal">
-              <input type="number" id="lattice_x" min="1" max="999" value="3">
+              <input type="number" id="lattice4_x" min="1" max="999" value="3">
               <span>x</span>
-              <input type="number" id="lattice_y" min="1" max="999" value="3">
+              <input type="number" id="lattice4_y" min="1" max="999" value="3">
+            </div>
+          </div>
+          <div class="enum">
+            <input type="button" onclick="edit.addLattice8(getInt('lattice8_x'), getInt('lattice8_y'))" value="8-Lattice">
+            <div class="equal">
+              <input type="number" id="lattice8_x" min="1" max="999" value="3">
+              <span>x</span>
+              <input type="number" id="lattice8_y" min="1" max="999" value="3">
             </div>
           </div>
           <!--
-          <input type="button" onclick="edit.addLayer('layer_x', 'layer_y')" value="add layer">
+          <input type="button" onclick="edit.addLayer(getInt('layer_x'), getInt('layer_y'))" value="add layer">
           <input type="number" id="layer_x" min="3" max="999" value="3">
           <input type="number" id="layer_y" min="3" max="999" value="3">
           -->

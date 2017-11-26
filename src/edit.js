@@ -92,9 +92,7 @@ function createEdit(graph) {
   }
 
   /*
-  self.addLayer = function addLayer(x_count_id, y_count_id) {
-    var x_count = getInt(x_count);
-    var y_count = getInt(y_count);
+  self.addLayer = function addLayer(x_count, y_count) {
     var nodes = [];
     var links = [];
 
@@ -119,7 +117,17 @@ function createEdit(graph) {
   }
   */
 
-  self.addLattice = function addLattice(x_count, y_count) {
+  // Add lattice with horizontal and vertical neighbors
+  self.addLattice4 = function addLattice4(x_count, y_count) {
+    addLattice(x_count, y_count, false);
+  }
+
+  // Add lattice with horizontal, verctical and diagonal neighbors
+  self.addLattice8 = function addLattice8(x_count, y_count) {
+    addLattice(x_count, y_count, true);
+  }
+
+  function addLattice(x_count, y_count, diag) {
     var nodes = [];
     var links = [];
 
@@ -133,19 +141,27 @@ function createEdit(graph) {
       }
     }
 
-    for (var x = 0; x < (x_count - 1); x++) {
-      for (var y = 0; y < y_count; y++) {
-        var source = nodes[x * y_count + y];
-        var target = nodes[(x + 1) * y_count + y];
+    function connect(x1, y1, x2, y2) {
+      // Validate coordinates
+      if ((x2 >= 0) && (x2 < x_count) && (y2 >= 0) && (y2 < y_count)) {
+        var source = nodes[x1 * y_count + y1];
+        var target = nodes[x2 * y_count + y2];
         links.push({source: source, target: target});
       }
     }
 
     for (var x = 0; x < x_count; x++) {
-      for (var y = 0; y < (y_count - 1); y++) {
-        var source = nodes[x * y_count + y];
-        var target = nodes[x * y_count + (y + 1)];
-        links.push({source: source, target: target});
+      for (var y = 0; y < y_count; y++) {
+        if (diag) {
+          //connect(x, y, x - 1, y - 1);
+          //connect(x, y, x - 1, y + 1);
+          connect(x, y, x + 1, y + 1);
+          connect(x, y, x + 1, y - 1);
+        }
+        //connect(x, y, x - 1, y);
+        //connect(x, y, x, y - 1);
+        connect(x, y, x, y + 1);
+        connect(x, y, x + 1, y);
       }
     }
 
