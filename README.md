@@ -5,15 +5,15 @@ Community networks such as [Freifunk](https://freifunk.net) struggle with scalin
 This is a simple simulator for exploring/sketching mesh network routing strategies in the hopes to find better approaches.
 The code is written in plain JavaScript/HTML using the [d3](https://d3js.org) visualization library.
 
-Pull requests are welcome! Especially for fixed CSS/HTML code. :-P
+Pull requests are welcome!
 
 ![settings](docs/screenshot.png)
 
 Features:
 - load, edit and store Meshviewer nodes.json/graph.json data
-- create custom graphs from primitives
+- create custom (bidirectional) graphs from primitives
 - live editing of [Node](src/node.js), [Link](src/link.js) and [Packet](src/packet.js) implementations
-- run simple simulations
+- run simulations
 
 Import Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
@@ -24,10 +24,10 @@ Available are [basic information](docs/about_mesh_networking.md) about mesh rout
 ## FAQ
 
 * **Why JavaScript?**  
-  Because of d3.js for visualisation. Also, JavaScript is easy enough for sketching ideas.
+  Because of d3.js for visualisation. Also, JavaScript is simple enough for sketching ideas.
 
 * **How fast is the simulation?**  
-  10000 steps for a lattice of 10000 nodes and 19800 links with ~36000 packets took about three minutes on a i7.
+  10000 steps for a lattice of 10000 nodes and 19800 links with ~36000 packets takes about three minutes on a i7.
 
 * **How is the routing efficiency value calculated?**  
   Overall efficiency is computed as the medium efficiency of each route. Route efficiency is calculated as (`optimal route hop count` * `number of received packets` / `accumulated hop count of received packets`) * (`received packets` / `send packets`).
