@@ -34,6 +34,9 @@ function createSim(graph) {
   // Keep track of setTimeout id
   self.timerId = null;
 
+  // Simulation state
+  self.running = false;
+
   function shuffleArray(a) {
     for (let i = a.length; i; i--) {
       let j = Math.floor(Math.random() * i);
@@ -305,14 +308,20 @@ function createSim(graph) {
       return;
     }
 
-    if (delay > 0) {
-      trigger(steps, delay, deployPacketsEnabled);
+    if (!this.running) {
+      if (delay > 0) {
+        trigger(steps, delay, deployPacketsEnabled);
+      } else {
+        self.run(steps, deployPacketsEnabled);
+      }
     } else {
-      self.run(steps, deployPacketsEnabled);
+      alert('Simulation is still running.');
     }
   }
 
   self.run = function run(steps, deployPacketsEnabled) {
+    this.running = true;
+
     // All links are bidirectional
     function getOtherIntNode(intLink, mac) {
       return (mac === intLink.target.o.mac) ? intLink.source : intLink.target;
@@ -436,6 +445,8 @@ function createSim(graph) {
     updateSimStatistics();
 
     graph.redraw();
+
+    this.running = false;
   }
 
   return self;
