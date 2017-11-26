@@ -164,7 +164,7 @@
             <input type="button" onclick="edit.addSingle()" value="Node">
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addLine('line_n', 'line_loop')" value="Line">
+            <input type="button" onclick="edit.addLine(getInt('line_n'), getBool('line_loop'))" value="Line">
             <div class="equal">
               <input type="number" id="line_n" min="1" max="999" value="3">
               <input type="checkbox" id="line_loop">
@@ -172,13 +172,13 @@
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addStar('star_n')" value="Star">
+            <input type="button" onclick="edit.addStar(getInt('star_n'))" value="Star">
             <div class="equal">
               <input type="number" id="star_n" min="1" max="999" value="4">
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addLattice('lattice_x', 'lattice_y')" value="Lattice">
+            <input type="button" onclick="edit.addLattice(getInt('lattice_x'), getInt('lattice_y'))" value="Lattice">
             <div class="equal">
               <input type="number" id="lattice_x" min="1" max="999" value="3">
               <span>x</span>

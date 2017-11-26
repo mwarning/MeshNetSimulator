@@ -41,9 +41,7 @@ function createEdit(graph) {
     graph.addElements([{x: 0, y: 0}], []);
   }
 
-  self.addLine = function addLine (count_id, loop_id) {
-    var count = getInt(count_id);
-    var loop = getBool(loop_id);
+  self.addLine = function addLine (count, loop) {
     var nodes = [];
     var links = [];
 
@@ -69,8 +67,7 @@ function createEdit(graph) {
     graph.addElements(nodes, links);
   }
 
-  self.addStar = function addStar(count_id) {
-    var count = getInt(count_id);
+  self.addStar = function addStar(count) {
     var nodes = [];
     var links = [];
 
@@ -122,9 +119,7 @@ function createEdit(graph) {
   }
   */
 
-  self.addLattice = function addLattice(x_count_id, y_count_id) {
-    var x_count = getInt(x_count_id);
-    var y_count = getInt(y_count_id);
+  self.addLattice = function addLattice(x_count, y_count) {
     var nodes = [];
     var links = [];
 
