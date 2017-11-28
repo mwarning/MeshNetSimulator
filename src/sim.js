@@ -357,10 +357,6 @@ function createSim(graph) {
     for (var step = 0; step < steps; step += 1) {
       self.simStep += 1;
 
-      if (deployPacketsEnabled) {
-        deployPackets_();
-      }
-
       // Initialize packet count
       for (var i = 0; i < intLinks.length; i++) {
         var intLink = intLinks[i];
@@ -435,6 +431,10 @@ function createSim(graph) {
 
         // All packets should have been handled
         intNode.o.outgoing = [];
+      }
+
+      if (deployPacketsEnabled) {
+        deployPackets_();
       }
     }
 
