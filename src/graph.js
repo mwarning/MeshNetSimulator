@@ -471,6 +471,7 @@ function createGraph(graph_id) {
   self.selectNode = function selectNode(node) {
     draw.selectNode(node);
 
+    // Focus node if no ctrl key pressed
     if (!(d3.event && d3.event.ctrlKey)) {
       moveTo([node.x, node.y, (ZOOM_MAX + 1) / 2]);
     }
@@ -479,6 +480,7 @@ function createGraph(graph_id) {
   self.selectLink = function selectLink(link) {
     draw.selectLink(link);
 
+    // Focus link if no ctrl key pressed
     if (!(d3.event && d3.event.ctrlKey)) {
       moveTo([(link.source.x + link.target.x) / 2, (link.source.y + link.target.y) / 2, (ZOOM_MAX / 2) + ZOOM_MIN]);
     }
