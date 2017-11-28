@@ -168,5 +168,35 @@ function createEdit(graph) {
     graph.addElements(nodes, links);
   }
 
+  // Add randomized tree network
+  self.addTree = function addTree(count) {
+    var nodes = [];
+    var links = [];
+    var linkIds = {};
+
+    // Create bidirectional id
+    function id(i, j) {
+      return (i > j) ? ((i << 16) + j) : ((j << 16) + i);
+    }
+
+    // Connect random nodes
+    for (var i = 0; i < count; i += 1) {
+      var source = {};
+      nodes.push(source);
+
+      if (i > 0) {
+        // Connect node with random previous node
+        var j = i;
+        while (j === i || id(i, j) in linkIds) {
+          j = Math.floor((Math.random() * nodes.length));
+        }
+        links.push({source: nodes[i], target: nodes[j]});
+        linkIds[id(i, j)] = null;
+      }
+    }
+
+    graph.addElements(nodes, links);
+  }
+
   return self;
 }
