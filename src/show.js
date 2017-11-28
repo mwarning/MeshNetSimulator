@@ -67,14 +67,19 @@ function createShow (graph) {
         var tr = append(tbody, 'tr');
         var td = append(tr, 'td', key);
 
-        if (typeof value === 'string' || typeof value === 'number') {
-          append(tr, 'td', value);
+        var type = (typeof value);
+        if (type === 'string' || type === 'number' || type === 'boolean' ) {
+          append(tr, 'td', value.toString());
+        } else if (value === null) {
+          append(tr, 'td', 'null');
         } else if (Array.isArray(value)) {
           append(tr, 'td', '(' + value.length + ')');
           tr.onclick = createCallback(self, o, path.concat([key]));
-        } else { // object
+        } else if (type === 'object') {
           append(tr, 'td', '(' + Object.keys(value).length + ')');
           tr.onclick = createCallback(self, o, path.concat([key]));
+        } else {
+          append(tr, 'td', '???');
         }
       }
     }
