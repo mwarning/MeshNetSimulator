@@ -168,8 +168,8 @@ function createEdit(graph) {
     graph.addElements(nodes, links);
   }
 
-  // Add randomized tree network
-  self.addTree = function addTree(count) {
+  // Add randomized tree network with extra connections
+  self.addTree = function addTree(count, extra = 0) {
     var nodes = [];
     var links = [];
     var linkIds = {};
@@ -193,6 +193,21 @@ function createEdit(graph) {
         links.push({source: nodes[i], target: nodes[j]});
         linkIds[id(i, j)] = null;
       }
+    }
+
+    // Limit density to maximum amount of possible bidrectional links
+    density = Math.min(density, (count * (count - 1)) / 2);
+
+    // Interconnect part of the tree with additional connections
+    for (var k = 0; k < density; k += 1) {
+      var i = 0;
+      var j = 0;
+      while (j === i || id(i, j) in linkIds) {
+        i = Math.floor((Math.random() * nodes.length));
+        j = Math.floor((Math.random() * nodes.length));
+      }
+      links.push({source: nodes[i], target: nodes[j]});
+      linkIds[id(i, j)] = null;
     }
 
     graph.addElements(nodes, links);
