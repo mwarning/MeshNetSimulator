@@ -68,16 +68,16 @@
           <div class="enum">
             <label>graph.json:</label>
             <div>
-              <input type="file" id="file_graph" value="">
+              <input type="file" id="file_graph" value="" />
             </div>
           </div>
           <div class="enum">
             <label>nodes.json:</label>
-            <input type="file" id="file_nodes" value="">
+            <input type="file" id="file_nodes" value="" />
           </div>
           <div class="equal">
-            <input type="button" onclick="file.loadMeshViewerData('file_graph', 'file_nodes')" value="Load">
-            <input type="button" onclick="file.saveMeshViewerData()" value="Save">
+            <input type="button" onclick="file.loadMeshViewerData('file_graph', 'file_nodes')" value="Load" />
+            <input type="button" onclick="file.saveMeshViewerData()" value="Save" />
           </div>
         </fieldset>
         <fieldset>
@@ -85,29 +85,29 @@
           <div class="enum">
             <label>Node:</label>
             <div>
-              <input type="file" id="node_js_file">
+              <input type="file" id="node_js_file" />
             </div>
           </div>
           <div class="equal">
-            <input type="button" onclick="file.reloadNodeImplementation('node_js_file')" value="reload">
+            <input type="button" onclick="file.reloadNodeImplementation('node_js_file')" value="reload" />
           </div>
           <div class="enum">
             <label>Packet:</label>
             <div>
-              <input type="file" id="packet_js_file">
+              <input type="file" id="packet_js_file" />
             </div>
           </div>
           <div class="equal">
-            <input type="button" onclick="file.reloadPacketImplementation('packet_js_file')" value="reload">
+            <input type="button" onclick="file.reloadPacketImplementation('packet_js_file')" value="reload" />
           </div>
           <div class="enum">
             <label>Link:</label>
             <div>
-              <input type="file" id="link_js_file">
+              <input type="file" id="link_js_file" />
             </div>
           </div>
           <div class="equal">
-            <input type="button" onclick="file.reloadLinkImplementation('link_js_file')" value="reload">
+            <input type="button" onclick="file.reloadLinkImplementation('link_js_file')" value="reload" />
           </div>
         </fieldset>
       </div>
@@ -124,7 +124,7 @@
             <span id="show_path">/</span>
           </div>
           <div class="equal">
-            <input type="button" onclick="show.showSelectedObject()" value="Show">
+            <input type="button" onclick="show.showSelectedObject()" value="Show" />
           </div>
           <div class="equal">
             <table>
@@ -146,59 +146,59 @@
         <fieldset>
           <legend>Selection</legend>
           <div class="equal">
-            <input type="button" onclick="graph.extendSelection()" value="extend">
-            <input type="button" onclick="graph.clearSelection()" value="unselect">
-            <input type="button" onclick="graph.removeSelection()" value="remove">
+            <input type="button" onclick="graph.extendSelection()" value="extend" />
+            <input type="button" onclick="graph.clearSelection()" value="unselect" />
+            <input type="button" onclick="graph.removeSelection()" value="remove" />
           </div>
         </fieldset>
         <fieldset>
           <legend>Nodes</legend>
           <div class="equal">
-            <input type="button" onclick="graph.connectSelectedNodes()" value="connect">
-            <input type="button" onclick="graph.disconnectSelectedNodes()" value="disconnect">
+            <input type="button" onclick="graph.connectSelectedNodes()" value="connect" />
+            <input type="button" onclick="graph.disconnectSelectedNodes()" value="disconnect" />
           </div>
         </fieldset>
         <fieldset>
           <legend>Add Primitives</legend>
           <div class="enum">
-            <input type="button" onclick="edit.addSingle()" value="Node">
+            <input type="button" onclick="edit.addSingle()" value="Node" />
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addLine(getInt('line_n'), getBool('line_loop'))" value="Line">
+            <input type="button" onclick="edit.addLine(getInt('line_n'), getBool('line_loop'))" value="Line" />
             <div class="equal">
-              <input type="number" id="line_n" min="1" max="999" value="3">
-              <input type="checkbox" id="line_loop">
+              <input type="number" id="line_n" min="1" max="999" value="3" />
+              <input type="checkbox" id="line_loop" />
               <span>Loop</span>
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addStar(getInt('star_n'))" value="Star">
+            <input type="button" onclick="edit.addStar(getInt('star_n'))" value="Star" />
             <div class="equal">
-              <input type="number" id="star_n" min="1" max="999" value="4">
+              <input type="number" id="star_n" min="1" max="999" value="4" />
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addLattice4(getInt('lattice4_x'), getInt('lattice4_y'))" value="4-Lattice">
+            <input type="button" onclick="edit.addLattice4(getInt('lattice4_x'), getInt('lattice4_y'))" value="4-Lattice" />
             <div class="equal">
-              <input type="number" id="lattice4_x" min="1" max="999" value="3">
+              <input type="number" id="lattice4_x" min="1" max="999" value="3" />
               <span>x</span>
-              <input type="number" id="lattice4_y" min="1" max="999" value="3">
+              <input type="number" id="lattice4_y" min="1" max="999" value="3" />
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addLattice8(getInt('lattice8_x'), getInt('lattice8_y'))" value="8-Lattice">
+            <input type="button" onclick="edit.addLattice8(getInt('lattice8_x'), getInt('lattice8_y'))" value="8-Lattice" />
             <div class="equal">
-              <input type="number" id="lattice8_x" min="1" max="999" value="3">
+              <input type="number" id="lattice8_x" min="1" max="999" value="3" />
               <span>x</span>
-              <input type="number" id="lattice8_y" min="1" max="999" value="3">
+              <input type="number" id="lattice8_y" min="1" max="999" value="3" />
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addTree(getInt('tree_c'), getInt('tree_d'))" value="Tree">
+            <input type="button" onclick="edit.addTree(getInt('tree_c'), getInt('tree_d'))" value="Tree" />
             <div class="equal">
-              <input type="number" id="tree_c" min="1" max="999" value="8">
+              <input type="number" id="tree_c" min="1" max="999" value="8" />
               <label title="Add additional random connections to the tree.">Extra:</label>
-              <input type="number" id="tree_d" min="0" max="999" value="0">
+              <input type="number" id="tree_d" min="0" max="999" value="0" />
             </div>
           </div>
           <!--
@@ -212,7 +212,7 @@
           <div class="enum">
             <label>Quality:</label>
             <div class="equal">
-              <input type="number" id="quality_value" min="0" max="100" value="50">
+              <input type="number" id="quality_value" min="0" max="100" value="50" />
               <span>%</span>
               <select id="quality_generation">
                 <option value="fixed">Fixed</option>
@@ -225,7 +225,7 @@
               <label>Bandwidth:</label>
             </div>
             <div>
-              <input type="number" id="bandwidth_value" min="0" max="100" value="50">
+              <input type="number" id="bandwidth_value" min="0" max="100" value="50" />
             </div>
           </div>
           <div class="enum">
@@ -233,25 +233,25 @@
               <label>Channel:</label>
             </div>
             <div>
-              <input type="number" id="channel_value" min="0" max="100" value="0">
+              <input type="number" id="channel_value" min="0" max="100" value="0" />
             </div>
           </div>
           <div class="equal">
-            <input type="button" onclick="edit.getLinkParameters('bandwidth_value', 'quality_value', 'channel_value')" value="Get">
-            <input type="button" onclick="edit.setLinkParameters('bandwidth_value', 'quality_value', 'quality_generation', 'channel_value')" value="Set">
+            <input type="button" onclick="edit.getLinkParameters('bandwidth_value', 'quality_value', 'channel_value')" value="Get" />
+            <input type="button" onclick="edit.setLinkParameters('bandwidth_value', 'quality_value', 'quality_generation', 'channel_value')" value="Set" />
           </div>
         </fieldset>
         <fieldset>
           <legend>Animation</legend>
           <div class="equal">
-            <input type="button" onclick="graph.toggleAnimation()" value="toggle">
+            <input type="button" onclick="graph.toggleAnimation()" value="toggle" />
           </div>
         </fieldset>
         <fieldset>
           <legend>Misc</legend>
           <div class="equal">
-            <input type="button" onclick="graph.resetView()" value="reset view">
-            <input type="button" onclick="graph.resetData()" value="remove graph">
+            <input type="button" onclick="graph.resetView()" value="reset view" />
+            <input type="button" onclick="graph.resetData()" value="remove graph" />
           </div>
         </fieldset>
       </div>
@@ -277,8 +277,8 @@
               <option value="2000">2s</option>
               <option value="5000">5s</option>
             </select>
-            <input type="button" onclick="sim.start(getInt('sim_steps'), getFloat('sim_delay'), getBool('deploy_packets'))" id="sim_toggle" value="start / stop">
-            <input type="button" onclick="sim.reset()" value="reset">
+            <input type="button" onclick="sim.start(getInt('sim_steps'), getFloat('sim_delay'), getBool('deploy_packets'))" id="sim_toggle" value="start / stop" />
+            <input type="button" onclick="sim.reset()" value="reset" />
           </div>
           <div class="equal">
             <div>
@@ -294,17 +294,17 @@
         <fieldset>
           <legend>Packet Placement</legend>
           <div class="equal">
-            <input type="button" onclick="sim.addRoutes()" value="Add Routes">
+            <input type="button" onclick="sim.addRoutes()" value="Add Routes" />
             <div>
               <label>Total Routes:</label>
               <span id="routes_count">0</span>
             </div>
           </div>
           <div class="equal">
-            <input type="button" onclick="sim.deployPackets()" value="Deploy Packets">
+            <input type="button" onclick="sim.deployPackets()" value="Deploy Packets" />
             <div>
               <label>On every step:</label>
-              <input type="checkbox" id="deploy_packets">
+              <input type="checkbox" id="deploy_packets" />
             </div>
           </div>
           <div class="equal">
