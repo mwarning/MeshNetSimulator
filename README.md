@@ -30,7 +30,7 @@ Available are [basic information](docs/about_mesh_networking.md) about mesh rout
   10000 steps for a lattice of 10000 nodes and 19800 links with ~36000 packets takes about three minutes on a i7.
 
 * **How is the routing efficiency value calculated?**  
-  Overall efficiency is computed as the medium efficiency of each route. Route efficiency is calculated as (`optimal route hop count` * `number of received packets` / `accumulated hop count of received packets`) * (`received packets` / `send packets`).
+  Overall efficiency is computed as the medium efficiency of each route. Route efficiency is calculated as (`optimal route hop count` * `number of received packets` / `accumulated hop count of received packets`).
 
 ## How to Use
 
