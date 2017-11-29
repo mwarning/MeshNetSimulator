@@ -140,6 +140,16 @@
             </table>
           </div>
         </fieldset>
+        <fieldset>
+          <legend title="Send a string to each selected node">Send Command</legend>
+          <div class="enum">
+            <input type="text" value="" id="command_request" />
+            <input type="button" value="send" onclick="show.sendCommand(getText('command_request'))" />
+          </div>
+          <div class="equal">
+            <textarea id="command_reply" rows="6" cols="50"></textarea>
+          <div>
+        </fieldset>
       </div>
 
       <div id="edit" class="tabcontent">
