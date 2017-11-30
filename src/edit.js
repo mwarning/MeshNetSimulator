@@ -50,7 +50,14 @@ function createEdit(graph) {
     }
 
     for (var i = 0; i < count; i++) {
-      nodes.push({x: (i * NODE_SPACING), y: (1.1 * (i % 2))});
+      if (loop) {
+        var r = NODE_SPACING * count / (2 * Math.PI);
+        var a = i * 2 * Math.PI / count;
+        nodes.push({x: (r * Math.sin(a)), y: (r * Math.cos(a))});
+      } else {
+        nodes.push({x: (i * NODE_SPACING), y: (1.1 * (i % 2))});
+      }
+
       if (i > 0) {
         var source = nodes[i - 1];
         var target = nodes[i];
