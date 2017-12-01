@@ -11,9 +11,12 @@ Pull requests are welcome!
 
 Features:
 - load, edit and store Meshviewer nodes.json/graph.json data
-- create custom (bidirectional) graphs from primitives
+- create custom (bidirectional) graphs from primitives (single node, line/loop, 4-/8-Lattice, random tree)
 - live editing of [Node](src/node.js), [Link](src/link.js) and [Packet](src/packet.js) implementations
-- run simulations
+- run simulations stepwise and with intervals
+- elaborate routing statistics
+- nodes state introspection
+- send external commands to selected nodes
 
 Import Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
