@@ -268,7 +268,7 @@
             <input type="button" value="send" onclick="control.sendCommand(getText('command_request'))" />
           </div>
           <div class="equal">
-            <textarea id="command_reply" rows="40" cols="50"></textarea>
+            <textarea id="command_reply" rows="40" cols="55"></textarea>
           <div>
         </fieldset>
       </div>
@@ -328,11 +328,13 @@
             <table>
               <thead>
                 <tr>
-                  <th onclick="sortLexial(this)" title="Source MAC address">Source</th>
-                  <th onclick="sortLexial(this)" title="Target MAC address">Target</th>
+                  <th onclick="sortLexial(this)" title="Source MAC address">Src</th>
+                  <th onclick="sortLexial(this)" title="Destination MAC address">Dst</th>
                   <th onclick="sortNumerical(this)" title="Packet deploy rate">Rate</th>
-                  <th onclick="sortNumerical(this)" title="Number of packets send">Send</th>
-                  <th onclick="sortNumerical(this)" title="Number of packets received">Recv</th>
+                  <th onclick="sortNumerical(this)" title="Packets send">Send</th>
+                  <th onclick="sortNumerical(this)" title="Packets received">Recv</th>
+                  <th onclick="sortNumerical(this)" title="Packets lost">Lost</th>
+                  <th onclick="sortNumerical(this)" title="Packets in transit">Trans</th>
                   <th onclick="sortNumerical(this)" title="Routing efficiency">Eff</th>
                 </tr>
               </thead>

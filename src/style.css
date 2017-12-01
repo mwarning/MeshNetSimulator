@@ -19,12 +19,12 @@
 }
 
 #toolbar {
-  width: 20%;
+  width: 22%;
   float: left;
 }
 
 #graph {
-  width: 80%;
+  width: 78%;
   float: left;
   overflow: hidden;
 }

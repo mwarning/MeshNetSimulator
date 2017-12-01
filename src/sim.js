@@ -65,7 +65,9 @@ function createSim(graph) {
   }
 
   function num(v, suffix = '') {
-    return isNaN(v) ? '-' : (v.toFixed(1) + suffix);
+    if (isNaN(v)) return '-';
+    if (v === 100) return "100%";
+    return (v.toFixed(1) + suffix);
   }
 
   function updateSimStatistics() {
@@ -164,8 +166,10 @@ function createSim(graph) {
       var target_td = append(tr, 'td', route.destinationAddress.slice(-5));
       append(tr, 'td', route.deployRate);
       append(tr, 'td', route.sendCount);
-      append(tr, 'td', route.receivedCount);
-      append(tr, 'td', num(route.efficiency * 100, '%'));
+      append(tr, 'td', num(100 * route.receivedCount / route.sendCount, '%'));
+      append(tr, 'td', num(100 * route.transitCount / route.sendCount, '%'));
+      append(tr, 'td', num(100 * (route.sendCount - route.receivedCount - route.transitCount) / route.sendCount, '%'));
+      append(tr, 'td', num(100 * route.efficiency, '%'));
 
       // Hover text
       source_td.title = route.sourceAddress
