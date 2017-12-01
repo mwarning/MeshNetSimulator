@@ -208,6 +208,22 @@ function createDraw() {
     highlightedLinks = [];
   };
 
+  // Forget selected/highlighted nodes/links that were deleted
+  self.forgetDeletedItems = function forgetDeletedItems(intNodes, intLinks) {
+    highlightedNodes = highlightedNodes.filter(function(e) {
+      return intNodes.indexOf(e) !== -1;
+    });
+    highlightedLinks = highlightedLinks.filter(function(e) {
+      return intLinks.indexOf(e) !== -1;
+    });
+    selectedNodes = selectedNodes.filter(function(e) {
+      return intNodes.indexOf(e) !== -1;
+    });
+    selectedLinks = selectedLinks.filter(function(e) {
+      return intLinks.indexOf(e) !== -1;
+    });
+  }
+
   self.selectNode = function selectNode(node) {
     if (d3.event && d3.event.ctrlKey) {
       var i = selectedNodes.indexOf(node);

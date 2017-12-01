@@ -318,6 +318,8 @@ function createGraph(graph_id) {
       return (selectedNodes.indexOf(e.source) < 0 || selectedNodes.indexOf(e.target) < 0);
     });
 
+    draw.forgetDeletedItems(intNodes, intLinks);
+
     forceLink.links(intLinks);
 
     force.alpha(1).restart();
@@ -435,7 +437,7 @@ function createGraph(graph_id) {
     force.nodes(intNodes);
     forceLink.links(intLinks);
 
-    draw.clearSelection();
+    draw.forgetDeletedItems(intNodes, intLinks);
 
     force.alpha(1).restart();
     redraw();
