@@ -65,7 +65,7 @@ Note: Wireless Ad-Hoc mode can also be used to run mesh routing implementation o
 [Babel](https://www.irif.fr/~jch/software/babel/)
 [BATMAN-adv](https://www.open-mesh.org/projects/batman-adv/wiki)
 [OLSR](http://www.olsr.org/mediawiki/index.php/Main_Page)
-[802.11s]()
+[802.11s](https://en.wikipedia.org/wiki/IEEE_802.11s)
 
 ## Further Reading
 
