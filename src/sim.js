@@ -184,7 +184,6 @@ function createSim(graph) {
     function delRoute(sourceNode, targetNode) {
       var id = sourceNode.mac + '=>' + targetNode.mac;
       delete routes[id];
-      updateSimStatistics();
     }
 
     var intNodes = graph.getSelectedIntNodes();
@@ -207,7 +206,6 @@ function createSim(graph) {
       var id = sourceAddress + '=>' + destinationAddress;
       if (!(id in self.routes)) {
         self.routes[id] = new Route(sourceAddress, destinationAddress, 1);
-        updateSimStatistics();
       }
     }
 
