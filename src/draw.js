@@ -208,19 +208,22 @@ function createDraw() {
     highlightedLinks = [];
   };
 
-  // Forget selected/highlighted nodes/links that were deleted
-  self.forgetDeletedItems = function forgetDeletedItems(intNodes, intLinks) {
+  // Remove selected/highlighted nodes/links that were deleted
+  self.forgetRemovedItems = function forgetDeletedItems(intNodeDict, intLinkDict) {
     highlightedNodes = highlightedNodes.filter(function(e) {
-      return intNodes.indexOf(e) !== -1;
+      return !(e.index in intNodeDict);
     });
+
     highlightedLinks = highlightedLinks.filter(function(e) {
-      return intLinks.indexOf(e) !== -1;
+      return !(e.index in intLinkDict);
     });
+
     selectedNodes = selectedNodes.filter(function(e) {
-      return intNodes.indexOf(e) !== -1;
+      return !(e.index in intNodeDict);
     });
+
     selectedLinks = selectedLinks.filter(function(e) {
-      return intLinks.indexOf(e) !== -1;
+      return !(e.index in intLinkDict);
     });
   }
 

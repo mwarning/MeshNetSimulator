@@ -313,13 +313,20 @@ function createGraph(graph_id) {
 
   self.disconnectSelectedNodes = function disconnectSelectedNodes() {
     var selectedNodes = draw.getSelectedIntNodes();
+    var linkDict = {};
 
     intLinks = intLinks.filter(function(e) {
-      return (selectedNodes.indexOf(e.source) < 0 || selectedNodes.indexOf(e.target) < 0);
+      if (selectedNodes.indexOf(e.source) < 0 || selectedNodes.indexOf(e.target) < 0) {
+        return true;
+      } else {
+        linkDict[e.index] = e;
+        return false;
+      }
     });
 
-    draw.forgetDeletedItems(intNodes, intLinks);
+    draw.forgetRemovedItems({}, linkDict);
 
+    // Setup links again
     forceLink.links(intLinks);
 
     force.alpha(1).restart();
@@ -434,10 +441,11 @@ function createGraph(graph_id) {
       return !(e.source.index in nodeDict) && !(e.target.index in nodeDict) && !(e.index in linkDict);
     });
 
+    // Set nodes and links
     force.nodes(intNodes);
     forceLink.links(intLinks);
 
-    draw.forgetDeletedItems(intNodes, intLinks);
+    draw.forgetRemovedItems(nodeDict, linkDict);
 
     force.alpha(1).restart();
     redraw();
