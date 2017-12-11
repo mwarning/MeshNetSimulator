@@ -14,13 +14,13 @@ Emulating OSI model layer 2 or 3 as part of the mesh network protocol has some p
 
 Layer 2 is the data link layer and deals with MAC addresses. Layer 2 mesh routing implementations basicly emulate a big switch.
 pros:
-- easier to implement
-- trivial to implement roaming (when a client moves between nodes)
+* easier to implement
+* trivial to implement roaming (when a client moves between nodes)
 
 Layer 3 is the procotol layer and deals with IP addresses.
 The routing protocol takes care of assigning subnets.
 pros:
-- better scalability because subnets do not foward broadcast/mutlicast packets by definition
+* better scalability because subnets do not forward broadcast/mutlicast packets by definition
 
 As always, things are not clear cut as many properties can be achieved in some other way.
 
@@ -60,7 +60,17 @@ In MANETs, there will be packets send all the time to keep moving towards a conv
 
 Note: Wireless Ad-Hoc mode can also be used to run mesh routing implementation on top. But it is old and often broken.
 
-## Implemenations
+## Legend
+
+* BATMAN-adv: Better Approach To Mobile AdHoc Networking - advanced
+* OLRS: Optimized Link State Routing
+* MANET: Mobile AdHoc Network
+* WMN: Wireless Mesh Network
+* DSR: Dynamic Source Routing
+* AODV: Ad-hoc On-demand Distance Vector
+* DSDV: Destination Sequenced Distance Vector
+
+## Popular MANET Protocols
 
 [Babel](https://www.irif.fr/~jch/software/babel/)
 [BATMAN-adv](https://www.open-mesh.org/projects/batman-adv/wiki)
