@@ -67,10 +67,20 @@ Use the `step` button to let the nodes propagate through the network in a random
 The `Sim` tab will show the efficiency of the routing approach once a packet has reached its destination.
 Use the `show` tab to inspect the state of selected nodes and its current packets.
 
-## Related software
+## Related Software
 
 [OMNeT++](https://www.omnetpp.org/): OMNeT++ is an extensible, modular, component-based C++ simulation library and framework, primarily for building network simulators.
 
 [ns-3](https://www.nsnam.org/): ns-3 is a discrete-event network simulator for Internet systems, targeted primarily for research and educational use. 
 
 [MeshViewer](https://github.com/ffrgb/meshviewer): A visualization tool for mesh networks. Primarily used by Freifunk. Files graph.js and draw.js originate from this project.
+
+## Various Links
+
+- [Ask Slashdot: Could We Build A Global Wireless Mesh Network?](https://ask.slashdot.org/story/17/04/29/2134234/ask-slashdot-could-we-build-a-global-wireless-mesh-network)
+
+- In depth analysis of B.A.T.M.A.N.-adv [Performance Analysis and Simulation of a Freifunk mesh network](http://thardes.de/wp-content/uploads/2016/03/thesis.pdf)
+
+- Contains an overview of different mesh routing strategies: [From MANET To IETF ROLL Standardization: A Paradigm Shift in WSN Routing Protocols](http://www.cttc.es/publication/from-manet-to-ietf-roll-standardization-a-paradigm-shift-in-wsn-routing-protocols/)
+
+- A routing algorithm based on virtual coordinates: [Routing without Geometry](https://www.tik.ee.ethz.ch/file/f26a5590c4dcab48af753012f3aa9ab4/sirocco05.pdf)
