@@ -129,7 +129,7 @@ function createEdit(graph) {
     addLattice(x_count, y_count, false);
   }
 
-  // Add lattice with horizontal, verctical and diagonal neighbors
+  // Add lattice with horizontal, vertical and diagonal neighbors
   self.addLattice8 = function addLattice8(x_count, y_count) {
     addLattice(x_count, y_count, true);
   }

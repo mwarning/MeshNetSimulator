@@ -1,7 +1,7 @@
 /*
 * Example of a Game Of Life implementation.
-* The rules were modified to be applicable to mesh networks
-* and to make the behavior more interesting.
+* The rules were modified to be applicable to mesh networks.
+* This makes this an asynchronous cellular automaton.
 */
 
 function Node(mac, meta = null) {
