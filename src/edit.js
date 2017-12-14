@@ -178,8 +178,7 @@ function createEdit(graph) {
   // Add randomized tree network with extra connections
   self.addTree = function addTree(count, extra = 0) {
     var nodes = [];
-    var links = [];
-    var linkIds = {};
+    var links = {};
 
     // Create bidirectional id
     function id(i, j) {
@@ -197,8 +196,7 @@ function createEdit(graph) {
         while (j === i || id(i, j) in linkIds) {
           j = Math.floor((Math.random() * nodes.length));
         }
-        links.push({source: nodes[i], target: nodes[j]});
-        linkIds[id(i, j)] = null;
+        links[id(i, j)] = {source: nodes[i], target: nodes[j]};
       }
     }
 
@@ -213,11 +211,10 @@ function createEdit(graph) {
         i = Math.floor((Math.random() * nodes.length));
         j = Math.floor((Math.random() * nodes.length));
       }
-      links.push({source: nodes[i], target: nodes[j]});
-      linkIds[id(i, j)] = null;
+      links[id(i, j)] = {source: nodes[i], target: nodes[j]};
     }
 
-    graph.addElements(nodes, links);
+    graph.addElements(nodes, Object.values(links));
   }
 
   return self;
