@@ -10,17 +10,13 @@ Pull requests are welcome!
 ![settings](docs/screenshot.png)
 
 Features:
-- load, edit and save Meshviewer and NetJSON data
+- load, edit and save [MeshViewer](https://github.com/ffrgb/meshviewer) and [NetJSON](http://netjson.org/rfc.html) data
 - create custom (bidirectional) graphs from primitives (single node, line/loop, 4-/8-Lattice, random tree)
 - live editing of [Node](src/node.js), [Link](src/link.js) and [Packet](src/packet.js) implementations
 - run simulations stepwise and with intervals
 - elaborate routing statistics
 - nodes state introspection
 - send external commands to selected nodes
-
-Import Format Documentation:
-- [MeshViewer](https://github.com/ffrgb/meshviewer)
-- [NetJSON](http://netjson.org/rfc.html)
 
 Available are [basic information](docs/about_mesh_networking.md) about mesh routing and a collection of [examples](docs/node_examples.md).
 
@@ -73,7 +69,7 @@ Use the `show` tab to inspect the state of selected nodes and its current packet
 
 [ns-3](https://www.nsnam.org/): ns-3 is a discrete-event network simulator for Internet systems, targeted primarily for research and educational use. 
 
-[MeshViewer](https://github.com/ffrgb/meshviewer): A visualization tool for mesh networks. Primarily used by Freifunk. Files graph.js and draw.js originate from this project.
+[MeshViewer](https://github.com/ffrgb/meshviewer): A visualization tool for mesh networks. Primarily used by Freifunk communities. Some code was used by this project.
 
 ## Various Links
 
