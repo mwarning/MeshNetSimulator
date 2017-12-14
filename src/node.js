@@ -66,13 +66,12 @@ Node.prototype.getNodeName = function () {
 
 // Label on top of the node body
 Node.prototype.getNodeLabel = function () {
-  function countUnicastPackets(packets) {
-    return packets.reduce(function(acc, val) {
-      return acc + (val.receiverAddress !== BROADCAST_MAC);
-    }, 0);
+  // Count unicast packets
+  var count = 0;
+  for (var i in this.outgoing) {
+    count += (this.outgoing[i] !== BROADCAST_MAC);
   }
-  var packetCount = countUnicastPackets(this.incoming) + countUnicastPackets(this.outgoing);
-  return packetCount ? packetCount.toString() : '';
+  return count ? count.toString() : '';
 }
 
 // Color of the ring around the node body
