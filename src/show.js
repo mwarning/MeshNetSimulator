@@ -68,8 +68,10 @@ function createShow (graph) {
         var td = append(tr, 'td', key);
 
         var type = (typeof value);
-        if (type === 'string' || type === 'number' || type === 'boolean' ) {
+        if (type === 'string' || type === 'boolean') {
           append(tr, 'td', value.toString());
+        } else if (type === 'number') {
+          append(tr, 'td', value.toFixed(2));
         } else if (value === null) {
           append(tr, 'td', 'null');
         } else if (Array.isArray(value)) {
