@@ -60,7 +60,8 @@ Node.prototype.step = function () {
 
 // Name displayed under the node
 Node.prototype.getNodeName = function () {
-  return (this.meta && ('nodeinfo' in this.meta)) ? this.meta.nodeinfo.hostname : this.mac;
+  // Find hostname in meta data, display MAC address as fallback
+  return findValue(this.meta, 'hostname', this.mac);
 }
 
 // Label on top of the node body

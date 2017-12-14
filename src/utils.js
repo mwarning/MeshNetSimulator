@@ -111,6 +111,27 @@ function sortNumerical(th) {
   sortTableColumn(tbody, col, true);
 }
 
+// Find a key in a nested object structure
+function findValue(obj, name, def) {
+  var val = def;
+
+  function find(obj) {
+    if (obj === null || typeof obj !== 'object') {
+      return;
+    }
+
+    if (name in obj) {
+      val = obj[name];
+      return;
+    }
+
+    Object.values(obj).map(find);
+  }
+
+  find(obj);
+  return val;
+}
+
 function copyExistingFields(oldObject, newObject) {
   for (var key in oldObject) {
     if (key in newObject) {

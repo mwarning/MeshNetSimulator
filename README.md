@@ -10,7 +10,7 @@ Pull requests are welcome!
 ![settings](docs/screenshot.png)
 
 Features:
-- load, edit and store Meshviewer nodes.json/graph.json data
+- load, edit and save Meshviewer and NetJSON data
 - create custom (bidirectional) graphs from primitives (single node, line/loop, 4-/8-Lattice, random tree)
 - live editing of [Node](src/node.js), [Link](src/link.js) and [Packet](src/packet.js) implementations
 - run simulations stepwise and with intervals
@@ -20,7 +20,7 @@ Features:
 
 Import Format Documentation:
 - [MeshViewer](https://github.com/ffrgb/meshviewer)
-- [NetJSON](http://netjson.org/rfc.html) (not supported yet)
+- [NetJSON](http://netjson.org/rfc.html)
 
 Available are [basic information](docs/about_mesh_networking.md) about mesh routing and a collection of [examples](docs/node_examples.md).
 

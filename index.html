@@ -70,18 +70,14 @@
         <fieldset>
           <legend>Graph Data</legend>
           <div class="enum">
-            <label>graph.json:</label>
+            <label title="Load Meshviewer or NetJSON data">Input:</label>
             <div>
-              <input type="file" id="file_graph" value="" />
+              <input type="file" id="file_input" value="" />
             </div>
           </div>
-          <div class="enum">
-            <label>nodes.json:</label>
-            <input type="file" id="file_nodes" value="" />
-          </div>
           <div class="equal">
-            <input type="button" onclick="file.loadMeshViewerData('file_graph', 'file_nodes')" value="Load" />
-            <input type="button" onclick="file.saveMeshViewerData()" value="Save" />
+            <input type="button" onclick="file.loadFile('file_input')" value="Load" />
+            <input type="button" onclick="file.saveFile()" value="Save" />
           </div>
         </fieldset>
         <fieldset>

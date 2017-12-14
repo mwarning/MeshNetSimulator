@@ -180,7 +180,8 @@ function createFile(graph) {
     return to;
   }
 
-  self.saveMeshViewerData = function saveMeshViewerData() {
+  // Save graph data as meshviewer data
+  self.saveFile = function saveFile() {
     var intNodes = graph.getIntNodes();
     var intLinks = graph.getIntLinks();
 
@@ -256,51 +257,87 @@ function createFile(graph) {
     offerDownload('nodes.json', JSON.stringify(nodes_json));
   }
 
-  self.loadMeshViewerData = function loadMeshViewerData(graph_id, nodes_id) {
-    readFileContent(graph_id, function(graph_content) {
-      readFileContent(nodes_id, function(nodes_content) {
-        var graphData = JSON.parse(graph_content);
-        var nodesData = JSON.parse(nodes_content);
-
-        if (typeof graphData !== 'object' || typeof nodesData !== 'object') {
-          return;
-        }
-
-        var nodeDict = {};
-        var graphDataNodes = graphData.batadv.nodes;
-        var graphDataLinks = graphData.batadv.links;
-        var nodesDataNodes = nodesData.nodes;
-        var nodes = [];
-        var links = [];
-
-        nodesDataNodes.forEach(function(e) {
-          var mac = e.nodeinfo.network.mac;
-          var node = new Node(mac, e);
-          nodeDict[mac] = {o: node};
+  self.loadFile = function loadFile(file_id) {
+    function loadNetJsonNetworkGraph(ret, nodes, links) {
+      for (var i in nodes) {
+        var e = nodes[i];
+        var mac = e.id;
+        ret.nodesArray.push({
+          o: new Node(mac, e)
         });
+      }
 
-        graphDataNodes.forEach(function(e) {
-          var mac = e.id;
-          if (!(mac in nodeDict)) {
-            nodeDict[mac] = {o: new Node(mac)};
-          }
+      for (var i in links) {
+        var e = links[i];
+        // Source and target are strings
+        var source = {o: new Node(e.source)};
+        var target = {o: new Node(e.target)};
+        var quality = ('cost' in e) ? (1 / e.cost) : 100;
+        var bandwidth = ('vpn' in e) ? (e.vpn ? 100 : 20) : 50;
+        ret.linksArray.push({
+          source: source,
+          target: target,
+          o: new Link(quality, bandwidth)
         });
+      }
+    }
 
-        graphDataLinks.map(function(e) {
-          var sid = graphDataNodes[e.source].id;
-          var tid = graphDataNodes[e.target].id;
-          var source = nodeDict[sid];
-          var target = nodeDict[tid];
-          links.push({
-            source: source,
-            target: target,
-            o: new Link(100 / e.tq, e.vpn ? 80 : 20)
+    function loadMeshviewerNodes(ret, nodes) {
+      for (var i in nodes) {
+        var e = nodes[i];
+        var mac = e.nodeinfo.network.mac;
+        if (mac) {
+          ret.nodesArray.push({
+            o: new Node(mac, e)
           });
-        });
+        }
+      }
+    }
 
-        nodes = Object.values(nodeDict);
-        graph.addElements(nodes, links);
-      });
+    function loadMeshviewerLinks(ret, nodes, links) {
+      for (var i in links) {
+        var e = links[i];
+        // source and target are indices into nodes
+        var sourceMAC = nodes[e.source].id;
+        var targetMAC = nodes[e.target].id;
+        var quality = e.tq ? (100 / e.tq) : 100;
+        var bandwidth = e.vpn ? 80 : 20;
+
+        ret.linksArray.push({
+          source: {o: new Node(sourceMAC)},
+          target: {o: new Node(targetMAC)},
+          o: new Link(bandwidth, quality)
+        });
+      }
+    }
+
+    readFileContent(file_id, function(text) {
+      var obj = JSON.parse(text);
+
+      if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+        return;
+      }
+
+      var ret = {
+        nodesArray: [],
+        linksArray: []
+      };
+
+      if (obj.type === "NetworkGraph") {
+        // NetJSON NetworkGraph data
+        loadNetJsonNetworkGraph(ret, obj.nodes, obj.links);
+      } else if ('batadv' in obj) {
+        // Meshviewer graph.json version 1
+        loadMeshviewerLinks(ret, obj.batadv.nodes, obj.batadv.links);
+      } else if ('nodes' in obj) {
+        // Meshviewer nodes.json version 2
+        loadMeshviewerNodes(ret, obj.nodes);
+      } else {
+        alert('Unrecognized input format.');
+        return;
+      }
+
+      graph.addElements(ret.nodesArray, ret.linksArray);
     });
   }
 

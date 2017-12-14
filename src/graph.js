@@ -232,43 +232,103 @@ function createGraph(graph_id) {
     $$('graph_links_count').nodeValue = intLinks.length;
   }
 
+  // Create a bidirectional link identifier
+  function linkId(link) {
+    var smac = link.source.o.mac;
+    var tmac = link.target.o.mac;
+    return (smac > tmac) ? (tmac + '=>' + smac) : (smac + '=>' + tmac);
+  }
+
+  // Add nodes and links (existing items will be merged)
   this.addElements = function addElements(nodes, links) {
-    // Nodes center
-    var mx = nodes.reduce(function(acc, e) { return acc + ('x' in e) ? e.x : 0; }, 0) / nodes.length;
-    var my = nodes.reduce(function(acc, e) { return acc + ('y' in e) ? e.y : 0; }, 0) / nodes.length;
+    // For fast node/link lookup
+    var nodeDict = {};
+    var linkDict = {};
 
-    // Combine with center
-    var px = lastClick[0] - mx;
-    var py = lastClick[1] - my;
-
-    nodes.forEach(function(e) {
-      // Add base position
-      if ('x' in e) e.x += px;
-      if ('y' in e) e.y += py;
-
-      // Make sure a node object exists
-      if (!('o' in e)) {
-        var mac = getUniqueMAC();
-        e.o = new Node(mac);
-      }
+    intNodes.forEach(function (e) {
+      nodeDict[e.o.mac] = e;
     });
 
-    links.forEach(function(e) {
-      if (!('o' in e)) {
-        e.o = new Link(100, 50);
-      }
+    intLinks.forEach(function (e) {
+      linkDict[linkId(e)] = e;
     });
 
-    intNodes = intNodes.concat(nodes);
-    intLinks = intLinks.concat(links);
+    function addNode(node) {
+      var id = node.o.mac;
+      if (id in nodeDict) {
+        var n = nodeDict[id];
+        // Update existing node
+        if (node.o.meta) {
+          n.o.meta = node.o.meta;
+        }
+        return n;
+      } else {
+        nodeDict[id] = node;
+        intNodes.push(node);
+        return node;
+      }
+    }
 
-    force.nodes(intNodes);
-    forceLink.links(intLinks);
+    function addLink(link) {
+      var id = linkId(link);
+      if (id in linkDict) {
+        var l = linkDict[id];
+        // Update existing link
+        l.o.quality = link.o.quality;
+        l.o.bandwidth = link.o.bandwidth;
+        l.o.channel = link.o.channel;
+      } else {
+        linkDict[id] = link;
+        link.source = addNode(link.source);
+        link.target = addNode(link.target);
+        intLinks.push(link);
+      }
+    }
 
-    force.alpha(1).restart();
-    redraw();
+    if (nodes.length) {
+      // Nodes center
+      var mx = nodes.reduce(function(acc, e) { return acc + ('x' in e) ? e.x : 0; }, 0) / nodes.length;
+      var my = nodes.reduce(function(acc, e) { return acc + ('y' in e) ? e.y : 0; }, 0) / nodes.length;
 
-    updateGraphStatistics();
+      // Combine with center
+      var px = lastClick[0] - mx;
+      var py = lastClick[1] - my;
+
+      nodes.forEach(function(e) {
+        // Add base position
+        if ('x' in e) e.x += px;
+        if ('y' in e) e.y += py;
+
+        // Make sure a node object exists
+        if (!('o' in e)) {
+          var mac = getUniqueMAC();
+          e.o = new Node(mac);
+        }
+      });
+
+      nodes.map(addNode);
+    }
+
+    if (links.length) {
+      links.forEach(function(e) {
+        // Make sure a link object exists
+        if (!('o' in e)) {
+          e.o = new Link();
+        }
+      });
+
+      links.map(addLink);
+    }
+
+    if (nodes.length || links.length) {
+      force.nodes(intNodes);
+      forceLink.links(intLinks);
+
+      force.alpha(1).restart();
+      redraw();
+
+      updateGraphStatistics();
+    }
   }
 
   self.resetData = function resetData() {
