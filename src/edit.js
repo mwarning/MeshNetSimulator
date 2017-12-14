@@ -193,7 +193,7 @@ function createEdit(graph) {
       if (i > 0) {
         // Connect node with random previous node
         var j = i;
-        while (j === i || id(i, j) in linkIds) {
+        while (j === i || id(i, j) in links) {
           j = Math.floor((Math.random() * nodes.length));
         }
         links[id(i, j)] = {source: nodes[i], target: nodes[j]};
@@ -207,7 +207,7 @@ function createEdit(graph) {
     for (var k = 0; k < extra; k += 1) {
       var i = 0;
       var j = 0;
-      while (j === i || id(i, j) in linkIds) {
+      while (j === i || id(i, j) in links) {
         i = Math.floor((Math.random() * nodes.length));
         j = Math.floor((Math.random() * nodes.length));
       }
