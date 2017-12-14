@@ -259,24 +259,24 @@ function createFile(graph) {
 
   self.loadFile = function loadFile(file_id) {
     function loadNetJsonNetworkGraph(ret, nodes, links) {
+      var nodeDict = {};
       for (var i in nodes) {
         var e = nodes[i];
-        var mac = e.id;
-        ret.nodesArray.push({
-          o: new Node(mac, e)
-        });
+        var mac = findValue(e, 'mac', e.id);
+        var node = {o: new Node(mac, e)};
+        ret.nodesArray.push(node);
+        // Remember id => node mapping
+        nodeDict[e.id] = node;
       }
 
       for (var i in links) {
         var e = links[i];
         // Source and target are strings
-        var source = {o: new Node(e.source)};
-        var target = {o: new Node(e.target)};
         var quality = ('cost' in e) ? (1 / e.cost) : 100;
-        var bandwidth = ('vpn' in e) ? (e.vpn ? 100 : 20) : 50;
+        var bandwidth = findValue(e, 'vpn', false) ? 80 : 20;
         ret.linksArray.push({
-          source: source,
-          target: target,
+          source: nodeDict[e.source],
+          target: nodeDict[e.target],
           o: new Link(quality, bandwidth)
         });
       }
@@ -285,7 +285,7 @@ function createFile(graph) {
     function loadMeshviewerNodes(ret, nodes) {
       for (var i in nodes) {
         var e = nodes[i];
-        var mac = e.nodeinfo.network.mac;
+        var mac = findValue(e, 'mac', null);
         if (mac) {
           ret.nodesArray.push({
             o: new Node(mac, e)
@@ -306,7 +306,7 @@ function createFile(graph) {
         ret.linksArray.push({
           source: {o: new Node(sourceMAC)},
           target: {o: new Node(targetMAC)},
-          o: new Link(bandwidth, quality)
+          o: new Link(quality, bandwidth)
         });
       }
     }
