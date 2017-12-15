@@ -132,6 +132,22 @@ function findValue(obj, name, def) {
   return val;
 }
 
+// Set a value in a nested dictionary at given path.
+// Creates sub-dictionary elements if needed.
+function setValue(obj, path, value) {
+  for (var i = 0; i < (path.length - 1); i += 1) {
+    var p = path[i];
+    if (p in obj) {
+      obj = obj[p];
+    } else {
+      var o = {};
+      obj[p] = o;
+      obj = o;
+    }
+  }
+  obj[path[path.length - 1]] = value;
+}
+
 function copyExistingFields(oldObject, newObject) {
   for (var key in oldObject) {
     if (key in newObject) {

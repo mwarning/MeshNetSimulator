@@ -148,76 +148,57 @@ function createFile(graph) {
     }
   }
 
-  // Copy elements from 'from' to 'to' object, if elements
-  // are in the same place of the structure of scheme
-  function applyByScheme(from, to, scheme) {
-    var path = [];
-    function copy(from, scheme) {
-      if (typeof scheme === 'object') {
-        if (typeof from === 'object') {
-          for (key in scheme) {
-            if (key in from) {
-              path.push(key);
-              copy(from[key], scheme[key]);
-              path.pop();
-            }
-          }
-        }
-      } else if ((typeof scheme === typeof from)) {
-        var o = to;
-        for (var i = 0; i < (path.length - 1); i++) {
-          if (!(path[i] in o)) {
-            var e = {};
-            o[path[i]] = e;
-            o = e;
-          }
-        }
-        o[path[path.length - 1]] = from;
-      }
-    }
-
-    copy(from, scheme);
-    return to;
-  }
-
-  // Save graph data as meshviewer data
-  self.saveFile = function saveFile() {
+  function saveNetJsonNetworkGraph() {
     var intNodes = graph.getIntNodes();
     var intLinks = graph.getIntLinks();
+    var nodes = [];
+    var links = [];
 
-    var nodesDataNodes = [];
+    intNodes.forEach(function(e) {
+      var node = {
+        id: e.o.mac
+      };
+      if (e.o.meta) {
+        node.properties = e.o.meta;
+      }
+      nodes.push(node);
+    });
+
+    intLinks.forEach(function(e) {
+      var link = {
+        source: e.source.o.mac,
+        target: e.target.o.mac,
+        cost: (100 / e.o.quality)
+      };
+
+      if (e.o.meta) {
+        link.properties = e.o.meta;
+      }
+      links.push(link);
+    });
+
+    var json = {
+      type: "NetworkGraph",
+      protocol: "",
+      version: "",
+      metric: "tq",
+      timestamp: (new Date).toISOString().slice(0, 19),
+      directed: false,
+      multigraph: false,
+      links: links,
+      nodes: nodes
+    };
+
+    offerDownload('netjson.json', JSON.stringify(json));
+  }
+
+  function saveNetMeshViewerGraph() {
+    var intLinks = graph.getIntLinks();
+    var intNodes = graph.getIntNodes();
     var graphDataNodes = [];
     var graphDataLinks = [];
 
-    var nodesScheme = {
-      firstseen: '',
-      flags: {gateway: false,  online: false },
-      lastseen: '',
-      nodeinfo: {
-        hardware: { model: '' },
-        hostname: '',
-        location: {
-          latitude: 0,
-          longitude: 0
-        },
-        network: { mac: '' },
-        node_id: '',
-        owner: { contact: '' },
-        software: { firmware: { release: '' } },
-        system: { role: '', site_code: '' }
-      },
-      statistics: {
-        clients: 0,
-        memory_usage: 0,
-        rootfs_usage: 0,
-        uptime: 0
-      }
-    }
-
     intNodes.forEach(function(e) {
-      var o = applyByScheme(e.o.meta, {}, nodesScheme);
-
-      nodesDataNodes.push(e.o);
       graphDataNodes.push({
         id: e.o.mac,
         node_id: e.o.mac.replace(/:/g, '')
@@ -230,11 +211,11 @@ function createFile(graph) {
         source: e.source.index,
         target: e.target.index,
         tq: (100 / e.o.quality),
-        vpn: (e.o.bandwidth > 50)
+        vpn: finValue(e.o.meta, 'vpn', (e.o.bandwidth > 50))
       });
     });
 
-    var graph_json = {
+    var json = {
       batadv: {
         directed: false,
         graph: [],
@@ -245,72 +226,130 @@ function createFile(graph) {
       version: 1
     };
 
-    var nodes_json = {
+    offerDownload('graph.json', JSON.stringify(json));
+  }
+
+  function saveNetMeshViewerNodes() {
+    var intNodes = graph.getIntNodes();
+    var nodes = [];
+    var paths = [
+      ['firstseen'],
+      ['flags', 'gateway'],
+      ['flags', 'online'],
+      ['lastseen'],
+      ['nodeinfo', 'hardware', 'model'],
+      ['nodeinfo', 'hostname'],
+      ['nodeinfo', 'location', 'latitude'],
+      ['nodeinfo', 'location', 'longitude'],
+      ['nodeinfo', 'network', 'mac'],
+      ['nodeinfo', 'node_id'],
+      ['nodeinfo', 'owner', 'contact'],
+      ['nodeinfo', 'software', 'firmware', 'release'],
+      ['nodeinfo', 'system', 'role', 'site_code'],
+      ['statistics', 'clients'],
+      ['statistics', 'memory_usage'],
+      ['statistics', 'rootfs_usage'],
+      ['statistics', 'uptime']
+    ];
+
+    intNodes.forEach(function(e) {
+      var meta = e.o.meta;
+      var node = {};
+
+      if (meta) {
+        paths.forEach(function(path) {
+          console.log('path: ' + path);
+          var value = findValue(meta, path[path.length - 1], null);
+          if (value !== null) {
+            setValue(node, path, value);
+          }
+        });
+      }
+
+      nodes.push(node);
+    });
+
+    var json = {
       meta: {
         timestamp: (new Date).toISOString().slice(0, 19)
       },
-      nodes: [],
+      nodes: nodes,
       version: 2
     };
 
-    offerDownload('graph.json', JSON.stringify(graph_json));
-    offerDownload('nodes.json', JSON.stringify(nodes_json));
+    offerDownload('nodes.json', JSON.stringify(json));
+  }
+
+  // Save graph data as meshviewer data
+  self.saveFile = function saveFile(type_id) {
+    var type = getText(type_id);
+
+    if (type === 'netjson_netgraph') {
+      saveNetJsonNetworkGraph();
+    } else if (type === 'meshviewer_nodes') {
+      saveNetMeshViewerNodes();
+    } else if (type === 'meshviewer_graph') {
+      saveNetJsonNetworkGraph();
+    } else {
+      alert('Unknown export type: ' + type);
+    }
+  }
+
+  function loadNetJsonNetworkGraph(ret, nodes, links) {
+    var nodeDict = {};
+    for (var i in nodes) {
+      var e = nodes[i];
+      var mac = findValue(e, 'mac', e.id);
+      var meta = e.properties;
+      var node = {o: new Node(mac, meta)};
+      ret.nodesArray.push(node);
+      // Remember id => node mapping
+      nodeDict[e.id] = node;
+    }
+
+    for (var i in links) {
+      var e = links[i];
+      // Source and target are strings
+      var quality = ('cost' in e) ? (100 / e.cost) : 100;
+      var bandwidth = findValue(e, 'vpn', false) ? 80 : 20;
+      ret.linksArray.push({
+        source: nodeDict[e.source],
+        target: nodeDict[e.target],
+        o: new Link(quality, bandwidth)
+      });
+    }
+  }
+
+  function loadMeshviewerNodes(ret, nodes) {
+    for (var i in nodes) {
+      var e = nodes[i];
+      var mac = findValue(e, 'mac', null);
+      if (mac) {
+        ret.nodesArray.push({
+          o: new Node(mac, e)
+        });
+      }
+    }
+  }
+
+  function loadMeshviewerLinks(ret, nodes, links) {
+    for (var i in links) {
+      var e = links[i];
+      // source and target are indices into nodes
+      var sourceMAC = nodes[e.source].id;
+      var targetMAC = nodes[e.target].id;
+      var quality = e.tq ? (100 / e.tq) : 100;
+      var bandwidth = e.vpn ? 80 : 20;
+
+      ret.linksArray.push({
+        source: {o: new Node(sourceMAC)},
+        target: {o: new Node(targetMAC)},
+        o: new Link(quality, bandwidth)
+      });
+    }
   }
 
   self.loadFile = function loadFile(file_id) {
-    function loadNetJsonNetworkGraph(ret, nodes, links) {
-      var nodeDict = {};
-      for (var i in nodes) {
-        var e = nodes[i];
-        var mac = findValue(e, 'mac', e.id);
-        var node = {o: new Node(mac, e)};
-        ret.nodesArray.push(node);
-        // Remember id => node mapping
-        nodeDict[e.id] = node;
-      }
-
-      for (var i in links) {
-        var e = links[i];
-        // Source and target are strings
-        var quality = ('cost' in e) ? (100 / e.cost) : 100;
-        var bandwidth = findValue(e, 'vpn', false) ? 80 : 20;
-        ret.linksArray.push({
-          source: nodeDict[e.source],
-          target: nodeDict[e.target],
-          o: new Link(quality, bandwidth)
-        });
-      }
-    }
-
-    function loadMeshviewerNodes(ret, nodes) {
-      for (var i in nodes) {
-        var e = nodes[i];
-        var mac = findValue(e, 'mac', null);
-        if (mac) {
-          ret.nodesArray.push({
-            o: new Node(mac, e)
-          });
-        }
-      }
-    }
-
-    function loadMeshviewerLinks(ret, nodes, links) {
-      for (var i in links) {
-        var e = links[i];
-        // source and target are indices into nodes
-        var sourceMAC = nodes[e.source].id;
-        var targetMAC = nodes[e.target].id;
-        var quality = e.tq ? (100 / e.tq) : 100;
-        var bandwidth = e.vpn ? 80 : 20;
-
-        ret.linksArray.push({
-          source: {o: new Node(sourceMAC)},
-          target: {o: new Node(targetMAC)},
-          o: new Link(quality, bandwidth)
-        });
-      }
-    }
-
     readFileContent(file_id, function(text) {
       var obj = JSON.parse(text);
 
