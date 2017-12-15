@@ -74,12 +74,23 @@
             <input type="file" id="file_input" value="" />
           </div>
           <div class="enum">
-            <input type="button" onclick="file.saveFile('save_format')" value="Save" />
+            <input type="button" onclick="file.saveFile(getText('save_format'), getInt('save_indent'))" value="Save" />
             <select id="save_format">
               <option value="netjson_netgraph">NetJSON NetworkGraph</option>
               <option value="meshviewer_graph">Meshviewer graph.json</option>
               <option value="meshviewer_nodes">Meshviewer nodes.json</option>
-          </select>
+            </select>
+          </div>
+          <div class="enum">
+            <div>
+            <label>Indentation</label>
+            <select id="save_indent">
+              <option value="-2">Tabs</option>
+              <option value="-1">None</option>
+              <option value="2" selected="selected">2 Spaces</option>
+              <option value="4">4 Spaces</option>
+            </select>
+            </div>
           </div>
         </fieldset>
         <fieldset>

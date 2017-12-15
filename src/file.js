@@ -148,7 +148,17 @@ function createFile(graph) {
     }
   }
 
-  function saveNetJsonNetworkGraph() {
+  function toJSON(obj, indent = -1) {
+    if (indent === -1) {
+      return JSON.stringify(obj);
+    } else if (indent === -2) {
+      return JSON.stringify(obj, undefined, '\t');
+    } else {
+      return JSON.stringify(obj, undefined, indent);
+    }
+  }
+
+  function saveNetJsonNetworkGraph(indent) {
     var intNodes = graph.getIntNodes();
     var intLinks = graph.getIntLinks();
     var nodes = [];
@@ -189,10 +199,10 @@ function createFile(graph) {
       nodes: nodes
     };
 
-    offerDownload('netjson.json', JSON.stringify(json));
+    offerDownload('netjson.json', toJSON(json, indent));
   }
 
-  function saveNetMeshViewerGraph() {
+  function saveNetMeshViewerGraph(indent) {
     var intLinks = graph.getIntLinks();
     var intNodes = graph.getIntNodes();
     var graphDataNodes = [];
@@ -226,10 +236,10 @@ function createFile(graph) {
       version: 1
     };
 
-    offerDownload('graph.json', JSON.stringify(json));
+    offerDownload('graph.json', toJSON(json, indent));
   }
 
-  function saveNetMeshViewerNodes() {
+  function saveNetMeshViewerNodes(indent) {
     var intNodes = graph.getIntNodes();
     var nodes = [];
     var paths = [
@@ -277,19 +287,17 @@ function createFile(graph) {
       version: 2
     };
 
-    offerDownload('nodes.json', JSON.stringify(json));
+    offerDownload('nodes.json', toJSON(json, indent));
   }
 
   // Save graph data as meshviewer data
-  self.saveFile = function saveFile(type_id) {
-    var type = getText(type_id);
-
+  self.saveFile = function saveFile(type, indent) {
     if (type === 'netjson_netgraph') {
-      saveNetJsonNetworkGraph();
+      saveNetJsonNetworkGraph(indent);
     } else if (type === 'meshviewer_nodes') {
-      saveNetMeshViewerNodes();
+      saveNetMeshViewerNodes(indent);
     } else if (type === 'meshviewer_graph') {
-      saveNetJsonNetworkGraph();
+      saveNetJsonNetworkGraph(indent);
     } else {
       alert('Unknown export type: ' + type);
     }
