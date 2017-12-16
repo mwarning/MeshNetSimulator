@@ -55,7 +55,11 @@ function createFile(graph) {
         var newNode = new Node(oldNode.mac, oldNode.meta);
 
         // Copy over fields
-        newNode.copyFromOldImplementation(oldNode);
+        if (typeof Node.prototype.copyFromOldImplementation !== "function") {
+          copyExistingFields(oldNode, newNode);
+        } else {
+          newNode.copyFromOldImplementation(oldNode);
+        }
 
         // Replace old node instance
         intNode.o = newNode;
@@ -90,7 +94,11 @@ function createFile(graph) {
           );
 
           // Copy over fields
-          newPacket.copyFromOldImplementation(oldPacket);
+          if (typeof Packet.prototype.copyFromOldImplementation !== "function") {
+            copyExistingFields(oldPacket, newPacket);
+          } else {
+            newPacket.copyFromOldImplementation(oldPacket);
+          }
 
           // Replace old packet instance
           packets[i] = newPacket;
@@ -128,7 +136,11 @@ function createFile(graph) {
         var newLink = new Link(oldLink.quality, oldLink.bandwidth, oldLink.channel);
 
         // Copy over fields
-        newLink.copyFromOldImplementation(oldLink);
+        if (typeof Link.prototype.copyFromOldImplementation !== "function") {
+          copyExistingFields(oldLink, newLink);
+        } else {
+          newLink.copyFromOldImplementation(oldLink);
+        }
 
         // Replace old link instance
         intLink.o = newLink;

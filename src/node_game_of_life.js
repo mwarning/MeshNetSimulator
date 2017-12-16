@@ -86,8 +86,3 @@ Node.prototype.reset = function () {
   this.outgoing = [];
   this.state = (Math.random() < 0.5) ? 'alive' : 'dead';
 }
-
-// For the transition to new implementations
-Node.prototype.copyFromOldImplementation = function (oldNode) {
-  copyExistingFields(oldNode, this);
-};

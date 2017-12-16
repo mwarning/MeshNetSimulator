@@ -163,8 +163,3 @@ Node.prototype.reset = function () {
   this.timer = Math.floor((Math.random() * 100));
   this.packetCounter = 0;
 }
-
-// For the transition to new implementations
-Node.prototype.copyFromOldImplementation = function (oldNode) {
-  copyExistingFields(oldNode, this);
-};

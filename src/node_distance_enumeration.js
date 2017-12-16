@@ -63,8 +63,3 @@ Node.prototype.reset = function () {
   this.num = Math.floor(Math.random() * 1000);
   this.enum = 0;
 }
-
-// For the transition to new implementations
-Node.prototype.copyFromOldImplementation = function (oldNode) {
-  copyExistingFields(oldNode, this);
-};
