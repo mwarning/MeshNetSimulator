@@ -40,7 +40,7 @@ Get the content of the repository and open the file index.html in a browser.
 ### Create a topology
 
 Create some network using the `Edit` tab and click on the `lattice` button to create a 3x3 lattice.
-You can also load meshviewer nodes.json/graph.json data files (e.g. [nodes.json](https://regensburg.freifunk.net/data/nodes.json)/[graph.json](https://regensburg.freifunk.net/data/graph.json)).
+You can also load JSON files (e.g. [nodes.json](https://regensburg.freifunk.net/data/nodes.json)/[graph.json](https://regensburg.freifunk.net/data/graph.json) or [netjson.json](https://nodeshot.org/netjsongraph/examples/data/netjson.json)).
 
 ### Implement a routing strategy (optional)
 
