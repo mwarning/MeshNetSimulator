@@ -87,7 +87,7 @@ Node.prototype.getBodyColor = function () {
 // Number of small red circles around the node
 // body indicating the number of connected clients
 Node.prototype.getClientCount = function () {
-  return (this.meta && ('statistics' in this.meta)) ? this.meta.statistics.clients : 0;
+  return findValue(this.meta, 'clients', '').toString();
 }
 
 Node.prototype.reset = function () {
