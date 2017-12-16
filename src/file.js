@@ -108,8 +108,8 @@ function createFile(graph) {
       var intNodes = graph.getIntNodes();
       for (var i = 0; i < intNodes.length; i++) {
         var intNode = intNodes[i];
-        renewPackets(intNode.incoming);
-        renewPackets(intNode.outgoing);
+        renewPackets(intNode.o.incoming);
+        renewPackets(intNode.o.outgoing);
       }
 
       graph.redraw();
