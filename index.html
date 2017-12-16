@@ -71,7 +71,10 @@
           <legend>Graph Data</legend>
           <div class="enum">
             <input type="button" onclick="file.loadFile('file_input')" value="Load" />
-            <input type="file" id="file_input" value="" />
+            <div>
+              <label onclick="$('file_input').click()">Choose JSON File</label>
+              <input type="file" id="file_input" value="" accept=".json" onchange="displayFileName(this)" />
+            </div>
           </div>
           <div class="enum">
             <input type="button" onclick="file.saveFile(getText('save_format'), getInt('save_indent'))" value="Save" />
@@ -83,7 +86,7 @@
           </div>
           <div class="enum">
             <div>
-            <label>Indentation</label>
+            <label>Indentation:</label>
             <select id="save_indent">
               <option value="-2">Tabs</option>
               <option value="-1">None</option>
@@ -96,31 +99,25 @@
         <fieldset>
           <legend>Reload</legend>
           <div class="enum">
-            <label>Node:</label>
-            <div>
-              <input type="file" id="node_js_file" />
-            </div>
-          </div>
-          <div class="equal">
             <input type="button" onclick="file.reloadNodeImplementation('node_js_file')" value="reload" />
-          </div>
-          <div class="enum">
-            <label>Packet:</label>
             <div>
-              <input type="file" id="packet_js_file" />
+              <label onclick="$('node_js_file').click()">node.js Implementation</label>
+              <input type="file" id="node_js_file" accept=".js" onchange="displayFileName(this)" />
             </div>
           </div>
-          <div class="equal">
+          <div class="enum">
             <input type="button" onclick="file.reloadPacketImplementation('packet_js_file')" value="reload" />
-          </div>
-          <div class="enum">
-            <label>Link:</label>
             <div>
-              <input type="file" id="link_js_file" />
+              <label onclick="$('packet_js_file').click()">packet.js Implementation</label>
+              <input type="file" id="packet_js_file" accept=".js" onchange="displayFileName(this)" />
             </div>
           </div>
-          <div class="equal">
+          <div class="enum">
             <input type="button" onclick="file.reloadLinkImplementation('link_js_file')" value="reload" />
+            <div>
+              <label onclick="$('link_js_file').click()">link.js Implementation</label>
+              <input type="file" id="link_js_file" accept=".js" onchange="displayFileName(this)" />
+            </div>
           </div>
         </fieldset>
       </div>

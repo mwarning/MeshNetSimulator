@@ -159,3 +159,10 @@ function copyExistingFields(oldObject, newObject) {
     }
   }
 }
+
+function displayFileName(input) {
+  if(input.files.length) {
+    // Display selected files name in previous element
+    input.previousElementSibling.textContent = input.files[0].name;
+  }
+}

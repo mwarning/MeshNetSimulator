@@ -83,7 +83,7 @@ input[type="button"] {
 }
 
 input[type="file"] {
-  width: 8.5em;
+  display: none;
 }
 
 input[type="checkbox"] {
@@ -99,9 +99,8 @@ fieldset td {
 fieldset {
   margin: 0.1em;
   padding: 0.4em;
-  width: 22em;
-  border: 0.1em solid #000;
   width: auto;
+  border: 0.1em solid #000;
 }
 
 fieldset * {
@@ -110,7 +109,7 @@ fieldset * {
 }
 
 fieldset .equal {
-  display: inline-block;
+  display: flex;
   justify-content: space-around;
 }
 

@@ -77,7 +77,7 @@ function createFile(graph) {
     }
   }
 
-  self.reloadPacketImplementation = function reloadPacketImplementation () {
+  self.reloadPacketImplementation = function reloadPacketImplementation (id) {
     function changeImpl() {
       function renewPackets(packets) {
         for (var i = 0; i < packets.length; i++) {
@@ -118,7 +118,7 @@ function createFile(graph) {
     }
   }
 
-  self.reloadLinkImplementation = function reloadLinkImplementation () {
+  self.reloadLinkImplementation = function reloadLinkImplementation (id) {
     function changeImpl() {
       // Recreate all link objects
       var intLinks = graph.getIntLinks();
