@@ -44,12 +44,12 @@ function createFile(graph) {
   }
 
   self.reloadNodeImplementation = function reloadNodeImplementation (id) {
-    function changeImpl() {
+    function changeNodeImplementation() {
       var nodeMap = {};
 
       // Recreate all Node objects 
       var intNodes = graph.getIntNodes();
-      for (var i = 0; i < intNodes.length; i++) {
+      for (var i = 0; i < intNodes.length; i += 1) {
         var intNode = intNodes[i];
         var oldNode = intNode.o;
         var newNode = new Node(oldNode.mac, oldNode.meta);
@@ -73,18 +73,18 @@ function createFile(graph) {
     if ($(id).files.length) {
       readFileContent(id, function(content) {
         reloadJavaScriptFile('node_js', content);
-        changeImpl();
+        setTimeout(changeNodeImplementation, 10);
       });
     } else {
       reloadJavaScriptFile('node_js', 'src/node.js');
-      changeImpl();
+      setTimeout(changeNodeImplementation, 10);
     }
   }
 
   self.reloadPacketImplementation = function reloadPacketImplementation (id) {
-    function changeImpl() {
+    function changePacketImplementation() {
       function renewPackets(packets) {
-        for (var i = 0; i < packets.length; i++) {
+        for (var i = 0; i < packets.length; i += 1) {
           var oldPacket = packets[i];
           var newPacket = new Packet(
             oldPacket.transmitterAddress,
@@ -106,7 +106,7 @@ function createFile(graph) {
       }
 
       var intNodes = graph.getIntNodes();
-      for (var i = 0; i < intNodes.length; i++) {
+      for (var i = 0; i < intNodes.length; i += 1) {
         var intNode = intNodes[i];
         renewPackets(intNode.o.incoming);
         renewPackets(intNode.o.outgoing);
@@ -118,19 +118,19 @@ function createFile(graph) {
     if ($(id).files.length) {
       readFileContent(id, function(content) {
         reloadJavaScriptFile('packet_js', content);
-        changeImpl();
+        setTimeout(changePacketImplementation, 10);
       });
     } else {
       reloadJavaScriptFile('packet_js', 'src/packet.js');
-      changeImpl();
+      setTimeout(changePacketImplementation, 10);
     }
   }
 
   self.reloadLinkImplementation = function reloadLinkImplementation (id) {
-    function changeImpl() {
+    function changeLinkImplementation() {
       // Recreate all link objects
       var intLinks = graph.getIntLinks();
-      for (var i = 0; i < intLinks.length; i++) {
+      for (var i = 0; i < intLinks.length; i += 1) {
         var intLink = intLinks[i];
         var oldLink = intLink.o;
         var newLink = new Link(oldLink.quality, oldLink.bandwidth, oldLink.channel);
@@ -152,11 +152,11 @@ function createFile(graph) {
     if ($(id).files.length) {
       readFileContent(id, function(content) {
         reloadJavaScriptFile('link_js', content);
-        changeImpl();
+        setTimeout(changeLinkImplementation, 10);
       });
     } else {
       reloadJavaScriptFile('link_js', 'src/link.js');
-      changeImpl();
+      setTimeout(changeLinkImplementation, 10);
     }
   }
 
