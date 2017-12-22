@@ -16,7 +16,7 @@ Features:
 - run simulations stepwise and with intervals
 - elaborate routing statistics
 - nodes state introspection
-- send external commands to selected nodes
+- send commands to selected nodes
 
 Available are [basic information](docs/about_mesh_networking.md) about mesh routing and a collection of [examples](docs/node_examples.md).
 
