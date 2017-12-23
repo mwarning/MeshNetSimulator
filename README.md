@@ -3,9 +3,9 @@
 Community networks such as [Freifunk](https://freifunk.net) struggle with scaling issues and data overhead beyond a few hundred nodes.
 
 This is a simple simulator for exploring/sketching mesh network routing strategies in the hopes to find better approaches.
-The code is written in plain JavaScript/HTML using the [d3](https://d3js.org) visualization library.
+The code is written in plain JavaScript/HTML and the [d3](https://d3js.org) visualization library.
 
-Pull requests are welcome!
+A public setup can be found [here](https://mwarning.de/MeshNetSimulator/) - Pull requests are welcome!
 
 ![settings](docs/screenshot.png)
 
