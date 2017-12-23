@@ -74,7 +74,7 @@ input[type="number"] {
 }
 
 input[type="text"] {
-  width: 8em;
+  width: 14em;
 }
 
 input[type="button"] {
@@ -115,6 +115,10 @@ fieldset .equal {
 
 fieldset .enum {
   height: 1.75em;
+}
+
+fieldset .enum > input:first-child {
+  width: 6em;
 }
 
 fieldset .enum > :first-child {

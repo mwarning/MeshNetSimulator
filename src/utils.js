@@ -161,8 +161,14 @@ function copyExistingFields(oldObject, newObject) {
 }
 
 function displayFileName(input) {
-  if(input.files.length) {
+  if (input.files.length) {
     // Display selected files name in previous element
-    input.previousElementSibling.textContent = input.files[0].name;
+    var prev = input.previousElementSibling;
+    var name = input.files[0].name;
+    if (prev.tagName === 'INPUT') {
+      prev.value = name;
+    } else {
+      prev.textContent = name;
+    }
   }
 }

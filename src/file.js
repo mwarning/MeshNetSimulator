@@ -14,149 +14,172 @@ function createFile(graph) {
     document.body.removeChild(a);
   }
 
-  function readFileContent(id, callback) {
-    var file = document.getElementById(id).files[0];
+  function readFileContent(file, callback) {
     if (file) {
       var r = new FileReader();
       r.onload = function(e) {
         callback(e.target.result);
-      }
+      };
+      r.onerror = function(e) {
+        alert('Failed to load file: ' + file.name + ' (' + e.target.error.name + ')');
+      };
       r.readAsText(file);
     } else {
       alert('No file selected.');
     }
   }
 
+  function readUrlContent(url, callback) {
+    if (url.length) {
+      var request = new XMLHttpRequest();
+      request.onreadystatechange = function() {
+        if (request.readyState == 4) {
+          if (request.status == 200) {
+            callback(request.responseText, url);
+          } else {
+            alert('Failed to load URL: ' + url);
+          }
+        }
+      };
+      request.open('GET', url, true);
+      request.send();
+    } else {
+      alert('No URL selected.');
+    }
+  }
+
   function reloadJavaScriptFile(id, src) {
-    // Remove old script
+    // Remove script element
     var e = document.getElementById(id);
     e.parentNode.removeChild(e);
 
-    // Load new script
-    var s = document.createElement('script');
-    s.id = id;
+    // Create new script element
+    var e = document.createElement('script');
+    e.type = 'text/javascript';
+    e.id = id;
     if (src.indexOf('\n') === -1) {
-      s.src = src;
+      e.src = src;
     } else {
-      s.textContent = src;
+      e.text = src;
     }
-    document.head.appendChild(s);
+    document.head.appendChild(e);
   }
 
-  self.reloadNodeImplementation = function reloadNodeImplementation (id) {
-    function changeNodeImplementation() {
-      var nodeMap = {};
+  self.reloadNodeImplementation = function reloadNodeImplementation (files, url) {
+    function load(content) {
+      function changeNodeImplementation() {
+        var nodeMap = {};
 
-      // Recreate all Node objects 
-      var intNodes = graph.getIntNodes();
-      for (var i = 0; i < intNodes.length; i += 1) {
-        var intNode = intNodes[i];
-        var oldNode = intNode.o;
-        var newNode = new Node(oldNode.mac, oldNode.meta);
-
-        // Copy over fields
-        if (typeof Node.prototype.copyFromOldImplementation !== "function") {
-          copyExistingFields(oldNode, newNode);
-        } else {
-          newNode.copyFromOldImplementation(oldNode);
-        }
-
-        // Replace old node instance
-        intNode.o = newNode;
-
-        nodeMap[newNode.mac] = newNode;
-      }
-
-      graph.redraw();
-    }
-
-    if ($(id).files.length) {
-      readFileContent(id, function(content) {
-        reloadJavaScriptFile('node_js', content);
-        setTimeout(changeNodeImplementation, 10);
-      });
-    } else {
-      reloadJavaScriptFile('node_js', 'src/node.js');
-      setTimeout(changeNodeImplementation, 10);
-    }
-  }
-
-  self.reloadPacketImplementation = function reloadPacketImplementation (id) {
-    function changePacketImplementation() {
-      function renewPackets(packets) {
-        for (var i = 0; i < packets.length; i += 1) {
-          var oldPacket = packets[i];
-          var newPacket = new Packet(
-            oldPacket.transmitterAddress,
-            oldPacket.receiverAddress,
-            oldPacket.sourceAddress,
-            oldPacket.destinationAddress
-          );
+        // Recreate all Node objects
+        var intNodes = graph.getIntNodes();
+        for (var i = 0; i < intNodes.length; i += 1) {
+          var intNode = intNodes[i];
+          var oldNode = intNode.o;
+          var newNode = new Node(oldNode.mac, oldNode.meta);
 
           // Copy over fields
-          if (typeof Packet.prototype.copyFromOldImplementation !== "function") {
-            copyExistingFields(oldPacket, newPacket);
+          if (typeof Node.prototype.copyFromOldImplementation !== "function") {
+            copyExistingFields(oldNode, newNode);
           } else {
-            newPacket.copyFromOldImplementation(oldPacket);
+            newNode.copyFromOldImplementation(oldNode);
           }
 
-          // Replace old packet instance
-          packets[i] = newPacket;
+          // Replace old node instance
+          intNode.o = newNode;
+
+          nodeMap[newNode.mac] = newNode;
         }
-      }
 
-      var intNodes = graph.getIntNodes();
-      for (var i = 0; i < intNodes.length; i += 1) {
-        var intNode = intNodes[i];
-        renewPackets(intNode.o.incoming);
-        renewPackets(intNode.o.outgoing);
+        graph.redraw();
       }
-
-      graph.redraw();
+      reloadJavaScriptFile('node_js', content);
+      setTimeout(changeNodeImplementation, 10);
     }
 
-    if ($(id).files.length) {
-      readFileContent(id, function(content) {
-        reloadJavaScriptFile('packet_js', content);
-        setTimeout(changePacketImplementation, 10);
-      });
+    if (files.length && files[0].name === url) {
+      readFileContent(files[0], load);
     } else {
-      reloadJavaScriptFile('packet_js', 'src/packet.js');
-      setTimeout(changePacketImplementation, 10);
+      readUrlContent(url, load);
     }
   }
 
-  self.reloadLinkImplementation = function reloadLinkImplementation (id) {
-    function changeLinkImplementation() {
-      // Recreate all link objects
-      var intLinks = graph.getIntLinks();
-      for (var i = 0; i < intLinks.length; i += 1) {
-        var intLink = intLinks[i];
-        var oldLink = intLink.o;
-        var newLink = new Link(oldLink.quality, oldLink.bandwidth, oldLink.channel);
+  self.reloadPacketImplementation = function reloadPacketImplementation (files, url) {
+    function load(content) {
+      function changePacketImplementation() {
+        function renewPackets(packets) {
+          for (var i = 0; i < packets.length; i += 1) {
+            var oldPacket = packets[i];
+            var newPacket = new Packet(
+              oldPacket.transmitterAddress,
+              oldPacket.receiverAddress,
+              oldPacket.sourceAddress,
+              oldPacket.destinationAddress
+            );
 
-        // Copy over fields
-        if (typeof Link.prototype.copyFromOldImplementation !== "function") {
-          copyExistingFields(oldLink, newLink);
-        } else {
-          newLink.copyFromOldImplementation(oldLink);
+            // Copy over fields
+            if (typeof Packet.prototype.copyFromOldImplementation !== "function") {
+              copyExistingFields(oldPacket, newPacket);
+            } else {
+              newPacket.copyFromOldImplementation(oldPacket);
+            }
+
+            // Replace old packet instance
+            packets[i] = newPacket;
+          }
         }
 
-        // Replace old link instance
-        intLink.o = newLink;
-      }
+        var intNodes = graph.getIntNodes();
+        for (var i = 0; i < intNodes.length; i += 1) {
+          var intNode = intNodes[i];
+          renewPackets(intNode.o.incoming);
+          renewPackets(intNode.o.outgoing);
+        }
 
-      graph.redraw();
+        graph.redraw();
+      }
+      reloadJavaScriptFile('packet_js', content);
+      setTimeout(changePacketImplementation, 10);
     }
 
-    if ($(id).files.length) {
-      readFileContent(id, function(content) {
-        reloadJavaScriptFile('link_js', content);
-        setTimeout(changeLinkImplementation, 10);
-      });
+    if (files.length && files[0].name === url) {
+      readFileContent(files[0], load);
     } else {
-      reloadJavaScriptFile('link_js', 'src/link.js');
+      readUrlContent(url, load);
+    }
+  }
+
+  self.reloadLinkImplementation = function reloadLinkImplementation (files, url) {
+    function load(content) {
+      function changeLinkImplementation() {
+        // Recreate all link objects
+        var intLinks = graph.getIntLinks();
+        for (var i = 0; i < intLinks.length; i += 1) {
+          var intLink = intLinks[i];
+          var oldLink = intLink.o;
+          var newLink = new Link(oldLink.quality, oldLink.bandwidth, oldLink.channel);
+
+          // Copy over fields
+          if (typeof Link.prototype.copyFromOldImplementation !== "function") {
+            copyExistingFields(oldLink, newLink);
+          } else {
+            newLink.copyFromOldImplementation(oldLink);
+          }
+
+          // Replace old link instance
+          intLink.o = newLink;
+        }
+
+        graph.redraw();
+      }
+
+      reloadJavaScriptFile('link_js', content);
       setTimeout(changeLinkImplementation, 10);
+    }
+
+    if (files.length && files[0].name === url) {
+      readFileContent(files[0], load);
+    } else {
+      readUrlContent(url, load);
     }
   }
 
@@ -369,8 +392,8 @@ function createFile(graph) {
     }
   }
 
-  self.loadFile = function loadFile(file_id) {
-    readFileContent(file_id, function(text) {
+  self.loadFile = function loadFile(files, url) {
+    function load(text) {
       var obj = JSON.parse(text);
 
       if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
@@ -397,7 +420,13 @@ function createFile(graph) {
       }
 
       graph.addElements(ret.nodesArray, ret.linksArray);
-    });
+    }
+
+    if (files.length && files[0].name === url) {
+      readFileContent(files[0], load);
+    } else {
+      readUrlContent(url, load);
+    }
   }
 
   return self;

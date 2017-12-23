@@ -68,14 +68,18 @@
       </div>
       <div id="file" class="tabcontent">
         <fieldset>
-          <legend>Graph Data</legend>
+          <legend>Load</legend>
           <div class="enum">
-            <input type="button" onclick="file.loadFile('file_input')" value="Load" />
+            <input type="button" onclick="file.loadFile($('file_input').files, $('url_input').value)" value="Load" />
             <div>
-              <label onclick="$('file_input').click()">Choose JSON File</label>
-              <input type="file" id="file_input" value="" accept=".json" onchange="displayFileName(this)" />
+              <input type="text" id="url_input" value="" />
+              <input type="file" id="file_input" value="" accept=".json" onchange="displayFileName(this);" />
+              <label onclick="$('file_input').click()">Select</label>
             </div>
           </div>
+        </fieldset>
+        <fieldset>
+          <legend>Save</legend>
           <div class="enum">
             <input type="button" onclick="file.saveFile(getText('save_format'), getInt('save_indent'))" value="Save" />
             <select id="save_format">
@@ -99,24 +103,27 @@
         <fieldset>
           <legend>Reload</legend>
           <div class="enum">
-            <input type="button" onclick="file.reloadNodeImplementation('node_js_file')" value="reload" />
+            <input type="button" onclick="file.reloadNodeImplementation($('node_file').files, $('node_url').value)" value="reload" />
             <div>
-              <label onclick="$('node_js_file').click()">node.js</label>
-              <input type="file" id="node_js_file" accept=".js" onchange="displayFileName(this)" />
+              <input type="text" id="node_url" value="src/node.js" />
+              <input type="file" id="node_file" accept=".js" onchange="displayFileName(this)" />
+              <label onclick="$('node_file').click()">Select</label>
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="file.reloadPacketImplementation('packet_js_file')" value="reload" />
+            <input type="button" onclick="file.reloadPacketImplementation($('packet_file').files, $('packet_url').value)" value="reload" />
             <div>
-              <label onclick="$('packet_js_file').click()">packet.js</label>
-              <input type="file" id="packet_js_file" accept=".js" onchange="displayFileName(this)" />
+              <input type="text" id="packet_url" value="src/packet.js" />
+              <input type="file" id="packet_file" accept=".js" onchange="displayFileName(this)" />
+              <label onclick="$('packet_file').click()">Select</label>
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="file.reloadLinkImplementation('link_js_file')" value="reload" />
+            <input type="button" onclick="file.reloadLinkImplementation($('link_file').files, $('link_url').value)" value="reload" />
             <div>
-              <label onclick="$('link_js_file').click()">link.js</label>
-              <input type="file" id="link_js_file" accept=".js" onchange="displayFileName(this)" />
+              <input type="text" id="link_url" value="src/link.js" />
+              <input type="file" id="link_file" accept=".js" onchange="displayFileName(this)" />
+              <label onclick="$('link_file').click()">Select</label>
             </div>
           </div>
         </fieldset>
@@ -171,10 +178,14 @@
         <fieldset>
           <legend>Add Primitives</legend>
           <div class="enum">
-            <input type="button" onclick="edit.addSingle()" value="Node" />
+            <div>
+              <input type="button" onclick="edit.addSingle()" value="Node" />
+            </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addLine(getInt('line_n'), getBool('line_loop'))" value="Line" />
+            <div>
+              <input type="button" onclick="edit.addLine(getInt('line_n'), getBool('line_loop'))" value="Line" />
+            </div>
             <div class="equal">
               <input type="number" id="line_n" min="1" max="999" value="3" />
               <input type="checkbox" id="line_loop" />
@@ -182,13 +193,17 @@
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addStar(getInt('star_n'))" value="Star" />
+            <div>
+              <input type="button" onclick="edit.addStar(getInt('star_n'))" value="Star" />
+            </div>
             <div class="equal">
               <input type="number" id="star_n" min="1" max="999" value="4" />
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addLattice4(getInt('lattice4_x'), getInt('lattice4_y'))" value="4-Lattice" />
+            <div>
+              <input type="button" onclick="edit.addLattice4(getInt('lattice4_x'), getInt('lattice4_y'))" value="4-Lattice" />
+            </div>
             <div class="equal">
               <input type="number" id="lattice4_x" min="1" max="999" value="3" />
               <span>x</span>
@@ -196,7 +211,9 @@
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addLattice8(getInt('lattice8_x'), getInt('lattice8_y'))" value="8-Lattice" />
+            <div>
+              <input type="button" onclick="edit.addLattice8(getInt('lattice8_x'), getInt('lattice8_y'))" value="8-Lattice" />
+            </div>
             <div class="equal">
               <input type="number" id="lattice8_x" min="1" max="999" value="3" />
               <span>x</span>
@@ -204,7 +221,9 @@
             </div>
           </div>
           <div class="enum">
-            <input type="button" onclick="edit.addTree(getInt('tree_c'), getInt('tree_d'))" value="Tree" />
+            <div>
+              <input type="button" onclick="edit.addTree(getInt('tree_c'), getInt('tree_d'))" value="Tree" />
+            </div>
             <div class="equal">
               <input type="number" id="tree_c" min="1" max="999" value="8" />
               <label title="Add additional random connections to the tree.">Extra:</label>
