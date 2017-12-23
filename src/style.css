@@ -67,6 +67,11 @@ th {
   width: 4em;
 }
 
+/* Remove dotted outline on buttons */
+button::-moz-focus-inner {
+  border: 0;
+}
+
 input[type="number"] {
   width: auto;
   margin: auto;
