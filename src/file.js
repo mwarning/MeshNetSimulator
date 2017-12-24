@@ -37,7 +37,8 @@ function createFile(graph) {
           if (request.status == 200) {
             callback(request.responseText, url);
           } else {
-            alert('Failed to load URL: ' + url);
+            var msg = request.statusText;
+            alert('Failed to load URL: ' + url + ' (' + (msg.length ? msg : "unknown") + ')');
           }
         }
       };
