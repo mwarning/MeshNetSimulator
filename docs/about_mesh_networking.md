@@ -63,7 +63,7 @@ Note: Wireless Ad-Hoc mode can also be used to run mesh routing implementation o
 ## Legend
 
 * BATMAN-adv: Better Approach To Mobile AdHoc Networking - advanced
-* OLRS: Optimized Link State Routing
+* OLSR: Optimized Link State Routing
 * MANET: Mobile AdHoc Network
 * WMN: Wireless Mesh Network
 * DSR: Dynamic Source Routing
@@ -73,9 +73,11 @@ Note: Wireless Ad-Hoc mode can also be used to run mesh routing implementation o
 ## Popular MANET Protocols
 
 [Babel](https://www.irif.fr/~jch/software/babel/)
+[BMX](http://bmx6.net/)
 [BATMAN-adv](https://www.open-mesh.org/projects/batman-adv/wiki)
 [OLSR](http://www.olsr.org/mediawiki/index.php/Main_Page)
 [802.11s](https://en.wikipedia.org/wiki/IEEE_802.11s)
+(In no particular order.)
 
 ## Further Reading
 
