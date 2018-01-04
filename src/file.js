@@ -354,7 +354,7 @@ function createFile(graph) {
     for (var i in links) {
       var e = links[i];
       // Source and target are strings
-      var quality = ('cost' in e) ? (100 / e.cost) : 100;
+      var quality = limitFloat(('cost' in e) ? (100 / e.cost) : 100, 0, 100);
       var bandwidth = findValue(e, 'vpn', false) ? 80 : 20;
       ret.linksArray.push({
         source: nodeDict[e.source],

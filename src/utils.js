@@ -172,3 +172,13 @@ function displayFileName(input) {
     }
   }
 }
+
+function limitFloat(value, min, max) {
+  if (value < min || isNaN(value)) {
+    return min;
+  }
+  if (value > max) {
+    return max;
+  }
+  return value;
+}

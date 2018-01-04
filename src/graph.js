@@ -161,7 +161,8 @@ function createGraph(graph_id) {
       if (d.o.bandwidth > 50) {
         return 0.02;
       }
-      return Math.max(0.5, 1 / d.o.quality);
+
+      return limitFloat(1 / d.o.quality, 0.5, 1);
     });
 
   var zoom = d3Zoom.zoom()
