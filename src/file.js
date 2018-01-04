@@ -351,10 +351,32 @@ function createFile(graph) {
       nodeDict[e.id] = node;
     }
 
+    // Get highest/lowest cost
+    var lowestCost = +Infinity;
+    var highestCost = -Infinity;
+    for (var i in links) {
+      var e = links[i];
+      if ('cost' in e) {
+        if (e.cost < lowestCost) {
+          lowestCost = e.cost;
+        }
+        if (e.cost > highestCost) {
+          highestCost = e.cost;
+        }
+      }
+    }
+
+    var costScale = function(v) {
+      if (highestCost == lowestCost) {
+        return 100;
+      }
+      return 100 - 100 * (v - lowestCost) / (highestCost - lowestCost);
+    };
+
     for (var i in links) {
       var e = links[i];
       // Source and target are strings
-      var quality = limitFloat(('cost' in e) ? (100 / e.cost) : 100, 0, 100);
+      var quality = ('cost' in e) ? costScale(e.cost) : 100;
       var bandwidth = findValue(e, 'vpn', false) ? 80 : 20;
       ret.linksArray.push({
         source: nodeDict[e.source],
