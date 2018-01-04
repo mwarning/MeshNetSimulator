@@ -393,7 +393,7 @@ function createFile(graph) {
     }
   }
 
-  self.loadFile = function loadFile(files, url) {
+  self.loadData = function loadData(files, url) {
     function load(text) {
       var obj = JSON.parse(text);
 

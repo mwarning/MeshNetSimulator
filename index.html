@@ -70,7 +70,7 @@
         <fieldset>
           <legend>Load</legend>
           <div class="enum">
-            <input type="button" onclick="file.loadFile($('file_input').files, $('url_input').value)" value="Load" />
+            <input type="button" onclick="file.loadData($('file_input').files, $('url_input').value)" value="Load" />
             <div>
               <input type="text" id="url_input" value="" />
               <input type="file" id="file_input" value="" accept=".json" onchange="displayFileName(this);" />
