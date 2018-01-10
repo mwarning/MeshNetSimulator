@@ -391,10 +391,37 @@ function createFile(graph) {
       var e = nodes[i];
       var mac = findValue(e, 'mac', null);
       if (mac) {
-        ret.nodesArray.push({
-          o: new Node(mac, e)
-        });
+        var node = {o: new Node(mac, e)};
+        ret.nodesArray.push(node);
       }
+    }
+  }
+
+  function loadMeshviewerData(ret, nodes, links) {
+    var nodeDict = {};
+
+    for (var i in nodes) {
+      var e = nodes[i];
+      var mac = findValue(e, 'mac', null);
+      if (mac) {
+        var node = {o: new Node(mac, e)};
+        nodeDict[e.node_id] = node;
+        ret.nodesArray.push(node);
+      }
+    }
+
+    for (var i in links) {
+      var e = links[i];
+      var source = nodeDict[e.source];
+      var target = nodeDict[e.target];
+      var quality = 100 / ((e.source_tq + e.target_tq) / 2);
+      var bandwidth = (e.type === 'wifi') ? 20 : 80;
+
+      ret.linksArray.push({
+        source: source,
+        target: target,
+        o: new Link(quality, bandwidth)
+      });
     }
   }
 
@@ -431,12 +458,15 @@ function createFile(graph) {
       if (obj.type === "NetworkGraph") {
         // NetJSON NetworkGraph data
         loadNetJsonNetworkGraph(ret, obj.nodes, obj.links);
+      } else if ('nodes' in obj && 'links' in obj) {
+        // Meshviewer mesviewer.json version 3
+        loadMeshviewerData(ret, obj.nodes, obj.links);
       } else if ('batadv' in obj) {
         // Meshviewer graph.json version 1
         loadMeshviewerLinks(ret, obj.batadv.nodes, obj.batadv.links);
       } else if ('nodes' in obj) {
         // Meshviewer nodes.json version 2
-        loadMeshviewerNodes(ret, obj.nodes);
+        loadMeshviewerNodes(ret, obj.nodes, null);
       } else {
         alert('Unrecognized input format.');
         return;
