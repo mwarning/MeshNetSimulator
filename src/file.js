@@ -238,7 +238,22 @@ function createFile(graph) {
     offerDownload('netjson.json', toJSON(json, indent));
   }
 
-  function saveNetMeshViewerGraph(indent) {
+  function saveMeshViewer(indent) {
+    var intLinks = graph.getIntLinks();
+    var intNodes = graph.getIntNodes();
+    var nodes = [];
+    var links = [];
+
+    //TODO
+    var json = {
+      nodes: nodes,
+      links: links
+    }
+
+    offerDownload('meshviewer.json', toJSON(json, indent));
+  }
+
+  function saveMeshViewerGraph(indent) {
     var intLinks = graph.getIntLinks();
     var intNodes = graph.getIntNodes();
     var graphDataNodes = [];
@@ -275,7 +290,7 @@ function createFile(graph) {
     offerDownload('graph.json', toJSON(json, indent));
   }
 
-  function saveNetMeshViewerNodes(indent) {
+  function saveMeshViewerNodes(indent) {
     var intNodes = graph.getIntNodes();
     var nodes = [];
     var paths = [
@@ -331,9 +346,11 @@ function createFile(graph) {
     if (type === 'netjson_netgraph') {
       saveNetJsonNetworkGraph(indent);
     } else if (type === 'meshviewer_nodes') {
-      saveNetMeshViewerNodes(indent);
+      saveMeshViewerNodes(indent);
     } else if (type === 'meshviewer_graph') {
-      saveNetJsonNetworkGraph(indent);
+      saveMeshViewerGraph(indent);
+    } else if (type === 'meshviewer') {
+      saveMeshViewer(indent);
     } else {
       alert('Unknown export type: ' + type);
     }
