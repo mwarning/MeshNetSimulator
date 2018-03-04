@@ -38,7 +38,7 @@ function createFile(graph) {
             callback(request.responseText, url);
           } else {
             var msg = request.statusText;
-            alert('Failed to load URL: ' + url + ' (' + (msg.length ? msg : "unknown") + ')');
+            alert('Failed to load URL: ' + url + ' (' + (msg.length ? msg : 'unknown') + ')');
           }
         }
       };
@@ -79,7 +79,7 @@ function createFile(graph) {
           var newNode = new Node(oldNode.mac, oldNode.meta);
 
           // Copy over fields
-          if (typeof Node.prototype.copyFromOldImplementation !== "function") {
+          if (typeof Node.prototype.copyFromOldImplementation !== 'function') {
             copyExistingFields(oldNode, newNode);
           } else {
             newNode.copyFromOldImplementation(oldNode);
@@ -118,7 +118,7 @@ function createFile(graph) {
             );
 
             // Copy over fields
-            if (typeof Packet.prototype.copyFromOldImplementation !== "function") {
+            if (typeof Packet.prototype.copyFromOldImplementation !== 'function') {
               copyExistingFields(oldPacket, newPacket);
             } else {
               newPacket.copyFromOldImplementation(oldPacket);
@@ -160,7 +160,7 @@ function createFile(graph) {
           var newLink = new Link(oldLink.quality, oldLink.bandwidth, oldLink.channel);
 
           // Copy over fields
-          if (typeof Link.prototype.copyFromOldImplementation !== "function") {
+          if (typeof Link.prototype.copyFromOldImplementation !== 'function') {
             copyExistingFields(oldLink, newLink);
           } else {
             newLink.copyFromOldImplementation(oldLink);
@@ -224,10 +224,10 @@ function createFile(graph) {
     });
 
     var json = {
-      type: "NetworkGraph",
-      protocol: "",
-      version: "",
-      metric: "tq",
+      type: 'NetworkGraph',
+      protocol: '',
+      version: '',
+      metric: 'tq',
       timestamp: (new Date).toISOString().slice(0, 19),
       directed: false,
       multigraph: false,
@@ -244,11 +244,77 @@ function createFile(graph) {
     var nodes = [];
     var links = [];
 
-    //TODO
+    var nodeDict = {};
+    var timestamp = (new Date).toISOString().slice(0, 19);
+
+    intNodes.forEach(function(e) {
+      var meta = e.o.meta;
+      var node = {
+        firstseen: timestamp,
+        lastseen: timestamp,
+        is_online: true,
+        is_gateway: false,
+        clients: 0,
+        clients_wifi24: 0,
+        clients_wifi5: 0,
+        clients_other: 0,
+        rootfs_usage: 0,
+        loadavg: 0,
+        memory_usage: 0,
+        uptime: '',
+        gateway_nexthop: '',
+        gateway: '',
+        addresses: [],
+        site_code: '',
+        hostname: '',
+        location: {longitude: 0, latitude: 0},
+        firmware: {base: '', release: ''},
+        autoupdater: {enabled: true, branch: ''},
+        nproc: 1,
+        model: '',
+        vpn: false
+      };
+
+      if (meta) {
+        // Replace field by data in meta
+        for (var key in node) {
+          node[key] = findValue(meta, key, node[key]);
+        }
+      }
+
+      // Should not be replaced by data in meta
+      node['mac'] = e.o.mac;
+      node['node_id'] = e.o.mac.replace(/:/g, '');
+
+      nodeDict[node.mac] = node;
+
+      nodes.push(node);
+    });
+
+    intLinks.forEach(function(e) {
+      var tq = (100 / e.o.quality);
+      var source = e.source.o;
+      var target = e.target.o;
+      var source_tq = tq;
+      var target_tq = tq;
+      var type = findValue(e.o.meta, 'type', 'other'); //'wifi',"vpn", "other"
+
+      links.push({
+        type: type,
+        source: nodeDict[source.mac].node_id,
+        target: nodeDict[target.mac].node_id,
+        source_tq: source_tq,
+        target_tq: target_tq,
+        source_mac: source.mac,
+        target_mac: target.mac
+      });
+    });
+
     var json = {
+      timestamp: timestamp,
       nodes: nodes,
       links: links
-    }
+    };
 
     offerDownload('meshviewer.json', toJSON(json, indent));
   }
@@ -272,7 +338,7 @@ function createFile(graph) {
         source: e.source.index,
         target: e.target.index,
         tq: (100 / e.o.quality),
-        vpn: finValue(e.o.meta, 'vpn', (e.o.bandwidth > 50))
+        vpn: findValue(e.o.meta, 'vpn', (e.o.bandwidth > 50))
       });
     });
 
@@ -319,7 +385,6 @@ function createFile(graph) {
 
       if (meta) {
         paths.forEach(function(path) {
-          console.log('path: ' + path);
           var value = findValue(meta, path[path.length - 1], null);
           if (value !== null) {
             setValue(node, path, value);
@@ -472,7 +537,7 @@ function createFile(graph) {
         linksArray: []
       };
 
-      if (obj.type === "NetworkGraph") {
+      if (obj.type === 'NetworkGraph') {
         // NetJSON NetworkGraph data
         loadNetJsonNetworkGraph(ret, obj.nodes, obj.links);
       } else if ('nodes' in obj && 'links' in obj) {
