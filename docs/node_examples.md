@@ -1,7 +1,8 @@
 # Simple mesh algorithm examples
 
 A small collection of algorithms that runs on graphs and can aid to find new routing schemes.
-The examples can be run by replacing [node.js](/src/node.js) with the content of the linked files below:
+The examples can be run by selecting the implementation file in the GUI.
+By default, [node.js](/src/node.js) is used and contains a random forwarding routing strategy.
 
 ## Basic Consensus
 
