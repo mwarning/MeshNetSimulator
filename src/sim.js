@@ -210,7 +210,7 @@ function createSim(graph) {
     }
 
     var intNodes = graph.getSelectedIntNodes();
-    if (intNodes.length == 0) {
+    if (intNodes.length < 2) {
       alert('Select one source and at least one target node.');
       return;
     }
