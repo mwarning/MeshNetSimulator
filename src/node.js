@@ -71,6 +71,9 @@ Node.prototype.getNodeLabel = function () {
   for (var i in this.outgoing) {
     count += (this.outgoing[i] !== BROADCAST_MAC);
   }
+  for (var i in this.incoming) {
+    count += (this.incoming[i] !== BROADCAST_MAC);
+  }
   return count ? count.toString() : '';
 }
 
