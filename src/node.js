@@ -69,10 +69,10 @@ Node.prototype.getNodeLabel = function () {
   // Count unicast packets
   var count = 0;
   for (var i in this.outgoing) {
-    count += (this.outgoing[i] !== BROADCAST_MAC);
+    count += (this.outgoing[i].receiverAddress !== BROADCAST_MAC);
   }
   for (var i in this.incoming) {
-    count += (this.incoming[i] !== BROADCAST_MAC);
+    count += (this.incoming[i].receiverAddress !== BROADCAST_MAC);
   }
   return count ? count.toString() : '';
 }
