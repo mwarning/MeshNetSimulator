@@ -271,11 +271,13 @@ function createSim(graph) {
       var route = self.routes[id];
       var sourceIntNode = intNodes.find(function(e) { return e.o.mac === route.sourceAddress; });
       var targetIntNode = intNodes.find(function(e) { return e.o.mac === route.destinationAddress; });
-      var shortestDistance = dijkstra.getShortestDistance(sourceIntNode, targetIntNode);
-      /*
-      * Efficiency as rate of optimal step count in relation to the shortest path of reveived packets.
-      */
-      route.efficiency = (shortestDistance * route.receivedCount / route.receivedStepCount);
+      if (sourceIntNode && targetIntNode) {
+        var shortestDistance = dijkstra.getShortestDistance(sourceIntNode, targetIntNode);
+        /*
+        * Efficiency as rate of optimal step count in relation to the shortest path of reveived packets.
+        */
+        route.efficiency = (shortestDistance * route.receivedCount / route.receivedStepCount);
+      }
     }
   }
 
