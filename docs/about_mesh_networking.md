@@ -72,12 +72,11 @@ Note: Wireless Ad-Hoc mode can also be used to run mesh routing implementation o
 
 ## Popular MANET Protocols
 
-[Babel](https://www.irif.fr/~jch/software/babel/)
-[BMX](http://bmx6.net/)
-[BATMAN-adv](https://www.open-mesh.org/projects/batman-adv/wiki)
-[OLSR](http://www.olsr.org/mediawiki/index.php/Main_Page)
-[802.11s](https://en.wikipedia.org/wiki/IEEE_802.11s)
-(In no particular order.)
+* [Babel](https://www.irif.fr/~jch/software/babel/)
+* [BMX](http://bmx6.net/)
+* [BATMAN-adv](https://www.open-mesh.org/projects/batman-adv/wiki)
+* [OLSR](http://www.olsr.org/mediawiki/index.php/Main_Page)
+* [802.11s](https://en.wikipedia.org/wiki/IEEE_802.11s)
 
 ## Further Reading
 
