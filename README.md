@@ -5,9 +5,9 @@ Community networks such as [Freifunk](https://freifunk.net) struggle with scalin
 This is a simple simulator for exploring/sketching mesh network routing strategies in the hopes to find better approaches.
 The code is written in plain JavaScript/HTML and the [d3](https://d3js.org) visualization library.
 
-A live demo can be found [here](https://mwarning.de/MeshNetSimulator/) - Pull requests are welcome!
+Check out the [live demo](https://mwarning.de/MeshNetSimulator/)! - Pull requests are welcome!
 
-![settings](docs/screenshot.png)
+![screenshot](docs/screenshot.png)
 
 Features:
 - load, edit and save [MeshViewer](https://github.com/ffrgb/meshviewer) and [NetJSON](http://netjson.org/rfc.html) data
@@ -33,32 +33,32 @@ Available are [basic information](docs/about_mesh_networking.md) about mesh rout
 
 ## How to Use
 
-### Start
+### 1. Start
 
 Get the content of the repository and open the file index.html in a browser.
 
-### Create a topology
+### 2. Create a topology
 
 Create some network using the `Edit` tab and click on the `lattice` button to create a 3x3 lattice.
 You can also load JSON files (e.g. [nodes.json](https://regensburg.freifunk.net/data/nodes.json)/[graph.json](https://regensburg.freifunk.net/data/graph.json) or [netjson.json](https://nodeshot.org/netjsongraph/examples/data/netjson.json)).
 
-### Implement a routing strategy (optional)
+### 3. Implement a routing strategy (optional)
 
 A simple routing algorithm is already implemented. It will discovery neighbors and route packets to random neighbors.
 For sketching your own mesh routing strategy, you need to edit the node.js and packet.js files.
 
-### Deploy packets
+### 4. Deploy packets
 Select a start and end node for a route to deploy packets on. Keep the control key pressed to select multiple nodes.
 Click the `Add Routes` button on the `Sim` tab to create a route on which packets can be deployed.
 
-### Simulate
+### 5. Simulate
 
 Click the `step` button two times to let the nodes discover its neighbors with special broadcast packets.
 Now to click the `Deploy Packets` button once to place packets on the created routes.
 The number of (unicast) packets will be displayed on the node.
 Use the `step` button to let the nodes propagate through the network in a random fashion until the destination is reached.
 
-### Evaluate (optional)
+### 6. Evaluate (optional)
 
 The `Sim` tab will show the efficiency of the routing approach once a packet has reached its destination.
 Use the `show` tab to inspect the state of selected nodes and its current packets.
@@ -72,6 +72,8 @@ Use the `show` tab to inspect the state of selected nodes and its current packet
 [MeshViewer](https://github.com/ffrgb/meshviewer): A visualization tool for mesh networks. Primarily used by Freifunk communities. Some code was used by this project.
 
 ## Various Links
+
+- [Review of Simulators for Wireless Mesh Network](http://dlibra.itl.waw.pl/dlibra-webapp/Content/1800/ISSN_1509-4553_3_2014_82.pdf)
 
 - [Ask Slashdot: Could We Build A Global Wireless Mesh Network?](https://ask.slashdot.org/story/17/04/29/2134234/ask-slashdot-could-we-build-a-global-wireless-mesh-network)
 
