@@ -1,8 +1,9 @@
 # MeshNetSimulator
 
-Community networks such as [Freifunk](https://freifunk.net) struggle with scaling issues and data overhead beyond a few hundred nodes.
+Community networks such as [Freifunk](https://freifunk.net) struggle with scaling issues of their [MANET](https://en.wikipedia.org/wiki/Mobile_ad_hoc_network)s. The cause is management traffic caused by hundreds of nodes.
 
-This is a simple simulator for sketching mesh network routing strategies in the hopes to find better approaches to mesh routing. Please note that this simulator does not virtualize a TCP/IP stack nor all characteristices of a wireless connection.
+This is a simple simulator for sketching mesh network routing strategies in the hopes to find better approaches to mesh routing. Please note that this simulator does not virtualize a TCP/IP stack nor all characteristices of a wireless connection. The dynamic nature of MANETs is also not (yet) covered by this simulator.
+
 The code is written in plain JavaScript/HTML and the [d3](https://d3js.org) visualization library.
 
 Check out the [live demo](https://mwarning.de/MeshNetSimulator/)! - Pull requests are welcome!
