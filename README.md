@@ -2,7 +2,7 @@
 
 Community networks such as [Freifunk](https://freifunk.net) struggle with scaling issues of their [MANET](https://en.wikipedia.org/wiki/Mobile_ad_hoc_network)s. The cause is management traffic caused by hundreds of nodes.
 
-This is a simple simulator for sketching mesh network routing strategies in the hopes to find better approaches to mesh routing. Please note that this simulator does not virtualize a TCP/IP stack nor all characteristices of a wireless connection. The dynamic nature of MANETs is also not (yet) covered by this simulator.
+This is a simple simulator for sketching mesh network routing strategies in the hopes to find better approaches to mesh routing. Please note that this simulator does not virtualize a TCP/IP stack nor all characteristics of wireless connections. The dynamic nature of MANETs is also not (yet) covered by this simulator.
 
 The code is written in plain JavaScript/HTML and the [d3](https://d3js.org) visualization library.
 
@@ -27,7 +27,7 @@ Available are [basic information](docs/about_mesh_networking.md) about mesh rout
   Because of d3.js for visualisation. Also, JavaScript is simple enough for sketching ideas.
 
 * **How fast is the simulation?**  
-  10000 steps for a lattice of 10000 nodes and 19800 links with ~36000 packets takes about three minutes on a i7.
+  10000 steps for a lattice of 10000 nodes and 19800 links with \~36000 packets takes about three minutes on a i7.
 
 * **How is the routing efficiency value calculated?**  
   Overall efficiency is computed as the medium efficiency of each route. Route efficiency is calculated as (`optimal route hop count` * `number of received packets` / `accumulated hop count of received packets`).
