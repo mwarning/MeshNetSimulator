@@ -48,9 +48,16 @@ function createDraw() {
   var NODE_RADIUS = 15;
   var LINE_RADIUS = 12;
 
+  function getNodeValue(d, func, def) {
+    if (typeof Node.prototype[func] !== "function") {
+      return def;
+    }
+    return d.o[func]();
+  };
+
   function drawDetailNode(d) {
     if (transform.k > 1) {
-      var clientCount = d.o.getClientCount();
+      var clientCount = getNodeValue(d, 'getClientCount', 0);
       if (clientCount > 0) {
         ctx.beginPath();
         positionClients(ctx, d, Math.PI, clientCount, 15);
@@ -58,7 +65,7 @@ function createDraw() {
         ctx.fill();
       }
 
-      var nodeName = d.o.getNodeName();
+      var nodeName = getNodeValue(d, 'getNodeName', '');
       if (nodeName.length) {
         ctx.beginPath();
         ctx.textAlign = 'center';
@@ -66,7 +73,7 @@ function createDraw() {
         ctx.fillText(nodeName, d.x, d.y + 20);
       }
 
-      var nodeLabel = d.o.getNodeLabel();
+      var nodeLabel = getNodeValue(d, 'getNodeLabel', '');
       if (nodeLabel.length) {
         ctx.beginPath();
         ctx.textAlign = 'center';
@@ -127,7 +134,7 @@ function createDraw() {
     drawSelectedNode(d);
     drawHighlightNode(d);
 
-    var ringColor = d.o.getRingColor();
+    var ringColor = getNodeValue(d, 'getRingColor', '');
     if (ringColor.length) {
       ctx.arc(d.x, d.y, 8, 0, 2 * Math.PI);
       ctx.fillStyle = ringColor;
@@ -135,7 +142,7 @@ function createDraw() {
       ctx.beginPath();
     }
 
-    var bodyColor = d.o.getBodyColor();
+    var bodyColor = getNodeValue(d, 'getBodyColor', '#fff');
     if (bodyColor.length) {
       ctx.arc(d.x, d.y, 7, 0, 2 * Math.PI);
       ctx.fillStyle = bodyColor;
