@@ -3,6 +3,7 @@
 Mesh networks consist of nodes connected via links. The links might be wired or wireless connections.
 These networks change frequently due to nodes going offline/online and connections getting disturbed.
 Also, nodes might be mobile and connect to other nodes, vanish or appear. These networks are called Mobile Ad Hoc Networks (MANET).
+Nodes, that do not move after being placed, form a (static) mesh network.
 
 ## Categories
 
@@ -35,6 +36,31 @@ Pro-active (also table driven) protocols keep all information ready and up to da
 This approach is popular in existing implementations, but needs a steady overhead to keep the routing information up to date.
 
 Examples: DSDV, OLSR, BATMAN-adv
+
+### Geographic Routing
+
+Every node has a geographic coordinate (e.g. by GPS). A packet is routed to a geographic location by selection a neighbor node that is nearer to the desired location. Packet delivery, is not guaranteed, as packets can get stuck in local minima (called voids).
+
+Building up virtual coordinates are a useful replacement, since GPS transponders are expensive and geographic coordinates might not be adequate to cover the multidimensions dimension of a local mesh network. Routing based on coordinates promises the best scaling properties.
+Greedy routing is expected to work better on virtual coordinates.
+
+Examples: ???
+
+### Source Routing
+
+Examples: Babel
+
+### Multi-Point Relays
+
+A way to optimize broadcast traffic. Multi-Point Relay (MPR) nodes are a set of nodes, so that every node is only one hop away from a node in the MPR set. Broadcast traffic coming from a node x is only propagated through these nodes.
+Finding the optimal set is NP complete, but heuristic approaches are most times sufficient.
+
+Examples: OLSR
+
+### Connected Dominating Set
+
+Another way to optimize broadcast traffic. The set consists of nodes that are connected and have all other nodes as 1 hop nodes. Broadcast traffic is send through this line of nodes to all nodes.
+
 
 ### Distance-Vector vs. Link State
 
