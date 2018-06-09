@@ -543,7 +543,7 @@ function createGraph(graph_id) {
     draw.selectNode(node);
 
     // Focus node if no ctrl key pressed
-    if (!(d3.event && d3.event.ctrlKey)) {
+    if (!(d3.event && (d3.event.ctrlKey || d3.event.metaKey))) {
       moveTo([node.x, node.y, (ZOOM_MAX + 1) / 2]);
     }
   };
@@ -552,7 +552,7 @@ function createGraph(graph_id) {
     draw.selectLink(link);
 
     // Focus link if no ctrl key pressed
-    if (!(d3.event && d3.event.ctrlKey)) {
+    if (!(d3.event && (d3.event.ctrlKey || d3.event.metaKey))) {
       moveTo([(link.source.x + link.target.x) / 2, (link.source.y + link.target.y) / 2, (ZOOM_MAX / 2) + ZOOM_MIN]);
     }
   };
