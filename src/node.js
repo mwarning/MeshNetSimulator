@@ -58,13 +58,13 @@ Node.prototype.step = function () {
   }
 }
 
-// Name displayed under the node
+// Name displayed under the node (optional)
 Node.prototype.getNodeName = function () {
   // Find hostname in meta data, display MAC address as fallback
   return findValue(this.meta, 'hostname', this.mac);
 }
 
-// Label on top of the node body
+// Label on top of the node body (optional)
 Node.prototype.getNodeLabel = function () {
   // Count unicast packets
   var count = 0;
@@ -77,18 +77,18 @@ Node.prototype.getNodeLabel = function () {
   return count ? count.toString() : '';
 }
 
-// Color of the ring around the node body
+// Color of the ring around the node body (optional)
 Node.prototype.getRingColor = function () {
   return isEmpty(this.neighbors) ? '' : '#008000';
 }
 
-// Color of the round node body
+// Color of the round node body (optional)
 Node.prototype.getBodyColor = function () {
   return '#fff';
 }
 
-// Number of small red circles around the node
-// body indicating the number of connected clients
+// Number of small red circles around the node body
+// indicating the number of connected clients (optional)
 Node.prototype.getClientCount = function () {
   return findValue(this.meta, 'clients', '').toString();
 }
@@ -99,7 +99,7 @@ Node.prototype.reset = function () {
   this.neighbors = {};
 }
 
-// For the transition to new implementations
+// For the transition to new implementations (optional)
 Node.prototype.copyFromOldImplementation = function (oldNode) {
   copyExistingFields(oldNode, this);
 };
