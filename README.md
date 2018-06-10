@@ -24,7 +24,8 @@ Available are [basic information](docs/about_mesh_networking.md) about mesh rout
 ## FAQ
 
 * **Why JavaScript?**  
-  Because of d3.js for visualisation. Also, JavaScript is simple enough for sketching ideas.
+  Because of d3.js for visualisation. Also, JavaScript is simple enough for sketching ideas.  
+  In the future, a native language might give speed advantages.
 
 * **How fast is the simulation?**  
   10000 steps for a lattice of 10000 nodes and 19800 links with \~36000 packets takes about three minutes on a i7.
@@ -82,4 +83,6 @@ Use the `show` tab to inspect the state of selected nodes and its current packet
 
 - Contains an overview of different mesh routing strategies: [From MANET To IETF ROLL Standardization: A Paradigm Shift in WSN Routing Protocols](http://www.cttc.es/publication/from-manet-to-ietf-roll-standardization-a-paradigm-shift-in-wsn-routing-protocols/)
 
-- A routing algorithm based on virtual coordinates: [Routing without Geometry](https://www.tik.ee.ethz.ch/file/f26a5590c4dcab48af753012f3aa9ab4/sirocco05.pdf)
+- About routing based on virtual coordinates:
+  - [Routing without Geometry](https://www.tik.ee.ethz.ch/file/f26a5590c4dcab48af753012f3aa9ab4/sirocco05.pdf)
+  - [Vivaldi: A Decentralized Network Coordinate System](https://pdos.csail.mit.edu/papers/vivaldi:sigcomm/paper.pdf)
