@@ -11,7 +11,7 @@
  *  - coordinate flapping might occur
  */
 
-// Dimension of the 
+// Coordiante dimension
 var DIM = 3;
 
 function Node(mac, meta = null) {
