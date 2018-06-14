@@ -5,8 +5,11 @@
 * Creates a virtual (3d) coordiante system based on spring based
 * interaction to 1. and 2. hop neigbors.
 *
-* For actual routing, the packet must have an position field.
+* For actual routing, the packet needs to have a position field.
 */
+
+// Coordiante dimension
+var DIM = 3;
 
 function Node(mac, meta = null) {
 /* Required fields */
@@ -20,7 +23,7 @@ function Node(mac, meta = null) {
 /* Additional fields */
 
   // Record next hop neighbors
-  this.pos = random_pos(1000);
+  this.pos = random_pos(1000, DIM);
   this.timer = 0;
   this.neighbors = {};
 }
@@ -53,23 +56,49 @@ Node.prototype.executeCommand = function (cmd) {
 }
 
 function vec_str(v) {
-  return "(" + v[0].toFixed(0) + ", " + v[1].toFixed(0) + ", " + v[2].toFixed(0) + ")";
-}
-
-function vec_eq(v1, v2) {
-  return (v1[0] == v2[0]) && (v1[1] == v2[1]) && (v1[2] == v2[2]);
+  var ret = "(";
+  for (var i = 0; i < v.length; i++) {
+    if (i > 0) ret += ", "
+    ret += v[i].toFixed(0);
+  }
+  ret += ")";
+  return ret;
 }
 
 function vec_add(v1, v2) {
-  return [(v1[0] + v2[0]), (v1[1] + v2[1]), (v1[2] + v2[2])];
+  var v = [];
+  for (var i = 0; i < v1.length; i++)
+    v.push(v1[i] + v2[i]);
+  return v;
 }
 
 function vec_sub(v1, v2) {
-  return [(v1[0] - v2[0]), (v1[1] - v2[1]), (v1[2] - v2[2])];
+  var v = [];
+  for (var i = 0; i < v1.length; i++)
+    v.push(v1[i] - v2[i]);
+  return v;
 }
 
-function norm_squared(v) {
-  return (v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]);
+function vec_distance(v1, v2) {
+  return vec_length(vec_sub(v1, v2));
+}
+
+function vec_length(v) {
+  var n = 0;
+  for (var i = 0; i < v.length; i++)
+    n += v[i] * v[i];
+  return Math.sqrt(n);
+}
+
+function random_pos(n, dim) {
+  function rnd() {
+    return Math.floor(n * 2 * (Math.random() - 0.5));
+  }
+  var v = [];
+  for (var i = 0; i < dim; i++) {
+    v.push(rnd());
+  }
+  return v;
 }
 
 function energy(pos, N1, N2) {
@@ -78,22 +107,14 @@ function energy(pos, N1, N2) {
   var e = 0;
 
   for (var i in N1) {
-    e += ka * norm_squared(vec_sub(pos, N1[i]));
+    e += ka * Math.pow(vec_distance(pos, N1[i]), 2);
   }
 
   for (var i in N2) {
-    e += kr / (1 + norm_squared(vec_sub(pos, N2[i])));
+    e += kr / (1 + Math.pow(vec_distance(pos, N2[i]), 2));
   }
 
   return e;
-}
-
-function random_pos(n) {
-  function rnd() {
-    return Math.floor(n * 2 * (Math.random() - 0.5));
-  }
-
-  return [rnd(), rnd(), rnd()];
 }
 
 function new_pos(pos, N1, N2) {
@@ -226,5 +247,5 @@ Node.prototype.reset = function () {
   this.incoming = [];
   this.outgoing = [];
   this.neighbors = {};
-  this.pos = random_pos(100);
+  this.pos = random_pos(100, DIM);
 }
