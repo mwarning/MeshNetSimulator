@@ -38,8 +38,3 @@ Link.prototype.transmit = function (packet, packetCount) {
   var probability = (this.quality / 100) * Math.pow(0.999, n);
   return probability > Math.random();
 };
-
-// For changing the implementation during simulation
-Link.prototype.copyFromOldImplementation = function (oldLink) {
-  copyExistingFields(oldLink, this);
-};

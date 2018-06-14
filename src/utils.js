@@ -148,18 +148,6 @@ function setValue(obj, path, value) {
   obj[path[path.length - 1]] = value;
 }
 
-function copyExistingFields(oldObject, newObject) {
-  for (var key in oldObject) {
-    if (key in newObject) {
-      var oldValue = oldObject[key];
-      var newValue = newObject[key];
-      if (typeof oldValue !== 'function' && typeof oldValue === typeof newValue) {
-        newObject[key] = oldValue;
-      }
-    }
-  }
-}
-
 function displayFileName(input) {
   if (input.files.length) {
     // Display selected files name in previous element

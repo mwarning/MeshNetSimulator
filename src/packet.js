@@ -12,8 +12,3 @@ function Packet(transmitterAddress, receiverAddress, sourceAddress, destinationA
   this.sourceAddress = sourceAddress;
   this.destinationAddress = destinationAddress;
 }
-
-// For changing the implementation during simulation
-Packet.prototype.copyFromOldImplementation = function (oldPacket) {
-  copyExistingFields(oldPacket, this);
-};
