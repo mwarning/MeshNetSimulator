@@ -49,10 +49,10 @@ function createDraw() {
   var LINE_RADIUS = 12;
 
   function getNodeValue(d, func, def) {
-    if (typeof Node.prototype[func] !== "function") {
-      return def;
+    if ((func in d.o) && (typeof d.o[func] === "function")) {
+      return d.o[func]();
     }
-    return d.o[func]();
+    return def;
   };
 
   function drawDetailNode(d) {
