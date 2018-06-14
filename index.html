@@ -104,7 +104,7 @@
         <fieldset>
           <legend>Reload</legend>
           <div class="enum">
-            <input type="button" onclick="file.reloadNodeImplementation($('node_file').files, $('node_url').value)" value="reload" />
+            <input type="button" id="node_reload" onclick="file.reloadNodeImplementation($('node_file').files, $('node_url').value)" value="reload" />
             <div>
               <input type="text" id="node_url" value="src/node.js" />
               <input type="file" id="node_file" accept=".js" onchange="displayFileName(this)" />
@@ -131,7 +131,7 @@
         <fieldset>
           <legend>Load Examples</legend>
           <div class="enum">
-            <input type="button" onclick="file.reloadNodeImplementation(null, $('example_select').value)" value="Load" />
+            <input type="button" onclick="$('node_url').value = $('example_select').value; $('node_reload').click();" value="Load" />
             <select id="example_select">
               <option value="src/node_distance_vector.js">Distance Vector</option>
               <option value="src/node_game_of_life.js">Game Of Life</option>
