@@ -97,7 +97,7 @@ function createFile(graph) {
       setTimeout(changeNodeImplementation, 10);
     }
 
-    if (files.length && files[0].name === url) {
+    if (files && files.length && files[0].name === url) {
       readFileContent(files[0], load);
     } else {
       readUrlContent(url, load);
@@ -142,7 +142,7 @@ function createFile(graph) {
       setTimeout(changePacketImplementation, 10);
     }
 
-    if (files.length && files[0].name === url) {
+    if (files && files.length && files[0].name === url) {
       readFileContent(files[0], load);
     } else {
       readUrlContent(url, load);
@@ -177,7 +177,7 @@ function createFile(graph) {
       setTimeout(changeLinkImplementation, 10);
     }
 
-    if (files.length && files[0].name === url) {
+    if (files && files.length && files[0].name === url) {
       readFileContent(files[0], load);
     } else {
       readUrlContent(url, load);
