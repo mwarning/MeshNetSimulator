@@ -55,30 +55,9 @@ Node.prototype.step = function () {
   this.outgoing.push(p);
 }
 
-// Name displayed under the node
-Node.prototype.getNodeName = function () {
-  return '';
-}
-
-// Label on top of the node body
-Node.prototype.getNodeLabel = function () {
-  return '';
-}
-
-// Color of the ring around the node body
-Node.prototype.getRingColor = function () {
-  return '';
-}
-
 // Color of the round node body
 Node.prototype.getBodyColor = function () {
   return (this.state === 'alive') ? '#00ea00' : '#ea0000';
-}
-
-// Number of small red circles around the node
-// body indicating the number of connected clients
-Node.prototype.getClientCount = function () {
-  return 0;
 }
 
 Node.prototype.reset = function () {

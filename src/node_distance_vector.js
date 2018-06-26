@@ -128,31 +128,9 @@ Node.prototype.getNodeName = function () {
 
 // Label on top of the node body
 Node.prototype.getNodeLabel = function () {
-  function countUnicastPackets(packets) {
-    var count = 0;
-    for (var i = 0; i < packets.length; i += 1) {
-      count += (packets[i].receiverAddress !== BROADCAST_MAC);
-    }
-    return count;
-  }
-  var packetCount = countUnicastPackets(this.incoming) + countUnicastPackets(this.outgoing);
-  return packetCount ? packetCount.toString() : '';
-}
-
-// Color of the ring around the node body
-Node.prototype.getRingColor = function () {
-  return '';
-}
-
-// Color of the round node body
-Node.prototype.getBodyColor = function () {
-  return '#fff';
-}
-
-// Number of small red circles around the node
-// body indicating the number of connected clients
-Node.prototype.getClientCount = function () {
-  return 0;
+  var reducer = (sum, node) => sum + (node.receiverAddress !== BROADCAST_MAC);
+  var sum = this.outgoing.reduce(reducer, 0) + this.incoming.reduce(reducer, 0);
+  return sum ? sum.toString() : '';
 }
 
 Node.prototype.reset = function () {

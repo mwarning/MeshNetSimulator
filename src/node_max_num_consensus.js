@@ -40,22 +40,6 @@ Node.prototype.getNodeName = function () {
   return this.num.toString();
 }
 
-Node.prototype.getNodeLabel = function () {
-  return '';
-}
-
-Node.prototype.getRingColor = function () {
-  return '';
-}
-
-Node.prototype.getBodyColor = function () {
-  return '#fff';
-}
-
-Node.prototype.getClientCount = function () {
-  return 0;
-}
-
 Node.prototype.reset = function () {
   this.incoming = [];
   this.outgoing = [];
