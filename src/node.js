@@ -67,14 +67,8 @@ Node.prototype.getNodeName = function () {
 // Label on top of the node body (optional)
 Node.prototype.getNodeLabel = function () {
   // Count unicast packets
-  var count = 0;
-  for (var i in this.outgoing) {
-    count += (this.outgoing[i].receiverAddress !== BROADCAST_MAC);
-  }
-  for (var i in this.incoming) {
-    count += (this.incoming[i].receiverAddress !== BROADCAST_MAC);
-  }
-  return count ? count.toString() : '';
+  var reducer = (sum, node) => sum + (node.receiverAddress != BROADCAST_MAC);
+  return this.outgoing.reduce(reducer, 0) + this.incoming.reduce(reducer, 0);
 }
 
 // Color of the ring around the node body (optional)

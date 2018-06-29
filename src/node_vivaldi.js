@@ -290,8 +290,7 @@ Node.prototype.getNodeName = function () {
 Node.prototype.getNodeLabel = function () {
   // Count unicast packets
   var reducer = (sum, node) => sum + (node.receiverAddress != BROADCAST_MAC);
-  var sum = this.outgoing.reduce(reducer, 0) + this.incoming.reduce(reducer, 0);
-  return sum.toString();
+  return this.outgoing.reduce(reducer, 0) + this.incoming.reduce(reducer, 0);
 }
 
 Node.prototype.reset = function () {
