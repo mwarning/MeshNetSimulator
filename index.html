@@ -6,22 +6,10 @@
   <title>MeshNet Simulator</title>
   <link rel="stylesheet" type="text/css" href="src/style.css">
 
-<!--
-  <script src="https://d3js.org/d3-collection.v1.min.js"></script>
--->
-  <script src="d3/d3-collection.v1.min.js"></script>
-  <script src="d3/d3-dispatch.v1.min.js"></script>
-  <script src="d3/d3-quadtree.v1.min.js"></script>
-  <script src="d3/d3-timer.v1.min.js"></script>
-  <script src="d3/d3-force.v1.min.js"></script>
-  <script src="d3/d3-zoom.v1.min.js"></script>
-  <script src="d3/d3-drag.v1.min.js"></script>
-  <script src="d3/d3-selection.v1.min.js"></script>
-  <script src="d3/d3-interpolate.v1.min.js"></script>
-  <script src="d3/d3-ease.v1.min.js"></script>
-  <script src="d3/d3-color.v1.min.js"></script>
-  <script src="d3/d3-transition.v1.min.js"></script>
+  <!-- Source: http://d3js.org -->
+  <script src="d3/d3.v5.min.js"></script>
 
+  <script src="src/chart.js"></script>
   <script src="src/utils.js"></script>
   <script src="src/dijkstra.js"></script>
   <script src="src/node.js" id="node_js"></script>
@@ -42,15 +30,17 @@
     var sim;
     var show;
     var control;
+    var chart;
 
     function init() {
       // Select first tab
       document.getElementsByClassName('tablinks')[0].click();
 
       graph = createGraph('graph');
+      chart = createChart('chart');
       file = createFile(graph);
       edit = createEdit(graph);
-      sim = createSim(graph);
+      sim = createSim(graph, chart);
       show = createShow(graph);
       control = createControl(graph);
     }
@@ -73,7 +63,7 @@
             <input type="button" onclick="file.loadData($('file_input').files, $('url_input').value)" value="Load" />
             <div>
               <input type="text" id="url_input" value="" />
-              <input type="file" id="file_input" value="" accept=".json" onchange="displayFileName(this);" />
+              <input type="file" id="file_input" accept=".json" onchange="displayFileName(this);" />
               <label onclick="$('file_input').click()">Select</label>
             </div>
           </div>
@@ -181,7 +171,7 @@
 
       <div id="edit" class="tabcontent">
         <fieldset>
-          <legend>Selection</legend>
+          <legend>Select</legend>
           <div class="equal">
             <input type="button" onclick="graph.extendSelection()" value="extend" />
             <input type="button" onclick="graph.clearSelection()" value="unselect" />
@@ -189,7 +179,7 @@
           </div>
         </fieldset>
         <fieldset>
-          <legend>Nodes</legend>
+          <legend>Modify</legend>
           <div class="equal">
             <input type="button" onclick="graph.connectSelectedNodes()" value="connect" />
             <input type="button" onclick="graph.disconnectSelectedNodes()" value="disconnect" />
@@ -301,6 +291,17 @@
             <input type="button" onclick="graph.resetData()" value="remove graph" />
           </div>
         </fieldset>
+        <fieldset>
+          <legend>Graph Statistics</legend>
+          <div class="enum">
+            <label>Links:</label>
+            <span id="graph_links_count">0</span>
+          </div>
+          <div class="enum">
+            <label>Nodes:</label>
+            <span id="graph_nodes_count">0</span>
+          </div>
+        </fieldset>
       </div>
 
       <div id="control" class="tabcontent">
@@ -337,7 +338,7 @@
               <option value="2000">2s</option>
               <option value="5000">5s</option>
             </select>
-            <input type="button" onclick="sim.start(getInt('sim_steps'), getFloat('sim_delay'), getBool('deploy_packets'))" id="sim_toggle" value="start / stop" />
+            <input type="button" onclick="sim.start(getInt('sim_steps'), getFloat('sim_delay'))" id="sim_toggle" value="start / stop" />
             <input type="button" onclick="sim.reset()" value="reset" />
           </div>
           <div class="equal">
@@ -354,62 +355,35 @@
         <fieldset>
           <legend>Packet Placement</legend>
           <div class="equal">
-            <input type="button" onclick="sim.addRoutes()" value="Add Routes" />
-            <div>
-              <label>Total Routes:</label>
-              <span id="routes_count">0</span>
-            </div>
+            <label>On selected path:</label>
+            <input type="button" onclick="sim.deployPackets()" title="The first selected node is the source. Further nodes are destinations." value="Deploy" />
           </div>
           <div class="equal">
-            <input type="button" onclick="sim.deployPackets()" value="Deploy Packets" />
-            <div>
-              <label>On every step:</label>
-              <input type="checkbox" id="deploy_packets" />
-            </div>
-          </div>
-          <div class="equal">
-            <table>
-              <thead>
-                <tr>
-                  <th onclick="sortLexial(this)" title="Source MAC address">Src</th>
-                  <th onclick="sortLexial(this)" title="Destination MAC address">Dst</th>
-                  <th onclick="sortNumerical(this)" title="Packet deploy rate">Rate</th>
-                  <th onclick="sortNumerical(this)" title="Packets send">Send</th>
-                  <th onclick="sortNumerical(this)" title="Packets received">Recv</th>
-                  <th onclick="sortNumerical(this)" title="Packets lost">Lost</th>
-                  <th onclick="sortNumerical(this)" title="Packets in transit">Trans</th>
-                  <th onclick="sortNumerical(this)" title="Routing efficiency">Eff</th>
-                </tr>
-              </thead>
-              <tbody id='sim_routes'>
-              </tbody>
-              <tr id="sim_no_routes">
-                <td colspan="8">No Routes</td>
-              </tr>
-            </table>
+            <label>On all possible paths:</label>
+            <input type="button" onclick="sim.deployOnAllNodes()" value="Deploy" />
           </div>
         </fieldset>
         <fieldset>
-          <legend>Packets on Routes</legend>
+          <legend>Packet Statistics</legend>
           <div class="enum">
             <label>Created:</label>
-            <span id="routes_packets_send">0</span>
-          </div>
-          <div class="enum">
-            <label>Received:</label>
-            <span id="routes_packets_received">0</span>
-          </div>
-          <div class="enum">
-            <label>Lost:</label>
-            <span id="routes_packets_lost">0</span>
+            <span id="sim_packets_send">0</span>
           </div>
           <div class="enum">
             <label>Transit:</label>
-            <span id="routes_packets_transit">0</span>
+            <span id="sim_packets_transit">0</span>
+          </div>
+          <div class="enum">
+            <label>Received:</label>
+            <span id="sim_packets_received">0</span>
+          </div>
+          <div class="enum">
+            <label>Lost:</label>
+            <span id="sim_packets_lost">0</span>
           </div>
           <div class="enum">
             <label>Efficiency:</label>
-            <span id="routing_efficiency">-</span>
+            <span id="sim_routing_efficiency">-</span>
           </div>
         </fieldset>
         <fieldset>
@@ -428,15 +402,8 @@
           </div>
         </fieldset>
         <fieldset>
-          <legend>Graph Statistics</legend>
-          <div class="enum">
-            <label>Links:</label>
-            <span id="graph_links_count">0</span>
-          </div>
-          <div class="enum">
-            <label>Nodes:</label>
-            <span id="graph_nodes_count">0</span>
-          </div>
+          <legend>Efficiency Chart</legend>
+          <div id="chart"></div>
         </fieldset>
       </div>
     </div>

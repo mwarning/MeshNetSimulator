@@ -37,7 +37,7 @@ Node.prototype.step = function () {
 }
 
 Node.prototype.getNodeName = function () {
-  return this.num.toString();
+  return this.num;
 }
 
 Node.prototype.reset = function () {

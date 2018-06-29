@@ -20,7 +20,7 @@ function Node(mac, meta = null) {
   this.outgoing = [];
 
 /* Additional fields */
-  this.last_change_magnitude = 0;
+  this.last_change_magnitude = NaN;
   this.pos = random_pos(1000, DIM);
   this.error = 1;
   this.timer = 0;
@@ -53,7 +53,19 @@ Node.prototype.executeCommand = function (cmd) {
   console.log("neighbors: " + Object.keys(this.neighbors).length);
   for (var mac in this.neighbors) {
     var e = this.neighbors[mac];
-    console.log(" mac: " + mac + ", counter: " + e.counter + ", last updated: " + (this.timer - e.received));
+    console.log(" mac: " + mac + ", pos: " + packet.pos + ", error: " + e.error + ", received: " + e.received);
+  }
+
+  console.log("incoming:");
+  for (var i in this.incoming) {
+    var p = this.incoming[i];
+    console.log(" " + p.transmitterAddress + " => " + p.receiverAddress);
+  }
+
+  console.log("outgoing:");
+  for (var i in this.outgoing) {
+    var p = this.outgoing[i];
+    console.log(" " + p.transmitterAddress + " => " + p.receiverAddress);
   }
 }
 
@@ -158,19 +170,29 @@ function localError(pos, neighbors)
   return Math.sqrt(variance);
 }
 
-Node.prototype.vivaldi = function (remotePos, remoteError)
-{
+Node.prototype.vivaldi = function (remotePos, remoteError) {
   var rtt = 1.5;
   var ce = 0.25;
   var cc = 0.25;
 
-  var w = this.error / (this.error + remoteError); // w = e_i / (e_i + e_j)
-  var ab = vec_sub(this.pos, remotePos); // x_i - x_j
-  var re = rtt - vec_length(ab); // rtt - |x_i - x_j|
-  var es = Math.abs(re) / rtt; // e_s = ||x_i - x_j| - rtt| / rtt
-  this.error = es * ce * w + this.error * (1 - ce * w); // e_i = e_s * c_e * w + e_i * (1 - c_e * w)
+  // w = e_i / (e_i + e_j)
+  var w = this.error / (this.error + remoteError);
+
+  // x_i - x_j
+  var ab = vec_sub(this.pos, remotePos);
+
+  // rtt - |x_i - x_j|
+  var re = rtt - vec_length(ab);
+
+  // e_s = ||x_i - x_j| - rtt| / rtt
+  var es = Math.abs(re) / rtt;
+
+  // e_i = e_s * c_e * w + e_i * (1 - c_e * w)
+  this.error = es * ce * w + this.error * (1 - ce * w);
+
   // ∂ = c_c * w
   var d = cc * w;
+
   // x_i = x_i + ∂ * (rtt - |x_i - x_j|) * u(x_i - x_j)
   this.pos = vec_add(this.pos, vec_scalar_mul(d * re, vec_unit(ab)));
 }
@@ -195,18 +217,18 @@ Node.prototype.step = function () {
   p.error = localError(this.pos, this.neighbors);
   this.outgoing.push(p);
 
-  // process incoming packets
+  // rocess incoming packets
   for (var i = 0; i < this.incoming.length; i += 1) {
     var packet = this.incoming[i];
 
     // Packet arrived at the destination
-    if (packet.destinationAddress === this.mac) {
+    if (packet.destinationAddress == this.mac) {
       console.log('packet arrived at the destination');
       continue;
     }
 
     // Catch broadcast packets and record neighbor
-    if (packet.receiverAddress === BROADCAST_MAC) {
+    if (packet.receiverAddress == BROADCAST_MAC) {
       var mac = packet.sourceAddress;
       if (mac == this.mac) {
         continue;
@@ -216,11 +238,26 @@ Node.prototype.step = function () {
         mac: mac, pos: packet.pos, error: packet.error, received: this.timer
       };
     } else {
+      if (!packet.pos) {
+        /*
+         * Routing by MAC address is not the point of this routing implementation.
+         * So we cheat a bit and set the target coordinate by means of global knowledge.
+         */
+        var mac = packet.destinationAddress;
+        var node = graph.getIntNodes().find(function(e) { return e.o.mac === mac; });
+        if (node) {
+          packet.pos = vec_dup(node.o.pos);
+        } else {
+          alert("Node " + mac + " not found. Should not happen.");
+        }
+      }
+
       // Find neighbor that is nearest to the location
+      //and nearer to the next position..
       var d_next = Infinity;
       var n_next = null;
-      for (var i in this.neighbors) {
-        var e = this.neighbors[i];
+      for (var k in this.neighbors) {
+        var e = this.neighbors[k];
         var d = vec_distance(e.pos, packet.pos);
         if (d < d_next) {
           d_next = d;
@@ -228,10 +265,12 @@ Node.prototype.step = function () {
         }
       }
 
-      // We found a neighbor that is not the node the packet just came from
-      if (n_next && n_next != packet.transmitterAddress) {
-        packet.transmitterAddress = n_next;
+      if (n_next) {
+        packet.transmitterAddress = this.mac;
+        packet.receiverAddress = n_next;
         this.outgoing.push(packet);
+      } else {
+        console.log("No next node found => drop packet");
       }
     }
   }
@@ -249,13 +288,16 @@ Node.prototype.getNodeName = function () {
 
 // Label on top of the node body
 Node.prototype.getNodeLabel = function () {
-  return '' + this.last_change_magnitude.toFixed(0);
+  // Count unicast packets
+  var reducer = (sum, node) => sum + (node.receiverAddress != BROADCAST_MAC);
+  var sum = this.outgoing.reduce(reducer, 0) + this.incoming.reduce(reducer, 0);
+  return sum.toString();
 }
 
 Node.prototype.reset = function () {
   this.incoming = [];
   this.outgoing = [];
-  this.last_change_magnitude = 0;
+  this.last_change_magnitude = NaN;
   this.pos = random_pos(1000, DIM);
   this.error = 1;
   this.timer = 0;

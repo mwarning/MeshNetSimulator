@@ -1,7 +1,7 @@
 /*
  * This routing scheme assign a random 3D coordinate each node.
  * Each nodes updates it's coordinate based on the neighbors coordinate.
- * This basicly simulates a spring as each connection.
+ * This basicly simulates relaxing springs between massless nodes.
  *
  * Pros:
  *  - simple
@@ -122,7 +122,17 @@ function vec_null(dim) {
   return v;
 }
 
+// Add a little pull towards center coordiante (0, 0, 0, ...)
+function centerGravity(pos) {
+  var v = vec_null(DIM);
+  var d = vec_distance(v, pos);
+  var rho = 1024;
+
+  return vec_add(pos, vec_scalar_mul(Mat.pow(d / rho, 2), vec_direction(v, d)));
+}
+
 Node.prototype.updatePosition = function () {
+  // dist is the wish distance of the virtual coordinates
   function update(dist, local, remote) {
     var sensitivity = 0.25;
     var err = dist - vec_distance(local, remote);
@@ -138,6 +148,9 @@ Node.prototype.updatePosition = function () {
   }
 
   this.pos = vec_scalar_mul(1 / Object.keys(this.neighbors).length, pos);
+
+  // Add gravity
+  this.pos = centerGravity(this.pos);
 }
 
 Node.prototype.step = function () {
@@ -204,7 +217,7 @@ Node.prototype.getNodeName = function () {
 
 // Label on top of the node body
 Node.prototype.getNodeLabel = function () {
-  return '' + Object.keys(this.neighbors).length;
+  return Object.keys(this.neighbors).length;
 }
 
 Node.prototype.reset = function () {

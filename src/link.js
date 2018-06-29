@@ -32,9 +32,13 @@ Link.prototype.getLinkLabel = function () {
 
 // Move a packet to a target node
 Link.prototype.transmit = function (packet, packetCount) {
+/*
   // Calculate packet transmission probability
   // The formula needs improvments!
   var n = 100 * (Math.min(packetCount, this.bandwidth) / this.bandwidth);
   var probability = (this.quality / 100) * Math.pow(0.999, n);
   return probability > Math.random();
+*/
+  // Never lose a packet
+  return true;
 };

@@ -364,11 +364,12 @@ function createGraph(graph_id) {
     return !intNodes.some(function(e) { return e.o.mac == mac; });
   };
 
+  // Get unique unicast mac
   self.getUniqueMAC = function getUniqueMAC() {
     var mac;
     do {
       mac = getRandomMAC();
-    } while(!isUniqueMAC(mac));
+    } while(!isUniqueMAC(mac) || mac == BROADCAST_MAC);
     return mac;
   }
 

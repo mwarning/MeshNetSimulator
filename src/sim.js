@@ -1,25 +1,5 @@
 
-function Route(sourceAddress, destinationAddress, deployRate = 1) {
-  this.sourceAddress = sourceAddress;
-  this.destinationAddress = destinationAddress;
-  this.deployRate = deployRate;
-
-  this.sendCount = 0;
-  this.receivedCount = 0;
-  this.receivedStepCount = 0;
-  this.transitCount = 0;
-  this.efficiency = NaN;
-
-  this.reset = function reset() {
-    this.sendCount = 0;
-    this.receivedCount = 0;
-    this.receivedStepCount = 0;
-    this.transitCount = 0;
-    this.efficiency = NaN;
-  }
-}
-
-function createSim(graph) {
+function createSim(graph, chart) {
   var self = {};
 
   // Number of steps the simulation has run
@@ -28,14 +8,59 @@ function createSim(graph) {
   // Duration of the last simulation run
   self.simDuration = 0;
 
-  // Routes to deploy packet on
-  self.routes = {};
-
   // Keep track of setTimeout id
   self.timerId = null;
 
   // Simulation state
   self.running = false;
+
+  self.sendCount = 0;
+  self.lostOnLink = 0;
+
+  self.receivedPackets = [];
+
+  self.deployOnAllNodes = function () {
+    var intNodes = graph.getIntNodes();
+    var intLinks = graph.getIntLinks();
+    var dijkstra = createDijkstra(intNodes, intLinks);
+    var min_distance = 1;
+
+    for (var i = 0; i < intNodes.length; i++) {
+      for (var j = 0; j < intNodes.length; j++) {
+        if (i == j) {
+          continue;
+        }
+
+        var sourceIntNode = intNodes[i];
+        var targetIntNode = intNodes[j];
+        var shortestDistance = dijkstra.getShortestDistance(sourceIntNode, targetIntNode);
+
+        if (shortestDistance == Infinity) {
+          // Do not deploy on impossible routes
+          continue;
+        }
+
+        if (shortestDistance < min_distance) {
+          // Do not deploy on impossible routes
+          continue;
+        }
+
+        // deploy packet
+        var src = sourceIntNode.o.mac;
+        var dst = targetIntNode.o.mac;
+        var packet = new Packet(src, src, src, dst);
+        // For route efficiency calculation
+        packet.deployedAtStep = self.simStep;
+        packet.receivedAtStep = NaN;
+        sourceIntNode.o.incoming.push(packet);
+        self.sendCount += 1;
+      }
+    }
+
+    updateSimStatistics();
+
+    graph.redraw();
+  }
 
   function shuffleArray(a) {
     for (let i = a.length; i; i--) {
@@ -43,7 +68,21 @@ function createSim(graph) {
       [a[i - 1], a[j]] = [a[j], a[i - 1]];
     }
   }
+/*
+  self.resetNodes = function () {
+    var intNodes = graph.getIntNodes();
+    var intLinks = graph.getIntLinks();
 
+    for (var i = 0; i < intLinks.length; i++) {
+      intLinks[i].o.reset();
+    }
+
+    for (var i = 0; i < intNodes.length; i++) {
+      intNodes[i].o.incoming = [];
+      intNodes[i].o.outgoing = [];
+    }
+  }
+*/
   self.reset = function reset() {
     var intNodes = graph.getIntNodes();
     var intLinks = graph.getIntLinks();
@@ -58,8 +97,12 @@ function createSim(graph) {
 
     self.simStep = 0;
     self.simDuration = 0;
+    self.sendCount = 0;
+    self.lostOnLink = 0;
+    self.receivedPackets = [];
 
-    self.clearRouteCounter();
+    updateSimStatistics();
+    chart.reset();
 
     graph.redraw();
   }
@@ -71,25 +114,24 @@ function createSim(graph) {
   }
 
   function updateSimStatistics() {
+    var intNodes = graph.getIntNodes();
+    var intLinks = graph.getIntLinks();
+    var dijkstra = createDijkstra(intNodes, intLinks);
+
+    var packetReceivedCount = self.receivedPackets.length;
     var packets_unicast = 0;
     var packets_broadcast = 0;
-
-    for (var id in self.routes) {
-      self.routes[id].transitCount = 0;
-    }
+    var packetTransitCount = 0;
 
     function countPackets(node, packets) {
-      for (var j = 0; j < packets.length; j += 1) {
-        var packet = packets[j];
+      for (var i = 0; i < packets.length; i += 1) {
+        var packet = packets[i];
+        var isBroadcast = (packet.receiverAddress === BROADCAST_MAC);
+        packets_unicast += !isBroadcast;
+        packets_broadcast += isBroadcast;
+
         if ('deployedAtStep' in packet) {
-          var id = packet.sourceAddress + '=>' + packet.destinationAddress;
-          if (id in self.routes && packet.destinationAddress !== node.mac) {
-            self.routes[id].transitCount += 1;
-          }
-        } else {
-          var isBroadcast = (packet.receiverAddress === BROADCAST_MAC);
-          packets_unicast += !isBroadcast;
-          packets_broadcast += isBroadcast;
+          packetTransitCount += 1;
         }
       }
     }
@@ -101,29 +143,23 @@ function createSim(graph) {
       countPackets(node, node.outgoing);
     }
 
-    var routesSend = 0;
-    var routesReceived = 0;
-    var routesLost = 0;
-    var routesTransit = 0;
-    var routesCount = 0;
-    var routesEfficiencySum = 0;
-    var routesEfficiencyCount = 0;
+    var nodeMap = {};
+    intNodes.forEach(function(e) {
+      nodeMap[e.o.mac] = e;
+    });
 
-    for (var id in self.routes) {
-      var route = self.routes[id];
-      routesCount += 1;
-      routesSend += route.sendCount;
-      routesReceived += route.receivedCount;
-      routesTransit += route.transitCount;
-
-      if (!isNaN(route.efficiency)) {
-        routesEfficiencySum += route.efficiency;
-        routesEfficiencyCount += 1;
-      }
+    var receivedStepCount = 0;
+    var receivedBestStepCount = 0;
+    for (var i = 0; i < self.receivedPackets.length; i++) {
+      var packet = self.receivedPackets[i];
+      var shortestDistance = dijkstra.getShortestDistance(
+        nodeMap[packet.sourceAddress], nodeMap[packet.destinationAddress]
+      );
+      receivedStepCount += (packet.receivedAtStep - packet.deployedAtStep);
+      receivedBestStepCount += shortestDistance;
     }
-
-    // Convert to medium percent
-    var routingEfficiencyPercent = 100 * routesEfficiencySum / routesEfficiencyCount;
+    var receivedEfficiency = (receivedBestStepCount / receivedStepCount);
+    var packetLostCount = self.sendCount - packetTransitCount - packetReceivedCount;
 
     function withPercent(val, all) {
       if (isNaN(all) || isNaN(val)) {
@@ -139,170 +175,45 @@ function createSim(graph) {
     $$('sim_steps_total').nodeValue = self.simStep;
     $$('sim_duration').nodeValue = self.simDuration + ' ms';
 
-    $$('packets_broadcast').nodeValue = withPercent(packets_broadcast, packets_unicast + packets_broadcast);
-    $$('packets_unicast').nodeValue = withPercent(packets_unicast, packets_unicast + packets_broadcast);
-    $$('packets_per_node').nodeValue = intNodes.length ? ((packets_unicast + packets_broadcast) / intNodes.length).toFixed(2) : '-';
+    $$('sim_routing_efficiency').nodeValue = num(100 * receivedEfficiency, '%');
+    $$('sim_packets_send').nodeValue = self.sendCount;
+    $$('sim_packets_transit').nodeValue = withPercent(packetTransitCount, self.sendCount);
+    $$('sim_packets_lost').nodeValue = withPercent(packetLostCount, self.sendCount);
+    $$('sim_packets_received').nodeValue = withPercent(packetReceivedCount, self.sendCount);
 
-    $$('routes_count').nodeValue = routesCount;
-    $$('routes_packets_send').nodeValue = routesSend;
-    $$('routes_packets_received').nodeValue = withPercent(routesReceived, routesSend);
-    $$('routes_packets_transit').nodeValue = withPercent(routesTransit, routesSend);
-    $$('routes_packets_lost').nodeValue = withPercent(routesSend - routesReceived - routesTransit, routesSend);
-    $$('routing_efficiency').nodeValue = num(routingEfficiencyPercent, '%');
-
-    updateRoutesTable();
+    $$('packets_broadcast').nodeValue = packets_broadcast;
+    $$('packets_unicast').nodeValue = packets_unicast;
+    $$('packets_per_node').nodeValue = num((packets_broadcast + packets_unicast) / intNodes.length);
   }
 
-  function updateRoutesTable() {
-    var tbody = $('sim_routes');
-
-    // Remove all elements
-    clearChildren(tbody);
-
-    for (key in self.routes) {
-      var route = self.routes[key];
-      var tr = append(tbody, 'tr');
-      var source_td = append(tr, 'td', route.sourceAddress.slice(-5));
-      var target_td = append(tr, 'td', route.destinationAddress.slice(-5));
-      append(tr, 'td', route.deployRate);
-      append(tr, 'td', route.sendCount);
-      append(tr, 'td', num(100 * route.receivedCount / route.sendCount, '%'));
-      append(tr, 'td', num(100 * route.transitCount / route.sendCount, '%'));
-      append(tr, 'td', num(100 * (route.sendCount - route.receivedCount - route.transitCount) / route.sendCount, '%'));
-      append(tr, 'td', num(100 * route.efficiency, '%'));
-
-      // Hover text
-      source_td.title = route.sourceAddress
-      target_td.title = route.destinationAddress;
-    }
-
-    var display = (tbody.children.length === 0);
-    displayElement($('sim_no_routes'), display);
-  }
-
-  self.delRoutes = function delRoutes() {
-    function delRoute(sourceNode, targetNode) {
-      var id = sourceNode.mac + '=>' + targetNode.mac;
-      delete routes[id];
-    }
-
-    var intNodes = graph.getSelectedIntNodes();
-    if (intNodes.length == 0) {
-      alert('Select one source and at least one target node.');
-      return;
-    }
-
-    var sourceNode = intNodes[0].o;
-    for (var i = 1; i < intNodes.length; i += 1) {
-      var targetNode = intNodes[i].o;
-      delRoute(sourceNode, targetNode);
-    }
-
-    updateSimStatistics();
-  }
-
-  self.addRoutes = function addRoutes() {
-    function addRoute(sourceAddress, destinationAddress) {
-      var id = sourceAddress + '=>' + destinationAddress;
-      if (!(id in self.routes)) {
-        self.routes[id] = new Route(sourceAddress, destinationAddress, 1);
-      }
-    }
-
+  self.deployPackets = function() {
     var intNodes = graph.getSelectedIntNodes();
     if (intNodes.length < 2) {
-      alert('Select one source and at least one target node.');
+      alert('Select source and target nodes. The first selected node will be the source.');
       return;
     }
 
-    var sourceAddress = intNodes[0].o.mac;
+    var src = intNodes[0].o.mac;
     for (var i = 1; i < intNodes.length; i += 1) {
-      var destinationAddress = intNodes[i].o.mac;
-      addRoute(sourceAddress, destinationAddress);
+      var dst = intNodes[i].o.mac;
+      var packet = new Packet(src, src, src, dst);
+      // Needed for route efficiency calculation
+      packet.deployedAtStep = self.simStep;
+      packet.receivedAtStep = NaN;
+      intNodes[0].o.incoming.push(packet);
+      self.sendCount += 1;
     }
 
-    updateSimStatistics();
-  }
-
-  function deployPackets_() {
-    var nodes = graph.getIntNodes();
-    var nodeMap = {};
-
-    nodes.forEach(function(e) {
-      nodeMap[e.o.mac] = e.o;
-    });
-
-    for (var id in self.routes) {
-      var route = self.routes[id];
-      if (randomBoolean(route.deployRate)) {
-        var src = route.sourceAddress;
-        var dst = route.destinationAddress;
-        if (src in nodeMap && dst in nodeMap) {
-          var packet = new Packet(src, src, src, dst);
-          // For route efficiency calculation
-          packet.deployedAtStep = self.simStep;
-          nodeMap[src].incoming.push(packet);
-          route.sendCount += 1;
-        } else {
-          console.log('Route does not exists: ' + src  + ' => ' + dst);
-        }
-      }
-    }
-  }
-
-  self.deployPackets = function deployPackets() {
-    if (isEmpty(self.routes)) {
-      alert('No routes set on which to deploy packets.');
-      return;
-    }
-
-    deployPackets_();
     updateSimStatistics();
 
     graph.redraw();
   }
 
-  function updateRoutesEfficiency() {
-    var intNodes = graph.getIntNodes();
-    var intLinks = graph.getIntLinks();
-    var dijkstra = createDijkstra(intNodes, intLinks);
-
-    for (var id in self.routes) {
-      var route = self.routes[id];
-      var sourceIntNode = intNodes.find(function(e) { return e.o.mac === route.sourceAddress; });
-      var targetIntNode = intNodes.find(function(e) { return e.o.mac === route.destinationAddress; });
-      if (sourceIntNode && targetIntNode) {
-        var shortestDistance = dijkstra.getShortestDistance(sourceIntNode, targetIntNode);
-        /*
-        * Efficiency as rate of optimal step count in relation to the shortest path of reveived packets.
-        */
-        route.efficiency = (shortestDistance * route.receivedCount / route.receivedStepCount);
-      }
-    }
-  }
-
-  function packetOnRouteReceived(packet) {
-    var id = packet.sourceAddress + '=>' + packet.destinationAddress;
-    if (id in self.routes) {
-      var route = self.routes[id];
-      route.receivedCount += 1;
-      route.receivedStepCount += (self.simStep - packet.deployedAtStep);
-    }
-  }
-
-  self.clearRouteCounter = function clearRouteCounter() {
-    for (var id in self.routes) {
-      self.routes[id].reset();
-    }
-
-    updateSimStatistics();
-  }
-
-  self.start = function start(steps, delay, deployPacketsEnabled) {
-    function trigger(steps, delay, deployPacketsEnabled) {
+  self.start = function start(steps, delay) {
+    function trigger(steps, delay) {
       if (steps > 0) {
-        self.run(1, deployPacketsEnabled);
-        self.timerId = setTimeout(trigger, delay, steps - 1, delay, deployPacketsEnabled);
+        self.run(1);
+        self.timerId = setTimeout(trigger, delay, steps - 1, delay);
       } else {
         self.timerId = null;
       }
@@ -316,16 +227,27 @@ function createSim(graph) {
 
     if (!this.running) {
       if (delay > 0) {
-        trigger(steps, delay, deployPacketsEnabled);
+        trigger(steps, delay);
       } else {
-        self.run(steps, deployPacketsEnabled);
+        self.run(steps);
       }
     } else {
       alert('Simulation is still running.');
     }
   }
 
-  self.run = function run(steps, deployPacketsEnabled) {
+  function updateChart(step, intNodes) {
+    // What if we want to chart efficiency?
+    if (typeof Node.prototype.getChartValue === "function" && intNodes.length) {
+      var values = intNodes.map((node) => node.getChartValue());
+      var mean = values.reduce((s, v) => s + v, 0) / values.length;
+      var variance_sq = values.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / values.length;
+
+      chart.addPoint(step, mean, Math.sqrt(variance_sq));
+    }
+  }
+
+  self.run = function run(steps) {
     this.running = true;
 
     // All links are bidirectional
@@ -343,12 +265,12 @@ function createSim(graph) {
     // Map of internal node index to array of d3 link objects
     var connections = {};
 
-    for (var i = 0; i < intNodes.length; i += 1) {
+    for (var i in intNodes) {
       var n = intNodes[i];
       connections[n.index] = [];
     }
 
-    for (var i = 0; i < intLinks.length; i += 1) {
+    for (var i in intLinks) {
       var l = intLinks[i];
       connections[l.source.index].push(l);
       connections[l.target.index].push(l);
@@ -356,15 +278,16 @@ function createSim(graph) {
 
     var simStartTime = (new Date()).getTime();
 
-    // Cumulated packet count for each link
+    // Packet count per link to simulate a shared transport medium
     var packetCount = {};
 
     // Simulation steps
     for (var step = 0; step < steps; step += 1) {
       self.simStep += 1;
+      updateChart(self.simStep, intNodes);
 
       // Initialize packet count
-      for (var i = 0; i < intLinks.length; i++) {
+      for (var i in intLinks) {
         var intLink = intLinks[i];
         packetCount[intLink.index] = 0;
       }
@@ -373,29 +296,35 @@ function createSim(graph) {
       shuffleArray(intNodes);
 
       // Step nodes
-      for (var i = 0; i < intNodes.length; i++) {
+      for (var i in intNodes) {
         var node = intNodes[i].o;
         node.step();
         node.incoming = [];
       }
 
       // Propagate packets
-      for (var i = 0; i < intNodes.length; i++) {
+      for (var i in intNodes) {
         var intNode = intNodes[i];
         var intLinks = connections[intNode.index];
 
         // Randomize order
         shuffleArray(intLinks);
 
-        for (var p = 0; p < intNode.o.outgoing.length; p++) {
+        for (var p in intNode.o.outgoing) {
           var packet = intNode.o.outgoing[p];
-          var isBroadcast = (packet.receiverAddress === BROADCAST_MAC);
+          var isBroadcast = (packet.receiverAddress == BROADCAST_MAC);
 
-          for (var j = 0; j < intLinks.length; j++) {
+          if (packet.destinationAddress == intNode.o.mac) {
+            // Drop outgoing packets with own address as destination
+            console.log("Packet in outgoing that has its own address as destination! => drop packet");
+            continue;
+          }
+
+          for (var j in intLinks) {
             var intLink = intLinks[j];
             var otherIntNode = getOtherIntNode(intLink, intNode.o.mac);
 
-            if (isBroadcast || (packet.receiverAddress === otherIntNode.o.mac)) {
+            if (isBroadcast || (packet.receiverAddress == otherIntNode.o.mac)) {
               if (isBroadcast) {
                 // Necessary for broadcast
                 packet = clonePacket(packet);
@@ -405,7 +334,7 @@ function createSim(graph) {
               // simulate a shared transmission medium
               if (intLink.o.channel > 0) {
                 intLinks.forEach(function(l) {
-                  if (l.o.channel === intLink.o.channel) {
+                  if (l.o.channel == intLink.o.channel) {
                     packetCount[l.index] += 1;
                   }
                 });
@@ -416,11 +345,18 @@ function createSim(graph) {
               if (intLink.o.transmit(packet, packetCount[intLink.index])) {
                 // Packet transmitted
                 otherIntNode.o.incoming.push(packet);
-                if ('deployedAtStep' in packet) {
-                  if (packet.destinationAddress === otherIntNode.o.mac) {
-                    packetOnRouteReceived(packet);
+                if (!isBroadcast) {
+                  // Packet has arrived at the destionation 
+                  if (packet.destinationAddress == otherIntNode.o.mac) {
+                    if ('deployedAtStep' in packet) {
+                      packet.receivedAtStep = self.simStep;
+                      self.receivedPackets.push(packet);
+                    }
                   }
                 }
+              } else {
+                // packet lost on link (by formula in link.js)
+                self.lostOnLink += 1;
               }
 
               if (!isBroadcast) {
@@ -433,15 +369,10 @@ function createSim(graph) {
         // All packets should have been handled
         intNode.o.outgoing = [];
       }
-
-      if (deployPacketsEnabled) {
-        deployPackets_();
-      }
     }
 
     self.simDuration = (new Date()).getTime() - simStartTime;
 
-    updateRoutesEfficiency();
     updateSimStatistics();
 
     graph.redraw();

@@ -240,7 +240,7 @@ Node.prototype.getNodeName = function () {
 
 // Label on top of the node body
 Node.prototype.getNodeLabel = function () {
-  return '' + Object.keys(this.neighbors).length;
+  return Object.keys(this.neighbors).length;
 }
 
 Node.prototype.reset = function () {

@@ -65,7 +65,7 @@ function createDraw() {
         ctx.fill();
       }
 
-      var nodeName = getNodeValue(d, 'getNodeName', '');
+      var nodeName = getNodeValue(d, 'getNodeName', '').toString();
       if (nodeName.length) {
         ctx.beginPath();
         ctx.textAlign = 'center';
@@ -73,7 +73,7 @@ function createDraw() {
         ctx.fillText(nodeName, d.x, d.y + 20);
       }
 
-      var nodeLabel = getNodeValue(d, 'getNodeLabel', '');
+      var nodeLabel = getNodeValue(d, 'getNodeLabel', '').toString();
       if (nodeLabel.length) {
         ctx.beginPath();
         ctx.textAlign = 'center';

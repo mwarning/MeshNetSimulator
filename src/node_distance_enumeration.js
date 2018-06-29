@@ -38,7 +38,7 @@ Node.prototype.step = function () {
 }
 
 Node.prototype.getNodeName = function () {
-  return this.enum.toString();
+  return this.enum;
 }
 
 Node.prototype.reset = function () {
