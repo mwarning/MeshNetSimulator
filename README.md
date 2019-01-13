@@ -28,7 +28,7 @@ Available are [basic information](docs/about_mesh_networking.md) about mesh rout
   In the future, a native language might give speed advantages.
 
 * **How fast is the simulation?**  
-  10000 steps for a lattice of 10000 nodes and 19800 links with \~36000 packets takes about three minutes on a i7.
+  10000 steps for a lattice of 10000 nodes and 19800 links with around 36000 packets takes about three minutes on a i7.
 
 * **How is the routing efficiency value calculated?**  
   Overall efficiency is computed as the medium efficiency of each route. Route efficiency is calculated as (`optimal route hop count` * `number of received packets` / `accumulated hop count of received packets`).
@@ -75,14 +75,16 @@ Use the `show` tab to inspect the state of selected nodes and its current packet
 
 ## Various Links
 
+- Primer on wireless mesh routing algorithms [Review on Routing Algorithms in Wireless Mesh Networks](http://www.ijcst.org/Volume3/Issue5/p15_3_5.pdf)
+
 - [Review of Simulators for Wireless Mesh Network](http://dlibra.itl.waw.pl/dlibra-webapp/Content/1800/ISSN_1509-4553_3_2014_82.pdf)
+
+- Understanding Mesh Networking ([Part I](https://inthemesh.com/archive/understanding-mesh-networking-part-i/), [Part II](https://inthemesh.com/archive/understanding-mesh-networking-part-ii/), [Slides](https://www.dropbox.com/s/wqksd8dmykev8x7/goTenna mesh networks overview.pdf))
 
 - [Ask Slashdot: Could We Build A Global Wireless Mesh Network?](https://ask.slashdot.org/story/17/04/29/2134234/ask-slashdot-could-we-build-a-global-wireless-mesh-network)
 
-- In depth analysis of B.A.T.M.A.N.-adv [Performance Analysis and Simulation of a Freifunk mesh network](http://thardes.de/wp-content/uploads/2016/03/thesis.pdf)
-
 - Contains an overview of different mesh routing strategies: [From MANET To IETF ROLL Standardization: A Paradigm Shift in WSN Routing Protocols](http://www.cttc.es/publication/from-manet-to-ietf-roll-standardization-a-paradigm-shift-in-wsn-routing-protocols/)
 
-- About routing based on virtual coordinates:
-  - [Routing without Geometry](https://www.tik.ee.ethz.ch/file/f26a5590c4dcab48af753012f3aa9ab4/sirocco05.pdf)
-  - [Vivaldi: A Decentralized Network Coordinate System](https://pdos.csail.mit.edu/papers/vivaldi:sigcomm/paper.pdf)
+## Various Scientific Papers
+
+A [collection](docs/papers.md) of scientific papers somewhat related to Mobile Ad-Hoc Mesh Routing.
