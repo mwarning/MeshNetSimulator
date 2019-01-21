@@ -4,66 +4,10 @@ Community networks such as [Freifunk](https://freifunk.net) struggle with scalin
 
 This is a simple simulator for sketching mesh network routing strategies in the hopes to find better approaches to mesh routing. Please note that this simulator does not virtualize a TCP/IP stack nor all characteristics of wireless connections. The dynamic nature of MANETs is also not (yet) covered by this simulator.
 
-The code is written in plain JavaScript/HTML and the [d3](https://d3js.org) visualization library.
-
-Check out the [live demo](https://mwarning.de/MeshNetSimulator/)! - Pull requests are welcome!
-
-![screenshot](docs/screenshot.png)
-
-Features:
-- load, edit and save [MeshViewer](https://github.com/ffrgb/meshviewer) and [NetJSON](http://netjson.org/rfc.html) data
-- create custom (bidirectional) graphs from primitives (single node, line/loop, 4-/8-Lattice, random tree)
-- live editing of [Node](src/node.js), [Link](src/link.js) and [Packet](src/packet.js) implementations
-- run simulations stepwise and with intervals
-- elaborate routing statistics
-- nodes state introspection
-- send commands to selected nodes
+This a command line editor and simulator, but the output can be viewed with this [graph viewer](https://github.com/mwarning/GraphViewer/).
 
 Available are [basic information](docs/about_mesh_networking.md) about mesh routing and a collection of [examples](docs/node_examples.md).
 
-## FAQ
-
-* **Why JavaScript?**  
-  Because of d3.js for visualisation. Also, JavaScript is simple enough for sketching ideas.  
-  In the future, a native language might give speed advantages.
-
-* **How fast is the simulation?**  
-  10000 steps for a lattice of 10000 nodes and 19800 links with around 36000 packets takes about three minutes on a i7.
-
-* **How is the routing efficiency value calculated?**  
-  Overall efficiency is computed as the medium efficiency of each route. Route efficiency is calculated as (`optimal route hop count` * `number of received packets` / `accumulated hop count of received packets`).
-
-## How to Use
-
-### 1. Start
-
-Get the content of the repository and open the file index.html in a browser.
-
-### 2. Create a topology
-
-Create some network using the `Edit` tab and click on the `lattice` button to create a 3x3 lattice.
-You can also load JSON files (e.g. [nodes.json](https://regensburg.freifunk.net/data/nodes.json)/[graph.json](https://regensburg.freifunk.net/data/graph.json) or [netjson.json](https://nodeshot.org/netjsongraph/examples/data/netjson.json)).
-
-### 3. Implement a routing strategy (optional)
-
-A simple routing algorithm is already implemented. It will discovery neighbors and route packets to random neighbors.
-For sketching your own mesh routing strategy, you need to edit the node.js and packet.js files.
-
-### 4. Deploy packets
-Select a start and end node for a route to deploy packets on. Keep the control key pressed to select multiple nodes.
-Click the `Add Routes` button on the `Sim` tab to create a route on which packets can be deployed.
-
-### 5. Simulate
-
-Click the `step` button two times to let the nodes discover its neighbors with special broadcast packets.
-Now to click the `Deploy Packets` button once to place packets on the created routes.
-The number of (unicast) packets will be displayed on the node.
-Use the `step` button to let the nodes propagate through the network in a random fashion until the destination is reached.
-
-### 6. Evaluate (optional)
-
-The `Sim` tab will show the efficiency of the routing approach once a packet has reached its destination.
-Use the `show` tab to inspect the state of selected nodes and its current packets.
 
 ## Related Software
 
