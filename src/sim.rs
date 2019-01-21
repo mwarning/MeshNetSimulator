@@ -9,7 +9,7 @@ use *;
 
 use link::Link;
 use passive_routing_test::PassiveRoutingTest;
-use graph::{Graph, ID, BROADCAST_ID};
+use graph::{Graph, ID};
 
 
 pub struct TestPacket {
@@ -25,10 +25,6 @@ pub struct TestPacket {
 impl TestPacket {
 	pub fn new(transmitter: ID, receiver: ID, source: ID, destination: ID) -> Self {
 		Self { transmitter, receiver, source, destination }
-	}
-
-	pub fn new_broadcast(source: ID) -> Self {
-		Self::new(source, BROADCAST_ID, BROADCAST_ID, BROADCAST_ID)
 	}
 }
 

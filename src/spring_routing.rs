@@ -43,21 +43,17 @@ impl Node {
 
 	fn route(&self, packet: &TestPacket, dst_pos: &Vec3) -> Option<ID> {
 		let mut d_next = f32::INFINITY;
-		let mut n_next = BROADCAST_ID;
+		let mut n_next = None;
 
 		for v in &self.neighbors {
 			let d = v.pos.distance(dst_pos);
 			if d < d_next {
 				d_next = d;
-				n_next = v.id;
+				n_next = Some(v.id);
 			}
 		}
 
-		if n_next == BROADCAST_ID {
-			None
-		} else {
-			Some(n_next)
-		}
+		n_next
 	}
 
 	fn update(&mut self, from_id: ID, from_pos: Vec3, time: u32) {
