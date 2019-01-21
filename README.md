@@ -24,7 +24,7 @@ Available are [basic information](docs/about_mesh_networking.md) about mesh rout
 
 - [Review of Simulators for Wireless Mesh Network](http://dlibra.itl.waw.pl/dlibra-webapp/Content/1800/ISSN_1509-4553_3_2014_82.pdf)
 
-- Understanding Mesh Networking ([Part I](https://inthemesh.com/archive/understanding-mesh-networking-part-i/), [Part II](https://inthemesh.com/archive/understanding-mesh-networking-part-ii/), [Slides](https://www.dropbox.com/s/wqksd8dmykev8x7/goTenna mesh networks overview.pdf))
+- Understanding Mesh Networking ([Part I](https://inthemesh.com/archive/understanding-mesh-networking-part-i/), [Part II](https://inthemesh.com/archive/understanding-mesh-networking-part-ii/), [Slides](https://www.dropbox.com/s/wqksd8dmykev8x7/))
 
 - [Ask Slashdot: Could We Build A Global Wireless Mesh Network?](https://ask.slashdot.org/story/17/04/29/2134234/ask-slashdot-could-we-build-a-global-wireless-mesh-network)
 
