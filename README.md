@@ -6,8 +6,9 @@ This is a simple simulator for sketching mesh network routing strategies in the 
 
 This a command line editor and simulator, but the output can be viewed with this [graph viewer](https://github.com/mwarning/GraphViewer/).
 
-Available are [basic information](docs/about_mesh_networking.md) about mesh routing and a collection of [examples](docs/node_examples.md).
+The project was formally written in JavaScript. Use the commit history if you want to look at that version.
 
+Available are [basic information](docs/about_mesh_networking.md) about mesh routing and a collection of [examples](docs/node_examples.md).
 
 ## Related Software
 
