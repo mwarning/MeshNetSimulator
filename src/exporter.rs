@@ -33,7 +33,7 @@ pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
 		let x = node.gpos.x();
 		let y = node.gpos.y();
 		write!(&mut ret,
-			"{{\"mac\": \"{}\", \"x\": {}, \"y\": {}, \"node_name\": \"{}\", \"node_label\": \"{}\"}}",
+			"{{\"id\": \"{}\", \"x\": {}, \"y\": {}, \"name\": \"{}\", \"label\": \"{}\"}}",
 			id, x, y, meta.name, meta.label).unwrap();
 	}
 
