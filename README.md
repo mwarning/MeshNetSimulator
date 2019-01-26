@@ -16,7 +16,9 @@ Available are [basic information](docs/about_mesh_networking.md) about mesh rout
 
 [ns-3](https://www.nsnam.org/): ns-3 is a discrete-event network simulator for Internet systems, targeted primarily for research and educational use. 
 
-[MeshViewer](https://github.com/ffrgb/meshviewer): A visualization tool for mesh networks. Primarily used by Freifunk communities. Some code was used by this project.
+## Visualisiation
+
+The graph can be inspected e.g. by using [GraphViewer](https://github.com/mwarning/GraphViewer).
 
 ## Various Links
 
