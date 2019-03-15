@@ -53,7 +53,7 @@ pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
 		let source_id = link.from;
 		let source_tq = (link.quality() as f32) / (u16::MAX as f32);
 		let target_id = link.to;
-		let target_tq = if let Some(link) = graph.find_link(target_id, source_id) {
+		let target_tq = if let Some(link) = graph.get_link(target_id, source_id) {
 			(link.quality() as f32) / (u16::MAX as f32)
 		} else {
 			0.0

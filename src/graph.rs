@@ -11,7 +11,6 @@ use utils::*;
 
 
 pub type ID = u32;
-pub const BROADCAST_ID : ID = std::u32::MAX;
 
 // default distance, too small confuses d3.js
 const NODE_SPACING : f32 = 50.0;
@@ -22,8 +21,8 @@ const NODE_SPACING : f32 = 50.0;
 #[derive(Clone)]
 pub struct Graph {
 	pub nodes: Vec<Node>,
-	pub links: Vec<Link>,
-	id: u64,
+	pub links: Vec<Link>, // sorted link list
+	id: u64, //history_id
 }
 
 impl Graph {
@@ -202,22 +201,16 @@ impl Graph {
 		(mean, variance)
 	}
 
-	fn has_link(&self, from: ID, to: ID) -> bool {
-		for link in &self.links {
-			if link.from == from && link.to == to {
-				return true;
-			}
+	pub fn has_link(&self, from: ID, to: ID) -> bool {
+		if let Some(_) = self.link_idx(from, to) {
+			true
+		} else {
+			false
 		}
-		false
 	}
 
 	fn has_any_link(&self, from: ID, to: ID) -> bool {
-		for link in &self.links {
-			if (link.from == from && link.to == to) || (link.from == to && link.to == from) {
-				return true;
-			}
-		}
-		false
+		self.has_link(from, to) || self.has_link(to, from)
 	}
 
 	/*
@@ -320,21 +313,27 @@ impl Graph {
 	}
 
 	pub fn del_nodes(&mut self, nodes: &Vec<ID>) {
-		println!("del_nodes: {:?}", nodes);
-
 		for id in nodes {
 			self.del_node(*id);
 		}
 	}
 
-	pub fn find_link(&self, from: ID, to: ID) -> Option<Link> {
+	fn link_idx(&self, from: ID, to: ID) -> Option<usize> {
 		match self.links.binary_search_by(|link| link.cmp(from, to)) {
 			Ok(idx) => {
-				Some(self.links[idx].clone())
+				Some(idx)
 			},
-			Err(idx) => {
+			Err(_) => {
 				None
 			}
+		}
+	}
+
+	pub fn get_link(&self, from: ID, to: ID) -> Option<Link> {
+		if let Some(idx) = self.link_idx(from, to) {
+			Some(self.links[idx].clone())
+		} else {
+			None
 		}
 	}
 
@@ -414,8 +413,7 @@ impl Graph {
 		}
 	}
 
-	pub fn add_tree(&mut self, count: u32, intra: u32)
-	{
+	pub fn add_tree(&mut self, count: u32, intra: u32) {
 		//let mut links = HashSet::new();
 		let offset = self.nodes.len() as u32;
 
@@ -612,10 +610,10 @@ pub fn graph_to_json(graph: &Graph, ret: &mut String) {
 
 			comma = true;
 			write!(ret, "{{").unwrap();
-			write!(ret, "\"mac\": {},", id).unwrap();
-			write!(ret, "\"node_label\": \"\",").unwrap();
-			write!(ret, "\"node_name\": \"{}\",", node_name).unwrap();
-			write!(ret, "\"client_count\": \"{}\"", client_count).unwrap();
+			write!(ret, "\"id\": {},", id).unwrap();
+			write!(ret, "\"label\": \"\",").unwrap();
+			write!(ret, "\"name\": \"{}\",", node_name).unwrap();
+			write!(ret, "\"clients\": \"{}\"", client_count).unwrap();
 			write!(ret, "}}").unwrap();
 		}
 	}

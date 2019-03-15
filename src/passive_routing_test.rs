@@ -73,7 +73,7 @@ impl PassiveRoutingTest {
 		for i in 0..max_steps {
 			if let Some(next) = route(&packet) {
 				// Check if link really exists
-				if let Some(link) = graph.find_link(packet.receiver, next) {
+				if let Some(link) = graph.get_link(packet.receiver, next) {
 					costs += link.cost() as u32;
 					if next == packet.destination {
 						// packet arrived
