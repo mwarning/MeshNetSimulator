@@ -91,19 +91,18 @@ impl Node {
 	}
 
 	// Vivaldi algorithm
-	fn vivaldi_update(&mut self, pos: &Vec3, error: f32)
-	{
+	fn vivaldi_update(&mut self, pos: &Vec3, error: f32) {
 		let rtt = 1.5;
 		let ce = 0.25;
 		let cc = 0.25;
 
 		// w = e_i / (e_i + e_j)
-		let w = if (self.error + error) > 0.0 {
-			self.error / (self.error + self.error)
+		let w = if (self.error > 0.0) && (error > 0.0) {
+			self.error / (self.error + error)
 		} else {
 			1.0
 		};
-	//println!("w: {}", w);
+
 		// x_i - x_j
 		let ab = self.pos - *pos;
 
@@ -121,17 +120,17 @@ impl Node {
 
 		// Choose random direction if both positions are identical
 		let direction = if ab.is_near_null(0.01) {
-			println!("random direction");
+			//println!("random direction");
 			Vec3::random_unit()
 		} else {
 			ab
 		};
 
-		println!("old pos: {}", self.pos);
+		//println!("old pos: {}, {} {} {}", self.pos, direction, w, re);
 
 		// x_i = x_i + ∂ * (rtt - |x_i - x_j|) * u(x_i - x_j)
 		self.pos = self.pos + direction * (d * re);
-		println!("new pos: {}", self.pos);
+		//println!("new pos: {}", self.pos);
 	}
 }
 
@@ -147,6 +146,17 @@ impl VivaldiRouting {
 			nodes: vec![],
 			time: 0
 		}
+	}
+
+	// get median distance change
+	pub fn get_convergence(&self) -> f32 {
+		let mut d = 0.0;
+		let mut c = 0.0;
+		for node in &self.nodes {
+			d += node.pos_old.distance(&node.pos);
+			c += 1.0;
+		}
+		d / c
 	}
 }
 
@@ -188,66 +198,3 @@ impl RoutingAlgorithm for VivaldiRouting
 		self.nodes[packet.receiver as usize].route(packet, dst_pos)
 	}
 }
-
-/*
-	// calculate coordinate convergence
-	TODO: get convergence in percent
-	- every coordiante should differ from neighbor
-	- every coordiante should be unique
-
-	- maximize angle between neighbors //pos.angle(p)
-	*/
-	/*
-	fn get_convergence(&self) -> (u32, f32, f32) {
-		let mut all = Vec::new();
-		let mut sum = 0f32;
-		let mut count = 0f32;
-
-		if self.nodes.len() == 0 {
-			return (self.time, f32::NAN, f32::NAN);
-		}
-
-		for node in &self.nodes {
-			let l1 = node.pos_old.length();
-			let l2 = node.pos.length();
-			if l1 != 0.0 || l2 != 0.0 {
-				let d = node.pos_old.distance(&node.pos) / l1.max(l2);
-				sum += d;
-				count += 1.0;
-				all.push(d);
-			}
-		}
-
-		let med = sum / count;
-		let mut var = 0f32;
-
-		for d in &all {
-			var += (d - med).powi(2) / count;
-		}
-
-		return (self.time, med, var);
-	}
-*/
-/*
-		// get min/max angle
-		fn angles(s: &Node) -> String {
-			let mut min = f32::INFINITY;
-			let mut max = f32::NEG_INFINITY;
-
-			for n in &s.neighbors {
-				let a = s.pos.angle(&n.pos) * RAD2DEG;
-				if a > max {
-					max = a;
-				}
-				if a < min {
-					min = a;
-				}
-			}
-
-			if s.neighbors.len() == 0 {
-				"".to_string()
-			} else {
-				format!("{:.0}-{:.0}", min, max)
-			}
-		}
-*/

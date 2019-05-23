@@ -96,21 +96,6 @@ pub trait RoutingAlgorithm : Send {
 	}
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum SimState {
-	Waiting,
-	Running,
-	Exit
-}
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum SimAction {
-	None,
-	Start,
-	Stop,
-	Exit
-}
-
 fn is_smaller(d: &Duration, secs: u64, millis: u32) -> bool {
 	let d_secs = d.as_secs();
 
@@ -123,89 +108,9 @@ fn is_smaller(d: &Duration, secs: u64, millis: u32) -> bool {
 	}
 }
 
-// move to sim.rs..
-pub fn sim_loop(sim: Arc<Mutex<GlobalState>>) {
-	//let mut steps_per_mutex_check = 1;
-	let mut init = true;
-	let mut done = false;
-
-	loop {
-		let sim_state = sim.lock().unwrap().sim_state;
-
-		match sim_state {
-			SimState::Waiting => {
-				// Check every 250ms if there is simulation to start
-				thread::sleep(time::Duration::from_millis(250));
-			},
-			SimState::Running => {
-				let mut sim = &mut *sim.lock().unwrap();
-				let now = time::Instant::now();
-
-				if init {
-					//steps_per_mutex_check = 1;
-					init = false;
-					done = false;
-					sim.stats.start();
-				}
-
-				loop {
-					let mut io = Io::new(&sim.graph); //include stats here
-					sim.algorithm.step(&mut io);
-
-					sim.stats.test_results.push(
-						(0, 0.0, 0.0)
-					);
-					sim.stats.steps += 1;
-					done = sim.stats.steps >= sim.sim_steps;
-
-					if done {
-						break;
-					}
-
-					if !is_smaller(&now.elapsed(), 0, 250) {
-						break;
-					}
-				}
-				/*
-				// Adjust iterations to keep thread responsive
-				let duration = now.elapsed();
-				if is_smaller(&duration, 0, 250) {
-					steps_per_mutex_check += 1;
-				} else if steps_per_mutex_check > 1 {
-					steps_per_mutex_check -= 1;
-				}*/
-
-				if done {
-					// Simulation done or aborted
-					//sim.speed = steps / duration;
-					let mut test = PassiveRoutingTest::new();
-					test.run_all(&sim.graph, |p| sim.algorithm.route(p));
-
-					println!("Results:");
-					for r in test.get_results() {
-						println!("{}: {:.2}", r.0, r.1);
-					}
-
-					println!("nodes: {}, links: {}", //, packets: {}",
-						sim.graph.node_count(), sim.graph.link_count()//, sim.packets.count()
-					);
-
-					sim.stats.stop();
-					sim.sim_state = SimState::Waiting;
-					init = true;
-					println!("simulation done");
-				}
-				//sim.sim_stateid += 1;
-			},
-			SimState::Exit => {
-				return;
-			}
-		}
-	}
-}
-
 pub struct Io<'a> {
 	graph: &'a Graph,
+	//time?
 }
 
 impl<'a> Io<'a> {
@@ -222,8 +127,13 @@ impl<'a> Io<'a> {
 	pub fn nodes_count(&self) -> usize {
 		self.graph.node_count()
 	}
+
+	pub fn node_links(&self, id: ID) -> &[Link] {
+		self.graph.get_neighbors(id)
+	}
+
 /*
-	pub fn links(&self) -> &[Link] {
+	pub fn all_links(&self) -> &[Link] {
 		self.graph.links.as_slice()
 	}
 */

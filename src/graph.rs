@@ -94,17 +94,17 @@ impl Graph {
 		self.links.sort_unstable_by(|a, b| a.cmp(b.from, b.to));
 	}
 
-	pub fn disconnect_nodes(&mut self, ids: Vec<ID>) {
-		for a in &ids {
-			for b in &ids {
+	pub fn disconnect_nodes(&mut self, ids: &Vec<ID>) {
+		for a in ids {
+			for b in ids {
 				self.del_link(*a, *b);
 			}
 		}
 	}
 
-	pub fn connect_nodes(&mut self, ids: Vec<ID>) {
-		for a in &ids {
-			for b in &ids {
+	pub fn connect_nodes(&mut self, ids: &Vec<ID>) {
+		for a in ids {
+			for b in ids {
 				self.connect(*a, *b);
 			}
 		}
@@ -299,7 +299,7 @@ impl Graph {
 		true
 	}
 
-	pub fn del_node(&mut self, id: ID) {
+	pub fn remove_node(&mut self, id: ID) {
 		self.nodes.remove(id as usize);
 
 		for link in &mut self.links {
@@ -312,9 +312,9 @@ impl Graph {
 		}
 	}
 
-	pub fn del_nodes(&mut self, nodes: &Vec<ID>) {
+	pub fn remove_nodes(&mut self, nodes: &Vec<ID>) {
 		for id in nodes {
-			self.del_node(*id);
+			self.remove_node(*id);
 		}
 	}
 
@@ -414,7 +414,6 @@ impl Graph {
 	}
 
 	pub fn add_tree(&mut self, count: u32, intra: u32) {
-		//let mut links = HashSet::new();
 		let offset = self.nodes.len() as u32;
 
 		// Connect random nodes
@@ -563,7 +562,7 @@ impl Graph {
 				remove.push(id);
 			}
 		}
-		self.del_nodes(&remove);
+		self.remove_nodes(&remove);
 	}
 
 	pub fn print_stats(&self) {

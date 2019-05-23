@@ -5,9 +5,10 @@ use std::fs::File;
 
 use sim::{Io, TestPacket, NodeMeta, RoutingAlgorithm};
 use passive_routing_test::PassiveRoutingTest;
-use exporter::export_json;
 use graph::*;
 use utils::*;
+use exporter::export_file;
+use vivaldi_routing::*;
 use progress::Progress;
 
 extern crate hyperbolic_graph_generator;
@@ -62,11 +63,7 @@ pub fn run_test1() {
 		fmt_duration(progress.duration()), fmt_duration(test.duration())
 	);
 
-	if let Ok(mut file) = File::create("graph.json") {
-		let content = export_json(&graph, Some(&algorithm));
-		file.write_all(content.as_bytes()).unwrap();
-		println!("wrote graph.json");
-	}
+	export_file(&graph, Some(&algorithm), "graph.json");
 }
 
 pub fn run_test2() {
@@ -215,4 +212,52 @@ pub fn run_test3() {
 	println!("found: {} ({:.1}% of valid)", found, 100.0 * (found as f64) / (valid as f64));
 	println!("valid: {} ({:.1}% of tested)", valid, 100.0 * (valid as f64) / (max_programs as f64));
 	println!("tested {} ({}% of all possible)", max_programs, 100.0 * (max_programs as f64) / (max_possible_programs as f64));
+}
+
+
+struct Test4 {
+	vivaldi: VivaldiRouting,
+	graph: Graph,
+	init: bool
+}
+
+/*
+impl Test4 {
+	fn new() -> Self {
+		Self {
+			vivaldi: VivaldiRouting::new(),
+			graph: Graph::new(),
+			init: true
+		}
+	}
+
+	fn step(&mut self) {
+		if (self.init) {
+			self.graph.add_tree(30, 3);
+			self.vivaldi.reset(self.graph.node_count());
+		}
+
+		let mut io = Io::new(&self.graph);
+		self.vivaldi.step(&mut io);
+		println!("convergence: {:.4}", self.vivaldi.get_convergence());
+		export_file(&self.graph, Some(&self.vivaldi), "graph.json");
+	}
+}*/
+
+pub fn run_test4() {
+	let mut vivaldi = VivaldiRouting::new();
+
+	let mut graph = Graph::new();
+
+	// creat a 3x3 lattice
+	graph.add_tree(30, 3);
+	vivaldi.reset(graph.node_count());
+
+	let mut io = Io::new(&graph);
+	for step in 1..10 {
+		vivaldi.step(&mut io);
+	}
+
+	println!("convergence: {:.4}", vivaldi.get_convergence());
+	export_file(&graph, Some(&vivaldi), "graph.json");
 }

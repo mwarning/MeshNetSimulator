@@ -14,6 +14,17 @@ use std::fmt;
 use std::fmt::Write;
 
 
+pub fn export_file(graph: &Graph, algo: Option<&RoutingAlgorithm>, path: &str) {
+	use std::io::Write;
+	if let Ok(mut file) = File::create(path) {
+		let content = export_json(&graph, algo);
+		file.write_all(content.as_bytes()).unwrap();
+		println!("Wrote {}", path);
+	} else {
+		println!("Failed to create: {}", path);
+	}
+}
+
 pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
 	let mut ret = String::new();
 	let mut meta = NodeMeta::new();
