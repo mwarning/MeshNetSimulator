@@ -52,7 +52,7 @@ pub struct GlobalState {
 	graph: Graph,
 	test: PassiveRoutingTest,
 	algorithm: Box<RoutingAlgorithm>,
-	sim_state2: cmd::SimState
+	sim_state: cmd::SimState
 }
 
 impl GlobalState {
@@ -61,7 +61,7 @@ impl GlobalState {
 			graph: Graph::new(),
 			test: PassiveRoutingTest::new(),
 			algorithm: Box::new(SpringRouting::new()),
-			sim_state2: cmd::SimState::new()
+			sim_state: cmd::SimState::new()
 		}
 	}
 }

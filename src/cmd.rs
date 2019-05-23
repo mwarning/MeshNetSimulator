@@ -111,7 +111,7 @@ enum Command {
 	Test,
 	ConnectInRange(f32),
 	RemoveUnconnected,
-	SetAlgorithm(String),
+	Algorithm(String),
 	AddLine(u32, bool),
 	AddTree(u32, u32),
 	AddLattice4(u32, u32),
@@ -234,14 +234,14 @@ fn parse_command(input: &str) -> Command {
 				error
 			}
 		},
-		"set_algorithm" => {
+		"algorithm" => {
 			if let (Some(algo),) = scan!(iter, String) {
-				Command::SetAlgorithm(algo)
+				Command::Algorithm(algo)
 			} else {
-				error
+				Command::Algorithm("".to_string())
 			}
 		},
-		"remove_" => {
+		"remove_nodes" => {
 			if let Ok(ids) = parse_list(tokens.get(1)) {
 				Command::RemoveNodes(ids)
 			} else {
@@ -272,7 +272,7 @@ fn parse_command(input: &str) -> Command {
 }
 
 fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<(), std::io::Error> {
-	let state = &mut sim.sim_state2;
+	let state = &mut sim.sim_state;
 	let mut init = false;
 
 	println!("command: '{}'", input);
@@ -354,8 +354,11 @@ fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<()
 			state.graph.connect_in_range(range);
 			state.do_init = true;
 		},
-		Command::SetAlgorithm(ref algo) => {
+		Command::Algorithm(ref algo) => {
 			match algo.as_str() {
+				"" => {
+					writeln!(out, "algorithm: {}", state.algorithm.name())?;
+				},
 				"random" => {
 					state.algorithm = Box::new(RandomRouting::new());
 					state.do_init = true;
@@ -384,14 +387,11 @@ fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<()
 		}
 	};
 
-	//state.last_command = command;
-
-	//check_state(sim);
-
 	if state.do_init {
 		writeln!(out, "init {} nodes", state.graph.node_count())?;
 		state.algorithm.reset(state.graph.node_count());
 		state.test.clear();
+		state.do_init = false;
 	}
 
 	export_file(&state.graph, Some(&*state.algorithm), "graph.json");
