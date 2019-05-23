@@ -6,6 +6,7 @@ use std::io::prelude::*;
 use std::io;
 use std::str::SplitWhitespace;
 use std::error::Error;
+use std::time::{Instant, Duration};
 
 use sim::{Io, TestPacket, NodeMeta, RoutingAlgorithm};
 use vivaldi_routing::VivaldiRouting;
@@ -178,6 +179,7 @@ fn parse_command(input: &str) -> Command {
 		"state" => Command::State,
 		"clear" => Command::Clear,
 		"reset" => Command::Reset,
+		"test" => Command::Test,
 		"step" => {
 			Command::Step(if let (Some(count),) = scan!(iter, u32) {
 				count
@@ -304,21 +306,24 @@ fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<()
 			state.do_init = true;
 		},
 		Command::Step(count) => {
+			let now = Instant::now();
 			let mut io = Io::new(&state.graph);
 			for step in 0..count {
 				state.algorithm.step(&mut io);
 				state.sim_steps += 1;
 			}
 
-			writeln!(out, "done {} steps", count)?;
+			let duration = now.elapsed();
+
+			writeln!(out, "{} steps, duration: {}", count, fmt_duration(duration))?;
 		},
 		Command::Test => {
-			//check_state(sim);
 			fn run_test(out: &mut Write, test: &mut PassiveRoutingTest, graph: &Graph, algo: &Box<RoutingAlgorithm>) {
+				let samples = 100;
 				test.clear();
-				test.run_samples(graph, |p| algo.route(&p), 1000);
-				writeln!(out, "{} samples:\n  arrived: {}, stretch: {}, duration: {}",
-					1000,
+				test.run_samples(graph, |p| algo.route(&p), samples);
+				writeln!(out, "samples: {},  arrived: {:.1}, stretch: {}, duration: {}",
+					samples,
 					test.arrived(), test.stretch(),
 					fmt_duration(test.duration())
 				);
