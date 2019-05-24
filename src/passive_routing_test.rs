@@ -2,6 +2,7 @@ use std::time::{Instant, Duration};
 use std::io::Write;
 use rand::Rng;
 
+use progress::Progress;
 use sim::{Io, TestPacket, NodeMeta, RoutingAlgorithm};
 use dijkstra::Dijkstra;
 use exporter::export_json;
@@ -13,6 +14,7 @@ use utils::*;
  * This test does not allow the state of the routing algorithm to change.
  */
 pub struct PassiveRoutingTest {
+	show_progress: bool,
 	is_done: bool,
 	packets_send: u32,
 	packets_lost: u32,
@@ -28,6 +30,7 @@ pub struct PassiveRoutingTest {
 impl PassiveRoutingTest {
 	pub fn new() -> Self {
 		Self {
+			show_progress: false,
 			is_done: false,
 			packets_send: 0,
 			packets_lost: 0,
@@ -56,6 +59,10 @@ impl PassiveRoutingTest {
 	pub fn clear(&mut self) {
 		self.dijkstra.clear();
 		self.clear_stats();
+	}
+
+	pub fn setShowProgress(&mut self, show_progress: bool) {
+		self.show_progress = true;
 	}
 
 	fn test_path(&mut self, graph: &Graph, mut route: impl FnMut(&TestPacket) -> Option<u32>,
@@ -107,10 +114,13 @@ impl PassiveRoutingTest {
 		}
 
 		let now = Instant::now();
-		//let mut progress = Progress::new();
+		let mut progress = Progress::new();
 		let mut sample = 0;
 
-		//progress.start(samples, 0);
+		if self.show_progress {
+			progress.start(samples, 0);
+		}
+
 		for _ in 0..samples {
 			let source = rand::thread_rng().gen_range(0, node_count);
 			let target = rand::thread_rng().gen_range(0, node_count);
@@ -132,14 +142,18 @@ impl PassiveRoutingTest {
 			self.test_path(&graph, &mut route, source as ID, target as ID, min as u32);
 
 			sample += 1;
-			//progress.update(samples, sample);
+
+			if self.show_progress {
+				progress.update(samples, sample);
+			}
+		}
+
+		if self.show_progress {
+			progress.update(samples, samples);
 		}
 
 		self.run_time = now.elapsed();
 		self.is_done = true;
-
-		//clear progress line
-		//progress.clear_line();
 	}
 
 	pub fn run_all(&mut self, graph: &Graph, mut route: impl FnMut(&TestPacket) -> Option<u32>) {

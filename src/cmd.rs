@@ -8,6 +8,7 @@ use std::str::SplitWhitespace;
 use std::error::Error;
 use std::time::{Instant, Duration};
 
+use progress::Progress;
 use sim::{Io, TestPacket, NodeMeta, RoutingAlgorithm};
 use vivaldi_routing::VivaldiRouting;
 use random_routing::RandomRouting;
@@ -306,11 +307,13 @@ fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<()
 			state.do_init = true;
 		},
 		Command::Step(count) => {
+			let mut progress = Progress::new();
 			let now = Instant::now();
 			let mut io = Io::new(&state.graph);
 			for step in 0..count {
 				state.algorithm.step(&mut io);
 				state.sim_steps += 1;
+				progress.update((count + 1) as usize, step as usize);
 			}
 
 			let duration = now.elapsed();
@@ -328,6 +331,7 @@ fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<()
 					fmt_duration(test.duration())
 				);
 			}
+			state.test.setShowProgress(true);
 			run_test(out, &mut state.test, &state.graph, &state.algorithm);
 		},
 		Command::Import(ref path) => {
