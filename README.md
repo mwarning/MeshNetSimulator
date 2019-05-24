@@ -18,15 +18,23 @@ The graph can be inspected e.g. by using [GraphViewer](https://github.com/mwarni
 
 Some commands on the command line are:
 
-- `step [<steps>]`: Perform simulation steps.
-- `test`: Check the routing success, this does not change the state of any nodes/links. Nodes are written to a JSON file after each invocation.
+- `step [<steps>]`  
+   Perform simulation steps.
+- `test`  
+   Check the routing success, this does not change the state of any nodes/links. Nodes are written to a JSON file after each invocation.
 - `stat`: Display statistics.
-- `add_line <number of nodes> <make loop>`
-- `add_lattice4 <x count> <y count>`: Add a common lattice structure.
-- `add_tree <number of nodes> <cross links>`: Add a random tree structure with some number of additional cross links between the branches.
-- `algorithm [<algorithm>]`: Get or set routing algorithm (e.g. `random`, `vivaldi`)
-- `import <file>`: Import a network from a JSON file.
-- `export <file>`: Export the network structure to a JSON file.
+- `add_line <number of nodes> <make loop>`  
+   Create a line of nodes.
+- `add_lattice4 <x count> <y count>`  
+   Add a common lattice structure.
+- `add_tree <number of nodes> <cross links>`  
+   Add a random tree structure with some number of additional cross links between the branches.
+- `algorithm [<algorithm>]`  
+   Get or set routing algorithm (e.g. `random`, `vivaldi`)
+- `import <file>`  
+   Import a network from a JSON file.
+- `export <file>`  
+   Export the network structure to a JSON file.
 
 ## Related Software
 
