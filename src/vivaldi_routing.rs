@@ -2,9 +2,9 @@ use std::fmt::Write;
 use std::f32;
 use std::u32;
 
-use utils::*;
-use graph::*;
-use sim::{Io, NodeMeta, AlgorithmMeta, TestPacket, RoutingAlgorithm};
+use crate::utils::*;
+use crate::graph::*;
+use crate::sim::{Io, TestPacket, RoutingAlgorithm};
 
 /*
 fn get_local_error(pos: Vec3, neighbors: &Vec<Neighbor>) -> f32 {
@@ -38,7 +38,7 @@ struct Node {
 	pos: Vec3,
 	error: f32,
 	pos_old: Vec3,
-	neighbors: Vec<Neighbor>
+	neighbors: Vec<Neighbor>,
 }
 
 impl Node {
@@ -47,7 +47,7 @@ impl Node {
 			pos: Vec3::new0(),
 			error: 0.0,
 			pos_old: Vec3::new0(),
-			neighbors: vec![]
+			neighbors: vec![],
 		}
 	}
 
@@ -77,7 +77,7 @@ impl Node {
 		n_next
 	}
 
-	fn update(&mut self, from_id: ID, from_pos: Vec3, from_error: f32, time: u32) {
+	fn update(&mut self, from_id: ID, from_pos: Vec3, from_error: f32, time: u32, rtt: f32) {
 		vec_add_entry(&mut self.neighbors,
 			&Neighbor {
 				id: from_id,
@@ -87,12 +87,12 @@ impl Node {
 			}
 		);
 
-		self.vivaldi_update(&from_pos, from_error);
+		self.vivaldi_update(&from_pos, from_error, rtt);
 	}
 
 	// Vivaldi algorithm
-	fn vivaldi_update(&mut self, pos: &Vec3, error: f32) {
-		let rtt = 1.5;
+	fn vivaldi_update(&mut self, pos: &Vec3, error: f32, rtt: f32) {
+		//let rtt = self.rtt;
 		let ce = 0.25;
 		let cc = 0.25;
 
@@ -136,7 +136,8 @@ impl Node {
 
 pub struct VivaldiRouting {
 	nodes: Vec<Node>,
-	time: u32
+	time: u32,
+	rtt: f32
 }
 
 //https://pdos.csail.mit.edu/papers/vivaldi:sigcomm/paper.pdf
@@ -144,7 +145,8 @@ impl VivaldiRouting {
 	pub fn new() -> Self {
 		Self {
 			nodes: vec![],
-			time: 0
+			time: 0,
+			rtt: 1.5
 		}
 	}
 
@@ -158,22 +160,58 @@ impl VivaldiRouting {
 		}
 		d / c
 	}
+
 }
 
 impl RoutingAlgorithm for VivaldiRouting
 {
-	fn name(&self) -> &'static str {
-		"Vivaldi Algorithm"
-	}
-
 	fn reset(&mut self, len: usize) {
 		self.nodes = vec![Node::new(); len];
 		self.time = 0;
 	}
 
-	fn get_node_meta(&self, id: ID, meta: &mut NodeMeta) {
-		let pos = self.nodes[id as usize].pos;
-		write!(&mut meta.name, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"label" => {
+				let pos = self.nodes[id as usize].pos;
+				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
+	}
+
+	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"rtt" => {
+				write!(out, "{}", self.rtt);
+			},
+			"name" => {
+				write!(out, "Vivaldi");
+			},
+			"description" => {
+				write!(out, "Use Vivaldi coordinates to allow routing.");
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
+	}
+
+	fn set(&mut self, key: &str, value: &str) {
+		match key {
+			"rtt" => {
+				if let Ok(rtt) = value.parse() {
+					self.rtt = rtt;
+				} else {
+					println!("invalid rtt value");
+				}
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
 	}
 
 	fn step(&mut self, io: &mut Io) {
@@ -188,7 +226,7 @@ impl RoutingAlgorithm for VivaldiRouting
 		// simulate broadcast traffic
 		for (from, to) in io.link_iter() {
 			let pos_old = self.nodes[from as usize].pos_old;
-			self.nodes[to as usize].update(from, pos_old, 1.0, self.time);
+			self.nodes[to as usize].update(from, pos_old, 1.0, self.time, self.rtt);
 		}
 	}
 

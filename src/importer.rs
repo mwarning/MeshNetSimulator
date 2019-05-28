@@ -5,8 +5,8 @@ use std::collections::HashMap;
 
 use serde_json::Value;
 //use node::Node;
-use graph::{Graph, ID};
-use utils::*;
+use crate::graph::{Graph, ID};
+use crate::utils::*;
 
 
 pub fn import_file(graph: &mut Graph, path: &str) {

@@ -46,27 +46,7 @@ use random_routing::*;
 use genetic_routing::*;
 use stats::Stats;
 use tests::*;
-
-
-pub struct GlobalState {
-	graph: Graph,
-	test: PassiveRoutingTest,
-	algorithm: Box<RoutingAlgorithm>,
-	sim_state: cmd::SimState
-}
-
-impl GlobalState {
-	fn new() -> Self {
-		Self {
-			graph: Graph::new(),
-			test: PassiveRoutingTest::new(),
-			algorithm: Box::new(SpringRouting::new()),
-			sim_state: cmd::SimState::new()
-		}
-	}
-}
-
-
+use crate::sim::GlobalState;
 use dijkstra::Dijkstra;
 use std::vec::Vec;
 

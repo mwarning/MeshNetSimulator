@@ -1,5 +1,5 @@
-use link::Link;
-use graph::*;
+use crate::link::Link;
+use crate::graph::*;
 
 use std::collections::HashMap;
 use std::f32;

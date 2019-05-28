@@ -2,12 +2,12 @@ use std::time::{Instant, Duration};
 use std::io::Write;
 use rand::Rng;
 
-use progress::Progress;
-use sim::{Io, TestPacket, NodeMeta, RoutingAlgorithm};
-use dijkstra::Dijkstra;
-use exporter::export_json;
-use graph::*;
-use utils::*;
+use crate::progress::Progress;
+use crate::sim::{Io, TestPacket, RoutingAlgorithm};
+use crate::dijkstra::Dijkstra;
+use crate::exporter::export_json;
+use crate::graph::*;
+use crate::utils::*;
 
 /*
  * Test if all paths allow for routing.

@@ -3,9 +3,9 @@ use std::usize;
 use std::fmt::Write;
 use rand::Rng;
 
-use graph::ID;
-use utils::*;
-use sim::{Io, NodeMeta, RoutingAlgorithm};
+use crate::graph::ID;
+use crate::utils::*;
+use crate::sim::{Io, RoutingAlgorithm};
 
 
 #[derive(Clone)]
@@ -41,13 +41,27 @@ impl MaxNumConsensus {
 
 impl RoutingAlgorithm for MaxNumConsensus
 {
-	fn name(&self) -> &'static str {
-		"Maximum Number Consensus"
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"name" => {
+				let node = &self.nodes[id as usize];
+				write!(out, "{} ({})", id, node.num);
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
 	}
 
-	fn get_node_meta(&self, id: ID, meta: &mut NodeMeta) {
-		let node = &self.nodes[id as usize];
-		write!(&mut meta.name, "{} ({})", id, node.num).unwrap();
+	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"name" => {
+				write!(out, "Maximum Number Consensus");
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
 	}
 
 	fn reset(&mut self, len: usize) {

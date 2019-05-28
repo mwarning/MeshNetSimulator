@@ -7,21 +7,28 @@ use std::io;
 use std::str::SplitWhitespace;
 use std::error::Error;
 use std::time::{Instant, Duration};
+use std::io::{BufRead, BufReader};
 
-use progress::Progress;
-use sim::{Io, TestPacket, NodeMeta, RoutingAlgorithm};
-use vivaldi_routing::VivaldiRouting;
-use random_routing::RandomRouting;
-use spring_routing::SpringRouting;
-use genetic_routing::GeneticRouting;
-use importer::import_file;
-use exporter::export_file;
-
-use utils::fmt_duration;
-use *; //import from crate root
+use crate::passive_routing_test::PassiveRoutingTest;
+use crate::graph::Graph;
+use crate::progress::Progress;
+use crate::sim::{Io, TestPacket, GlobalState, RoutingAlgorithm};
+use crate::vivaldi_routing::VivaldiRouting;
+use crate::random_routing::RandomRouting;
+use crate::spring_routing::SpringRouting;
+use crate::genetic_routing::GeneticRouting;
+use crate::importer::import_file;
+use crate::exporter::export_file;
+use crate::utils::fmt_duration;
 
 
 static CMD_SOCKET_ADDRESS : &'static str = "127.0.0.1:8011";
+
+#[derive(PartialEq)]
+enum AllowRecursiveCall {
+	No,
+	Yes
+}
 
 pub fn send_to_socket(args: &[String]) {
 	use std::io::Read;
@@ -66,7 +73,7 @@ pub fn ext_loop(sim: Arc<Mutex<GlobalState>>) {
 	let listener = TcpListener::bind(CMD_SOCKET_ADDRESS).unwrap();
 	println!("Listen for commands on {}", CMD_SOCKET_ADDRESS);
 	//let mut input =  vec![0u8; 512];
-	let mut output = Vec::<u8>::new();
+	let mut output = String::new();
 
 	loop {
 		//input.clear();
@@ -76,8 +83,12 @@ pub fn ext_loop(sim: Arc<Mutex<GlobalState>>) {
 			if let Ok(n) = stream.read(&mut buf) {
 				if let Ok(s) = std::str::from_utf8(&buf[0..n]) {
 					if let Ok(mut sim) = sim.lock() {
-						cmd_handler(&mut output, &mut sim, s);
-						stream.write(&output);
+						if let Err(e) = cmd_handler(&mut output, &mut sim, s, AllowRecursiveCall::Yes) {
+							stream.write(e.to_string().as_bytes());
+						} else {
+							stream.write(&output.as_bytes());
+						}
+						//println!("{}", output);
 					}
 				}
 			}
@@ -90,7 +101,12 @@ pub fn cmd_loop(sim: Arc<Mutex<GlobalState>>) {
 	loop {
 		if let Ok(_) = io::stdin().read_line(&mut input) {
 			if let Ok(mut sim) = sim.lock() {
-				cmd_handler(&mut io::stdout(), &mut sim, &input);
+				let mut output = String::new();
+				if let Err(e) = cmd_handler(&mut output, &mut sim, &input, AllowRecursiveCall::Yes) {
+					io::stdout().write(e.to_string().as_bytes());
+				} else {
+					io::stdout().write(output.as_bytes());
+				}
 			}
 		}
 		input.clear();
@@ -106,12 +122,16 @@ macro_rules! scan {
 #[derive(Clone)]
 enum Command {
 	Error(String),
+	Ignore,
 	Help,
 	Clear,
 	State,
 	Reset,
 	Test,
+	Get(String),
+	Set(String, String),
 	ConnectInRange(f32),
+	RandomizePositions(f32),
 	RemoveUnconnected,
 	Algorithm(String),
 	AddLine(u32, bool),
@@ -122,6 +142,7 @@ enum Command {
 	ConnectNodes(Vec<u32>),
 	DisconnectNodes(Vec<u32>),
 	Step(u32),
+	Execute(String),
 	Import(String),
 	Export(String)
 }
@@ -130,8 +151,7 @@ pub struct SimState {
 	algorithm: Box<RoutingAlgorithm>,
 	graph: Graph,
 	test: PassiveRoutingTest,
-	sim_steps: u32,
-	do_init: bool
+	sim_steps: u32
 }
 
 impl SimState {
@@ -140,16 +160,29 @@ impl SimState {
 			algorithm: Box::new(RandomRouting::new()),
 			graph: Graph::new(),
 			test: PassiveRoutingTest::new(),
-			sim_steps: 0,
-			do_init: true
+			sim_steps: 0
 		}
 	}
 }
 
-fn parse_command(input: &str) -> Command {
-	//let mut iter = input.split_whitespace().skip(1);
-	//let tokens = input.split_whitespace().collect::<Vec<&str>>();
+/*
+struct CommandEntry {
+    name: &'static str,
+    description: &'static str,
+}
 
+impl CommandEntry {
+	const fn new(name: &'static str, description: &'static str) -> Self {
+		Self { name, description }
+	}
+}
+
+const COMMANDS: &'static [CommandEntry] = &[
+	CommandEntry::new("yay!", "as")
+];
+*/
+
+fn parse_command(input: &str) -> Command {
 	let mut tokens = Vec::new();
 	for tok in input.split_whitespace() {
 		tokens.push(tok.trim_matches(|c: char| (c == '\'') || (c == '"')));
@@ -175,18 +208,37 @@ fn parse_command(input: &str) -> Command {
 	let error = Command::Error("Missing Arguments".to_string());
 
 	match *cmd {
-		"" => Command::Step(1),
+		"" => Command::Ignore,
 		"help" => Command::Help,
 		"state" => Command::State,
 		"clear" => Command::Clear,
 		"reset" => Command::Reset,
 		"test" => Command::Test,
+		"get" => { if let (Some(key),) = scan!(iter, String) {
+				Command::Get(key)
+			} else {
+				error
+			}
+		},
+		"set" => { if let (Some(key),Some(value)) = scan!(iter, String, String) {
+				Command::Set(key, value)
+			} else {
+				error
+			}
+		},
 		"step" => {
 			Command::Step(if let (Some(count),) = scan!(iter, u32) {
 				count
 			} else {
 				1
 			})
+		},
+		"execute" => {
+			if let (Some(path),) = scan!(iter, String) {
+				Command::Execute(path)
+			} else {
+				error
+			}
 		},
 		"import" => {
 			if let (Some(path),) = scan!(iter, String) {
@@ -237,6 +289,13 @@ fn parse_command(input: &str) -> Command {
 				error
 			}
 		},
+		"randomize_position" => {
+			if let (Some(range),) = scan!(iter, f32) {
+				Command::RandomizePositions(range)
+			} else {
+				error
+			}
+		},
 		"algorithm" => {
 			if let (Some(algo),) = scan!(iter, String) {
 				Command::Algorithm(algo)
@@ -269,42 +328,58 @@ fn parse_command(input: &str) -> Command {
 			Command::RemoveUnconnected
 		},
 		_ => {
-			Command::Error(format!("Unknown Command: {}", cmd))
+			if cmd.starts_with("#") {
+				Command::Ignore
+			} else {
+				Command::Error(format!("Unknown Command: {}", cmd))
+			}
 		}
 	}
 }
 
-fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<(), std::io::Error> {
+fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, call: AllowRecursiveCall) -> Result<(), std::fmt::Error> {
 	let state = &mut sim.sim_state;
-	let mut init = false;
+	let mut do_init = false;
 
-	println!("command: '{}'", input);
+	//println!("command: '{}'", input);
 
 	let mut command = parse_command(input);
 
 	match command {
+		Command::Ignore => {
+			// nothing to do
+		},
 		Command::Error(msg) => {
 			writeln!(out, "{}", msg)?;
 		},
 		Command::Help => {
 			writeln!(out, "help text...")?;
 		},
+		Command::Get(key) => {
+			let mut buf = String::new();
+			state.algorithm.get(&key, &mut buf);
+			writeln!(out, "{}", buf)?;
+		},
+		Command::Set(key, value) => {
+			state.algorithm.set(&key, &value);
+		},
 		Command::State => {
 			writeln!(out, " graph: nodes: {}, links: {}", state.graph.node_count(), state.graph.link_count())?;
-			writeln!(out, " algo: {}", state.algorithm.name())?;
+			write!(out, " algo: ")?;
+			state.algorithm.get("name", out);
 
-			writeln!(out, " steps: {}", state.sim_steps)?;
+			writeln!(out, "\n steps: {}", state.sim_steps)?;
 		},
 		Command::Clear => {
 			state.graph.clear();
-			state.do_init = true;
+			do_init = true;
 			writeln!(out, "done")?;
 		},
 		Command::Reset => {
 			state.test.clear();
 			//state.graph.clear();
 			state.sim_steps = 0;
-			state.do_init = true;
+			do_init = true;
 		},
 		Command::Step(count) => {
 			let mut progress = Progress::new();
@@ -321,22 +396,24 @@ fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<()
 			writeln!(out, "{} steps, duration: {}", count, fmt_duration(duration))?;
 		},
 		Command::Test => {
-			fn run_test(out: &mut Write, test: &mut PassiveRoutingTest, graph: &Graph, algo: &Box<RoutingAlgorithm>) {
-				let samples = 100;
+			fn run_test(out: &mut std::fmt::Write, test: &mut PassiveRoutingTest, graph: &Graph, algo: &Box<RoutingAlgorithm>)
+				-> Result<(), std::fmt::Error>
+			{
+				let samples = 1000;
 				test.clear();
 				test.run_samples(graph, |p| algo.route(&p), samples);
 				writeln!(out, "samples: {},  arrived: {:.1}, stretch: {}, duration: {}",
 					samples,
 					test.arrived(), test.stretch(),
 					fmt_duration(test.duration())
-				);
+				)
 			}
 			state.test.setShowProgress(true);
 			run_test(out, &mut state.test, &state.graph, &state.algorithm);
 		},
 		Command::Import(ref path) => {
 			import_file(&mut state.graph, path.as_str());
-			state.do_init = true;
+			do_init = true;
 			writeln!(out, "read {}", path)?;
 		},
 		Command::Export(ref path) => {
@@ -345,45 +422,67 @@ fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<()
 		},
 		Command::AddLine(count, close) => {
 			state.graph.add_line(count, close);
-			state.do_init = true;
+			do_init = true;
 		},
 		Command::AddTree(count, intra) => {
 			state.graph.add_tree(count, intra);
-			state.do_init = true;
+			do_init = true;
 		},
 		Command::AddLattice4(x_count, y_count) => {
 			state.graph.add_lattice4(x_count, y_count);
-			state.do_init = true;
+			do_init = true;
 		},
 		Command::AddLattice8(x_count, y_count) => {
 			state.graph.add_lattice8(x_count, y_count);
-			state.do_init = true;
+			do_init = true;
+		},
+		Command::RandomizePositions(range) => {
+			state.graph.randomize_positions_2d(range);
 		},
 		Command::ConnectInRange(range) => {
 			state.graph.connect_in_range(range);
-			state.do_init = true;
 		},
 		Command::Algorithm(ref algo) => {
 			match algo.as_str() {
 				"" => {
-					writeln!(out, "algorithm: {}", state.algorithm.name())?;
+					//writeln!(out, "algorithm: {}", state.algorithm.name())?;
+					write!(out, "algorithm: ")?;
+					state.algorithm.get("name", out);
+					write!(out, "\n")?;
 				},
 				"random" => {
 					state.algorithm = Box::new(RandomRouting::new());
-					state.do_init = true;
+					do_init = true;
 				},
 				"vivaldi" => {
 					state.algorithm = Box::new(VivaldiRouting::new());
-					state.do_init = true;
+					do_init = true;
 				},
 				_ => {
 					writeln!(out, "Unknown algorithm: {}", algo)?;
 				} 
 			}
 		},
+		Command::Execute(path) => {
+			if call == AllowRecursiveCall::Yes {
+				if let Ok(file) = File::open(&path) {
+					for (index, line) in BufReader::new(file).lines().enumerate() {
+						let line = line.unwrap();
+						if let Err(err) = cmd_handler(out, sim, &line, AllowRecursiveCall::No) {
+							println!("Error in {}:{}", path, index);
+							break;
+						}
+					}
+				} else {
+					writeln!(out, "File not found: {}", &path)?;
+				}
+			} else {
+				writeln!(out, "Recursive call not allowed: {}", &path)?;
+			}
+		},
 		Command::RemoveUnconnected => {
 			state.graph.remove_unconnected_nodes();
-			state.do_init = true;
+			do_init = true;
 		},
 		Command::RemoveNodes(ids) => {
 			state.graph.remove_nodes(&ids);
@@ -396,11 +495,12 @@ fn cmd_handler(out: &mut Write, sim: &mut GlobalState, input: &str) -> Result<()
 		}
 	};
 
-	if state.do_init {
-		writeln!(out, "init {} nodes", state.graph.node_count())?;
+	let state = &mut sim.sim_state;
+
+	if do_init {
+		//writeln!(out, "init {} nodes", state.graph.node_count())?;
 		state.algorithm.reset(state.graph.node_count());
 		state.test.clear();
-		state.do_init = false;
 	}
 
 	export_file(&state.graph, Some(&*state.algorithm), "graph.json");

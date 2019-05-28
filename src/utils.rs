@@ -16,6 +16,10 @@ use rand;
 pub const RAD2DEG : f32 = 360.0 / (2.0 * f32::consts::PI);
 
 
+pub fn print_unknown_key(key: &str) {
+	println!("unknown key: {}", key);
+}
+
 pub fn get_f64(value: &Value, key: &str) -> Option<f64> {
 	value.get(key).and_then(Value::as_f64)
 }
@@ -174,10 +178,11 @@ impl Vec3 {
 	}
 
 	pub fn random_unit() -> Vec3 {
-		Vec3::random_with_radius(1.0).unit()
+		Vec3::random_in_area(1.0).unit()
 	}
 
-	pub fn random_with_radius(r: f32) -> Vec3 {
+	// random around in the box of (0, 0, 0)
+	pub fn random_in_area(r: f32) -> Vec3 {
 		Vec3::new(
 			(2.0 * rand::random::<f32>() - 1.0) * r,
 			(2.0 * rand::random::<f32>() - 1.0) * r,

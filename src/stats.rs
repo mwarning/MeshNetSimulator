@@ -2,7 +2,7 @@
 use std::time::Instant;
 use std::fmt;
 
-use utils::CircularVec;
+use crate::utils::CircularVec;
 
 
 #[derive(Clone, PartialEq)]

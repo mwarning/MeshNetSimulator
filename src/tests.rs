@@ -3,13 +3,13 @@ use std::io::Write;
 use rand::Rng;
 use std::fs::File;
 
-use sim::{Io, TestPacket, NodeMeta, RoutingAlgorithm};
-use passive_routing_test::PassiveRoutingTest;
-use graph::*;
-use utils::*;
-use exporter::export_file;
-use vivaldi_routing::*;
-use progress::Progress;
+use crate::sim::{Io, TestPacket, RoutingAlgorithm};
+use crate::passive_routing_test::PassiveRoutingTest;
+use crate::graph::*;
+use crate::utils::*;
+use crate::exporter::export_file;
+use crate::vivaldi_routing::*;
+use crate::progress::Progress;
 
 extern crate hyperbolic_graph_generator;
 

@@ -5,11 +5,32 @@ use std::time;
 use std::time::Duration;
 use std::thread;
 use std::fmt::Write;
-use *;
 
-use link::Link;
-use passive_routing_test::PassiveRoutingTest;
-use graph::{Graph, ID};
+use crate::utils::*;
+use crate::link::Link;
+use crate::passive_routing_test::PassiveRoutingTest;
+use crate::graph::{Graph, ID};
+use crate::cmd::SimState;
+use crate::random_routing::RandomRouting;
+
+
+pub struct GlobalState {
+	graph: Graph,
+	test: PassiveRoutingTest,
+	algorithm: Box<RoutingAlgorithm>,
+	pub sim_state: SimState
+}
+
+impl GlobalState {
+	pub fn new() -> Self {
+		Self {
+			graph: Graph::new(),
+			test: PassiveRoutingTest::new(),
+			algorithm: Box::new(RandomRouting::new()),
+			sim_state: SimState::new()
+		}
+	}
+}
 
 
 pub struct TestPacket {
@@ -28,58 +49,17 @@ impl TestPacket {
 	}
 }
 
-pub struct AlgorithmMeta {
-	pub name: &'static str,
-	pub description: &'static str,
-}
-
-impl AlgorithmMeta {
-	fn new() -> Self {
-		Self {
-			name: "",
-			description: "",
-		}
-	}
-
-	fn clear(&mut self) {
-		*self = Self::new();
-	}
-}
-
-pub struct NodeMeta {
-	pub name: String,
-	pub label: String,
-}
-
-impl NodeMeta {
-	pub fn new() -> Self {
-		Self { name: String::new(), label: String::new() }
-	}
-
-	pub fn clear(&mut self) {
-		self.name.clear();
-		self.label.clear();
-	}
-}
-
 pub trait RoutingAlgorithm : Send {
-	fn get_meta(&self, meta: &mut AlgorithmMeta) {
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+		//print_unknown_key(key);
 	}
 
-	// Get name and label of all nodes
-	fn get_node_meta(&self, id: ID, meta: &mut NodeMeta) {
+	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+		print_unknown_key(key);
 	}
 
-	fn name(&self) -> &'static str {
-		let mut meta = AlgorithmMeta::new();
-		self.get_meta(&mut meta);
-		meta.name
-	}
-
-	fn description(&self) -> &'static str {
-		let mut meta = AlgorithmMeta::new();
-		self.get_meta(&mut meta);
-		meta.description
+	fn set(&mut self, key: &str, value: &str) {
+		print_unknown_key(key);
 	}
 
 	// Called to initialize the states or

@@ -2,9 +2,9 @@
 use std::usize;
 use rand::Rng;
 
-use graph::*;
-use utils::*;
-use sim::{Io, NodeMeta, AlgorithmMeta, RoutingAlgorithm, TestPacket};
+use crate::graph::*;
+use crate::utils::*;
+use crate::sim::{Io, RoutingAlgorithm, TestPacket};
 
 
 #[derive(Clone)]
@@ -67,12 +67,18 @@ impl RandomRouting {
 
 impl RoutingAlgorithm for RandomRouting
 {
-	fn name(&self) -> &'static str {
-		"Random Routing"
-	}
-
-	fn description(&self) -> &'static str {
-		"Forward traffic to a random neighbor."
+	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"name" => {
+				write!(out, "Random Routing");
+			},
+			"description" => {
+				write!(out, "Forward traffic to a random neighbor.");
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
 	}
 
 	fn reset(&mut self, len: usize) {

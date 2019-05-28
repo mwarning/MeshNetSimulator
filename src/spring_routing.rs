@@ -2,9 +2,9 @@ use std::f32;
 use std::u32;
 use std::fmt::Write;
 
-use utils::*;
-use graph::*;
-use sim::{Io, RoutingAlgorithm, AlgorithmMeta, NodeMeta, TestPacket};
+use crate::utils::*;
+use crate::graph::*;
+use crate::sim::{Io, RoutingAlgorithm, TestPacket};
 
 
 #[derive(Clone)]
@@ -117,17 +117,33 @@ impl SpringRouting {
 
 impl RoutingAlgorithm for SpringRouting
 {
-	fn get_meta(&self, meta: &mut AlgorithmMeta) {
-		meta.name = "Spring Routing";
-		meta.description = concat!(
-			"Greedy Routing on virtual coordinates generated ",
-			"by applying spring forces to links."
-		);
+		fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"name" => {
+				let pos = &self.nodes[id as usize].pos;
+				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
 	}
 
-	fn get_node_meta(&self, id: ID, meta: &mut NodeMeta) {
-		let pos = self.nodes[id as usize].pos;
-		write!(&mut meta.name, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
+	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"description" => {
+				write!(out, "{}", concat!(
+					"Greedy Routing on virtual coordinates generated ",
+					"by applying spring forces to links."
+				));
+			},
+			"name" => {
+				write!(out, "Spring Routing");
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
 	}
 
 	fn reset(&mut self, len: usize) {

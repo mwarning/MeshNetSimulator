@@ -4,10 +4,10 @@ use std::fmt;
 use std::f32;
 use std::u16;
 
-use node::Node;
-use link::Link;
 use serde_json::Value;
-use utils::*;
+use crate::node::Node;
+use crate::link::Link;
+use crate::utils::*;
 
 
 pub type ID = u32;
@@ -56,7 +56,7 @@ impl Graph {
 
 	pub fn randomize_positions_2d(&mut self, range: f32) {
 		for node in &mut self.nodes {
-			node.gpos = Vec3::random_with_radius(range).as_2d();
+			node.gpos = Vec3::random_in_area(range).as_2d();
 		}
 	}
 

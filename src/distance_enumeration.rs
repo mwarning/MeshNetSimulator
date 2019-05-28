@@ -3,9 +3,9 @@ use std::usize;
 use std::fmt::Write;
 use rand::Rng;
 
-use utils::*;
-use graph::ID;
-use sim::{Io, NodeMeta, RoutingAlgorithm};
+use crate::utils::*;
+use crate::graph::ID;
+use crate::sim::{Io, RoutingAlgorithm};
 
 
 #[derive(Clone)]
@@ -44,20 +44,37 @@ impl DistanceEnumeration {
 
 impl RoutingAlgorithm for DistanceEnumeration
 {
-	fn name(&self) -> &'static str {
-		"Distance Enumeration"
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"name" => {
+				let node = &self.nodes[id as usize];
+				write!(out, "{}", node.num);
+			},
+			"label" => {
+				let node = &self.nodes[id as usize];
+				write!(out, "{}", node.hops);
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
 	}
 
-	fn description(&self) -> &'static str {
-		concat!("Every node selects a random number.",
-			"Every node tries to find the distance to,",
-			" the node with the highes number.")
-	}
-
-	fn get_node_meta(&self, id: ID, meta: &mut NodeMeta) {
-		let node = &self.nodes[id as usize];
-		write!(&mut meta.name, "{}", node.num).unwrap();
-		write!(&mut meta.label, "{}", node.hops).unwrap();
+	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"description" => {
+				write!(out, "{}",
+					concat!("Every node selects a random number.",
+						"Every node tries to find the distance to,",
+						" the node with the highes number."));
+			},
+			"name" => {
+				write!(out, "Distance Enumeration");
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
 	}
 
 	fn reset(&mut self, len: usize) {

@@ -1,6 +1,7 @@
 use std::io::Write;
 use std::time::{Instant, Duration};
-use utils::fmt_duration;
+use crate::utils::fmt_duration;
+
 
 fn duration_to_f64(d: Duration) -> f64 {
 	d.as_secs() as f64 + d.subsec_nanos() as f64 * 1e-9_f64
@@ -81,7 +82,7 @@ fn print_meter(label: &str, length: u8, count: usize, total: usize, passed: Dura
 			print!("-");
 		}
 	}
-	print!("]  {0}/{1}  ", count, total);
+	print!("]  {}/{}  ", count, total);
 
 	let passed_time = duration_to_f64(passed);
 	let iters_per_sec = count as f64 / passed_time;
@@ -92,4 +93,6 @@ fn print_meter(label: &str, length: u8, count: usize, total: usize, passed: Dura
 		   fmt_duration(passed),
 		   fmt_duration(left),
 		   iters_per_sec);
+
+	print!("                ");
 }

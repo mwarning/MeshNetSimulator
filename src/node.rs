@@ -1,5 +1,5 @@
 
-use utils::Vec3;
+use crate::utils::Vec3;
 
 
 #[derive(Clone)]

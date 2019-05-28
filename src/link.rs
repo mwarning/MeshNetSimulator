@@ -1,7 +1,8 @@
 
-use graph::ID;
 use std::cmp::Ordering;
 use std::fmt;
+
+use crate::graph::ID;
 
 
 #[derive(Clone)]

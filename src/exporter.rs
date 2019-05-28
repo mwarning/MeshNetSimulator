@@ -2,16 +2,15 @@
 use std::fs::File;
 use std::io::Read;
 use std::collections::HashMap;
-
-use serde_json::Value;
-use node::Node;
-use sim::NodeMeta;
-use sim::RoutingAlgorithm;
-use graph::{Graph, ID};
-use utils::*;
 use std::u16;
 use std::fmt;
 use std::fmt::Write;
+
+use serde_json::Value;
+use crate::node::Node;
+use crate::sim::RoutingAlgorithm;
+use crate::graph::{Graph, ID};
+use crate::utils::*;
 
 
 pub fn export_file(graph: &Graph, algo: Option<&RoutingAlgorithm>, path: &str) {
@@ -19,7 +18,7 @@ pub fn export_file(graph: &Graph, algo: Option<&RoutingAlgorithm>, path: &str) {
 	if let Ok(mut file) = File::create(path) {
 		let content = export_json(&graph, algo);
 		file.write_all(content.as_bytes()).unwrap();
-		println!("Wrote {}", path);
+		//println!("Wrote {}", path);
 	} else {
 		println!("Failed to create: {}", path);
 	}
@@ -27,7 +26,8 @@ pub fn export_file(graph: &Graph, algo: Option<&RoutingAlgorithm>, path: &str) {
 
 pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
 	let mut ret = String::new();
-	let mut meta = NodeMeta::new();
+	let mut name = String::new();
+	let mut label = String::new();
 
 	write!(&mut ret, "{{").unwrap();
 	write!(&mut ret, "\"nodes\": [").unwrap();
@@ -38,14 +38,16 @@ pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
 		}
 		comma1 = true;
 		if let Some(algo) = algo {
-			meta.clear();
-			algo.get_node_meta(id as ID, &mut meta);
+			name.clear();
+			label.clear();
+			algo.get_node(id as ID, "name", &mut name);
+			algo.get_node(id as ID, "label",&mut label);
 		}
 		let x = node.gpos.x();
 		let y = node.gpos.y();
 		write!(&mut ret,
 			"{{\"id\": \"{}\", \"x\": {}, \"y\": {}, \"name\": \"{}\", \"label\": \"{}\"}}",
-			id, x, y, meta.name, meta.label).unwrap();
+			id, x, y, name, label).unwrap();
 	}
 
 	write!(&mut ret, "], \"links\": [").unwrap();

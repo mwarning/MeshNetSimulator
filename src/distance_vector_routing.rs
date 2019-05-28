@@ -1,9 +1,9 @@
 use std::f32;
 use std::fmt::Write;
 
-use utils::*;
-use graph::*;
-use sim::{Io, NodeMeta, AlgorithmMeta, RoutingAlgorithm, TestPacket};
+use crate::utils::*;
+use crate::graph::*;
+use crate::sim::{Io, RoutingAlgorithm, TestPacket};
 
 
 // management packet
@@ -103,18 +103,32 @@ impl DistanceVectorRouting {
 
 impl RoutingAlgorithm for DistanceVectorRouting
 {
-	fn name(&self) -> &'static str {
-		"Distance Vector Algorithm"
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"name" => {
+				let node = &self.nodes[id as usize];
+				write!(out, "{} ({})", id, node.entries.len());
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
+	}
+
+	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+		match key {
+			"name" => {
+				write!(out, "Distance Vector Algorithm");
+			},
+			_ => {
+				print_unknown_key(key);
+			}
+		}
 	}
 
 	fn reset(&mut self, len: usize) {
 		self.nodes = vec![Node::new(); len];
 		self.time = 0;
-	}
-
-	fn get_node_meta(&self, id: ID, meta: &mut NodeMeta) {
-		let node = &self.nodes[id as usize];
-		write!(&mut meta.name, "{} ({})", id, node.entries.len()).unwrap();
 	}
 
 	fn step(&mut self, io: &mut Io) {
