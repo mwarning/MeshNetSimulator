@@ -19,7 +19,7 @@ use crate::spring_routing::SpringRouting;
 use crate::genetic_routing::GeneticRouting;
 use crate::importer::import_file;
 use crate::exporter::export_file;
-use crate::utils::fmt_duration;
+use crate::utils::{fmt_duration, Vec3};
 
 
 static CMD_SOCKET_ADDRESS : &'static str = "127.0.0.1:8011";
@@ -119,7 +119,6 @@ macro_rules! scan {
     }}
 }
 
-#[derive(Clone)]
 enum Command {
 	Error(String),
 	Ignore,
@@ -144,7 +143,8 @@ enum Command {
 	Step(u32),
 	Execute(String),
 	Import(String),
-	Export(String)
+	Export(String),
+	Move(f32, f32, f32)
 }
 
 pub struct SimState {
@@ -233,7 +233,7 @@ fn parse_command(input: &str) -> Command {
 				1
 			})
 		},
-		"execute" => {
+		"exec" => {
 			if let (Some(path),) = scan!(iter, String) {
 				Command::Execute(path)
 			} else {
@@ -250,6 +250,13 @@ fn parse_command(input: &str) -> Command {
 		"export" => {
 			if let (Some(path),) = scan!(iter, String) {
 				Command::Export(path)
+			} else {
+				error
+			}
+		},
+		"move" => {
+			if let (Some(x), Some(y), Some(z)) = scan!(iter, f32, f32, f32) {
+				Command::Move(x, y, z)
 			} else {
 				error
 			}
@@ -328,7 +335,7 @@ fn parse_command(input: &str) -> Command {
 			Command::RemoveUnconnected
 		},
 		_ => {
-			if cmd.starts_with("#") {
+			if cmd.trim_start().starts_with("#") {
 				Command::Ignore
 			} else {
 				Command::Error(format!("Unknown Command: {}", cmd))
@@ -419,6 +426,13 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		Command::Export(ref path) => {
 			export_file(&state.graph, Some(&*state.algorithm), path.as_str());
 			writeln!(out, "wrote {}", path)?;
+		},
+		Command::AddLine(count, close) => {
+			state.graph.add_line(count, close);
+			do_init = true;
+		},
+		Command::Move(x, y, z) => {
+			state.graph.move_nodes(Vec3::new(x, y, z));
 		},
 		Command::AddLine(count, close) => {
 			state.graph.add_line(count, close);

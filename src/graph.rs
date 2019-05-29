@@ -48,6 +48,12 @@ impl Graph {
 		self.add_link(b, a, std::u16::MAX);
 	}
 
+	pub fn move_nodes(&mut self, pos: Vec3) {
+		for node in &mut self.nodes {
+			node.gpos += pos;
+		}
+	}
+
 	pub fn add_nodes(&mut self, count: u32) {
 		for _ in 0..count {
 			self.nodes.push(Node::new());
