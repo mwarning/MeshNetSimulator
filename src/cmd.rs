@@ -75,9 +75,9 @@ pub fn ext_loop(sim: Arc<Mutex<GlobalState>>) {
 						if let Err(e) = cmd_handler(&mut output, &mut sim, s, AllowRecursiveCall::Yes) {
 							stream.write(e.to_string().as_bytes());
 						} else {
+							println!("Send: {}", &output);
 							stream.write(&output.as_bytes());
 						}
-						//println!("{}", output);
 					}
 				}
 			}
@@ -197,23 +197,23 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("test                                 Test routing algorithm.", Cid::Test),
 	("get                                  Get node property.", Cid::Get),
 	("set                                  Set node property.", Cid::Set),
-	("connect_in_range <range>             Connect nodes", Cid::ConnectInRange),
-	("randomize_position <range>           Randomize nodes in a box with edge length in km.", Cid::RandomizePositions),
+	("connect_in_range <range>             Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
+	("randomize_position <range>           Randomize nodes in an area with edge length in range (in km).", Cid::RandomizePositions),
 	("remove_unconnected                   Remove nodes without any connections.", Cid::RemoveUnconnected),
 	("algorithm [<algorithm>]              Get or set given algorithm.", Cid::Algorithm),
 	("add_line <node_count> <create_loop>  Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
 	("add_tree <node_count> <inter_count>  Add a tree structure of nodes with interconnections", Cid::AddTree),
 	("add_lattice4 <x_xount> <y_count>     Create a lattice structure of squares.", Cid::AddLattice4),
 	("add_lattice8                         Create a lattice structure of squares and diagonal connections.", Cid::AddLattice8),
-	("remove_nodes <node_list>             Remove nodes.", Cid::RemoveNodes),
-	("connect_nodes <node_list>            Connect nodes.", Cid::ConnectNodes),
-	("disconnect_nodes <node_list>         Disconnect comma separated list of nodes. e.g \"1,33,5\".", Cid::DisconnectNodes),
+	("remove_nodes <node_list>             Remove nodes. Node list is a comma separated list of node ids.", Cid::RemoveNodes),
+	("connect_nodes <node_list>            Connect nodes. Node list is a comma separated list of node ids.", Cid::ConnectNodes),
+	("disconnect_nodes <node_list>         Disconnect nodes. Node list is a comma separated list of node ids.", Cid::DisconnectNodes),
 	("step [<steps>]                       Run simulation steps. Default is 1.", Cid::Step),
 	("execute <file>                       Execute a script with a command per line.", Cid::Execute),
 	("import <file>                        Import a graph as JSON file.", Cid::Import),
 	("export <file>                        Export a graph as JSON file.", Cid::Export),
-	("move_node <node_id> <x> <y> <z>      Move a node by x/y/z km", Cid::MoveNode),
-	("move_nodes <x> <y> <z>               Move all nodes by x/y/z km", Cid::MoveNodes),
+	("move_node <node_id> <x> <y> <z>      Move a node by x/y/z (in km).", Cid::MoveNode),
+	("move_nodes <x> <y> <z>               Move all nodes by x/y/z (in km).", Cid::MoveNodes),
 ];
 
 fn parse_command(input: &str) -> Command {
@@ -424,7 +424,6 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			writeln!(out, "{}", msg)?;
 		},
 		Command::Help => {
-			//println!("print help");
 			print_help(out)?;
 		},
 		Command::Get(key) => {
