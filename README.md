@@ -10,9 +10,11 @@ Also part of this repository are [basic information](docs/about_mesh_networking.
 
 Note: The project was formally written in JavaScript. Use the commit history if you want to look at that version.
 
-## Visualization
+## How to Use
 
-The graph can be inspected e.g. by using [GraphViewer](https://github.com/mwarning/GraphViewer).
+Run the program and use the command line commands to create/load a topology. Then select a routing algorithm, perform a few simulation steos and run the test command.
+
+Every time toplogy or node state changes, a new graph.json file is written. You can use the [GraphViewer](https://github.com/mwarning/GraphViewer) frontend to visualize the topology and node states.
 
 ## Command Line
 
