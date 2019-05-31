@@ -155,10 +155,9 @@ impl SimState {
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 enum Cid {
 	Error,
-	Ignore,
 	Help,
 	Clear,
 	GraphState,
@@ -187,7 +186,6 @@ enum Cid {
 }
 
 const COMMANDS: &'static [(&'static str, Cid)] = &[
-	("", Cid::Ignore),
 	("clear                                Clear graph state", Cid::Clear),
 	("graph_state                          Show Graph state", Cid::GraphState),
 	("sim_state                            Show Simulator state.", Cid::SimState),
@@ -251,7 +249,6 @@ fn parse_command(input: &str) -> Command {
 	let error = Command::Error("Missing Arguments".to_string());
 
 	match lookup_cmd(cmd) {
-		Cid::Ignore => Command::Ignore,
 		Cid::Help => Command::Help,
 		Cid::SimState => Command::SimState,
 		Cid::GraphState => Command::GraphState,
@@ -386,7 +383,9 @@ fn parse_command(input: &str) -> Command {
 			Command::RemoveUnconnected
 		},
 		Cid::Error => {
-			if cmd.trim_start().starts_with("#") {
+			if cmd.is_empty() {
+				Command::Ignore
+			} else if cmd.trim_start().starts_with("#") {
 				Command::Ignore
 			} else {
 				Command::Error(format!("Unknown Command: {}", cmd))
@@ -397,11 +396,8 @@ fn parse_command(input: &str) -> Command {
 
 fn print_help(out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 	for item in COMMANDS {
-		match item.1 {
-			Cid::Error | Cid::Ignore => {}
-			_ => {
-				writeln!(out, "{}", item.0)?;
-			}
+		if  item.1 != Cid::Error {
+			writeln!(out, "{}", item.0)?;
 		}
 	}
 	Ok(())

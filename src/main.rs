@@ -23,9 +23,6 @@ mod tests;
 
 extern crate rand;
 
-//#[macro_use]
-//extern crate serde_json;
-
 use std::thread;
 use std::sync::Arc;
 use std::sync::Mutex;
