@@ -3,7 +3,6 @@ use serde_json::Value;
 
 use std::fmt;
 use std::usize;
-use std::u32;
 use std::f32;
 use std::fs::File;
 use std::io::prelude::*;
@@ -15,6 +14,7 @@ use rand;
 
 pub const RAD2DEG : f32 = 360.0 / (2.0 * f32::consts::PI);
 
+pub const DEG2KM : f32 = 40076.0 / 360.0;
 
 pub fn print_unknown_key(key: &str) {
 	println!("unknown key: {}", key);

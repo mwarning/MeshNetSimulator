@@ -2,21 +2,19 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::fs::File;
-use std::io::prelude::*;
-use std::io;
-use std::str::SplitWhitespace;
-use std::error::Error;
 use std::time::{Instant, Duration};
 use std::io::{BufRead, BufReader};
+use std::io::{Read, Write};
+use std::net::{TcpListener, TcpStream};
 
 use crate::passive_routing_test::PassiveRoutingTest;
 use crate::graph::Graph;
 use crate::progress::Progress;
-use crate::sim::{Io, TestPacket, GlobalState, RoutingAlgorithm};
+use crate::sim::{Io, GlobalState, RoutingAlgorithm};
 use crate::vivaldi_routing::VivaldiRouting;
 use crate::random_routing::RandomRouting;
-use crate::spring_routing::SpringRouting;
-use crate::genetic_routing::GeneticRouting;
+//use crate::spring_routing::SpringRouting;
+//use crate::genetic_routing::GeneticRouting;
 use crate::importer::import_file;
 use crate::exporter::export_file;
 use crate::utils::{fmt_duration, Vec3};
@@ -31,11 +29,6 @@ enum AllowRecursiveCall {
 }
 
 pub fn send_to_socket(args: &[String]) {
-	use std::io::Read;
-	use std::io::Write;
-	use std::time::{Instant, Duration};
-	use std::net::{TcpListener, TcpStream};
-	use std::net::{ToSocketAddrs, SocketAddr};
 	let mut buf = vec![0; 1024];
 
 	match TcpStream::connect(CMD_SOCKET_ADDRESS) {
@@ -66,10 +59,6 @@ pub fn send_to_socket(args: &[String]) {
 }
 
 pub fn ext_loop(sim: Arc<Mutex<GlobalState>>) {
-	use std::io::Read;
-	use std::io::Write;
-	use std::net::{TcpListener, TcpStream};
-
 	let listener = TcpListener::bind(CMD_SOCKET_ADDRESS).unwrap();
 	println!("Listen for commands on {}", CMD_SOCKET_ADDRESS);
 	//let mut input =  vec![0u8; 512];
@@ -99,13 +88,13 @@ pub fn ext_loop(sim: Arc<Mutex<GlobalState>>) {
 pub fn cmd_loop(sim: Arc<Mutex<GlobalState>>) {
 	let mut input = String::new();
 	loop {
-		if let Ok(_) = io::stdin().read_line(&mut input) {
+		if let Ok(_) = std::io::stdin().read_line(&mut input) {
 			if let Ok(mut sim) = sim.lock() {
 				let mut output = String::new();
 				if let Err(e) = cmd_handler(&mut output, &mut sim, &input, AllowRecursiveCall::Yes) {
-					io::stdout().write(e.to_string().as_bytes());
+					std::io::stdout().write(e.to_string().as_bytes());
 				} else {
-					io::stdout().write(output.as_bytes());
+					std::io::stdout().write(output.as_bytes());
 				}
 			}
 		}
@@ -124,7 +113,8 @@ enum Command {
 	Ignore,
 	Help,
 	Clear,
-	State,
+	GraphState,
+	SimState,
 	Reset,
 	Test,
 	Get(String),
@@ -144,7 +134,8 @@ enum Command {
 	Execute(String),
 	Import(String),
 	Export(String),
-	Move(f32, f32, f32)
+	MoveNode(u32, f32, f32, f32),
+	MoveNodes(f32, f32, f32),
 }
 
 pub struct SimState {
@@ -165,32 +156,87 @@ impl SimState {
 	}
 }
 
-/*
-struct CommandEntry {
-    name: &'static str,
-    description: &'static str,
+#[derive(Clone, Copy)]
+enum Cid {
+	Error,
+	Ignore,
+	Help,
+	Clear,
+	GraphState,
+	SimState,
+	Reset,
+	Test,
+	Get,
+	Set,
+	ConnectInRange,
+	RandomizePositions,
+	RemoveUnconnected,
+	Algorithm,
+	AddLine,
+	AddTree,
+	AddLattice4,
+	AddLattice8,
+	RemoveNodes,
+	ConnectNodes,
+	DisconnectNodes,
+	Step,
+	Execute,
+	Import,
+	Export,
+	MoveNode,
+	MoveNodes,
 }
 
-impl CommandEntry {
-	const fn new(name: &'static str, description: &'static str) -> Self {
-		Self { name, description }
-	}
-}
-
-const COMMANDS: &'static [CommandEntry] = &[
-	CommandEntry::new("yay!", "as")
+const COMMANDS: &'static [(&'static str, Cid)] = &[
+	("", Cid::Ignore),
+	("help                                 Show this help.", Cid::Help),
+	("clear                                Clear graph state", Cid::Clear),
+	("graph_state                          Show Graph state", Cid::GraphState),
+	("sim_state                            Show Simulator state.", Cid::SimState),
+	("reset                                Reset node state.", Cid::Reset),
+	("test                                 Test routing algorithm.", Cid::Test),
+	("get                                  Get node property.", Cid::Get),
+	("set                                  Set node property.", Cid::Set),
+	("connect_in_range <range>             Connect nodes", Cid::ConnectInRange),
+	("randomize_position <range>           Randomize nodes in a box with edge length in km.", Cid::RandomizePositions),
+	("remove_unconnected                   Remove nodes without any connections.", Cid::RemoveUnconnected),
+	("algorithm [<algorithm>]              Get or set given algorithm.", Cid::Algorithm),
+	("add_line <node_count> <create_loop>  Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
+	("add_tree <node_count> <inter_count>  Add a tree structure of nodes with interconnections", Cid::AddTree),
+	("add_lattice4 <x_xount> <y_count>     Create a lattice structure of squares.", Cid::AddLattice4),
+	("add_lattice8                         Create a lattice structure of squares and diagonal connections.", Cid::AddLattice8),
+	("remove_nodes <node_list>             Remove nodes.", Cid::RemoveNodes),
+	("connect_nodes <node_list>            Connect nodes.", Cid::ConnectNodes),
+	("disconnect_nodes <node_list>         Disconnect comma separated list of nodes. e.g \"1,33,5\".", Cid::DisconnectNodes),
+	("step [<steps>]                       Run simulation steps. Default is 1.", Cid::Step),
+	("execute <file>                       Execute a script with a command per line.", Cid::Execute),
+	("import <file>                        Import a graph as JSON file.", Cid::Import),
+	("export <file>                        Export a graph as JSON file.", Cid::Export),
+	("move_node <node_id> <x> <y> <z>      Move a node by x/y/z km", Cid::MoveNode),
+	("move_nodes <x> <y> <z>               Move all nodes by x/y/z km", Cid::MoveNodes),
 ];
-*/
 
 fn parse_command(input: &str) -> Command {
 	let mut tokens = Vec::new();
 	for tok in input.split_whitespace() {
+		// trim ' " characters
 		tokens.push(tok.trim_matches(|c: char| (c == '\'') || (c == '"')));
 	}
 
 	let mut iter = tokens.iter().skip(1);
 	let cmd = tokens.get(0).unwrap_or(&"");
 
+	fn lookup_cmd(cmd: &str) -> Cid {
+		for item in COMMANDS {
+			if item.0.starts_with(cmd) && (item.0.len() < cmd.len() || item.0.as_bytes()[cmd.len()] == ' ' as u8) {
+			//if item.0 == cmd {
+				return item.1;
+			}
+		}
+		Cid::Error
+	}
+
+	// parse number separated list of numbers
 	fn parse_list(numbers: Option<&&str>) -> Result<Vec<u32>, ()> {
 		let mut v = Vec::<u32>::new();
 		for num in numbers.unwrap_or(&"").split(",") {
@@ -203,138 +249,144 @@ fn parse_command(input: &str) -> Command {
 		Ok(v)
 	}
 
-	//println!("input: {}", input);
-
 	let error = Command::Error("Missing Arguments".to_string());
 
-	match *cmd {
-		"" => Command::Ignore,
-		"help" => Command::Help,
-		"state" => Command::State,
-		"clear" => Command::Clear,
-		"reset" => Command::Reset,
-		"test" => Command::Test,
-		"get" => { if let (Some(key),) = scan!(iter, String) {
+	match lookup_cmd(cmd) {
+		Cid::Ignore => Command::Ignore,
+		Cid::Help => Command::Help,
+		Cid::SimState => Command::SimState,
+		Cid::GraphState => Command::GraphState,
+		Cid::Clear => Command::Clear,
+		Cid::Reset => Command::Reset,
+		Cid::Test => Command::Test,
+		Cid::Get => { if let (Some(key),) = scan!(iter, String) {
 				Command::Get(key)
 			} else {
 				error
 			}
 		},
-		"set" => { if let (Some(key),Some(value)) = scan!(iter, String, String) {
+		Cid::Set => { if let (Some(key),Some(value)) = scan!(iter, String, String) {
 				Command::Set(key, value)
 			} else {
 				error
 			}
 		},
-		"step" => {
+		Cid::Step => {
 			Command::Step(if let (Some(count),) = scan!(iter, u32) {
 				count
 			} else {
 				1
 			})
 		},
-		"exec" => {
+		Cid::Execute => {
 			if let (Some(path),) = scan!(iter, String) {
 				Command::Execute(path)
 			} else {
 				error
 			}
 		},
-		"import" => {
+		Cid::Import => {
 			if let (Some(path),) = scan!(iter, String) {
 				Command::Import(path)
 			} else {
 				error
 			}
 		},
-		"export" => {
+		Cid::Export => {
 			if let (Some(path),) = scan!(iter, String) {
 				Command::Export(path)
 			} else {
 				error
 			}
 		},
-		"move" => {
+		Cid::MoveNodes => {
 			if let (Some(x), Some(y), Some(z)) = scan!(iter, f32, f32, f32) {
-				Command::Move(x, y, z)
+				Command::MoveNodes(x, y, z)
 			} else {
 				error
 			}
 		},
-		"add_line" => {
+		Cid::MoveNode => {
+			if let (Some(id), Some(x), Some(y), Some(z)) = scan!(iter, u32, f32, f32, f32) {
+				Command::MoveNode(id, x, y, z)
+			} else {
+				error
+			}
+		},
+		Cid::AddLine => {
 			if let (Some(count), Some(close)) = scan!(iter, u32, bool) {
 				Command::AddLine(count, close)
 			} else {
 				error
 			}
 		},
-		"add_tree" => {
+		Cid::AddTree => {
 			if let (Some(count), Some(intra)) = scan!(iter, u32, u32) {
 				Command::AddTree(count, intra)
 			} else {
 				error
 			}
 		},
-		"add_lattice4" => {
+		Cid::AddLattice4 => {
 			if let (Some(x_count), Some(y_count)) = scan!(iter, u32, u32) {
 				Command::AddLattice4(x_count, y_count)
 			} else {
 				error
 			}
 		},
-		"add_lattice8" => {
+		Cid::AddLattice8 => {
 			if let (Some(x_count), Some(y_count)) = scan!(iter, u32, u32) {
 				Command::AddLattice8(x_count, y_count)
 			} else {
 				error
 			}
 		},
-		"connect_in_range" => {
+		Cid::ConnectInRange => {
 			if let (Some(range),) = scan!(iter, f32) {
 				Command::ConnectInRange(range)
 			} else {
 				error
 			}
 		},
-		"randomize_position" => {
+		Cid::RandomizePositions => {
 			if let (Some(range),) = scan!(iter, f32) {
 				Command::RandomizePositions(range)
 			} else {
 				error
 			}
 		},
-		"algorithm" => {
+		Cid::Algorithm => {
 			if let (Some(algo),) = scan!(iter, String) {
 				Command::Algorithm(algo)
 			} else {
 				Command::Algorithm("".to_string())
 			}
 		},
-		"remove_nodes" => {
+		Cid::RemoveNodes => {
 			if let Ok(ids) = parse_list(tokens.get(1)) {
 				Command::RemoveNodes(ids)
 			} else {
 				error
 			}
-		}
-		"connect_nodes" => {
+		},
+		Cid::ConnectNodes => {
 			if let Ok(ids) = parse_list(tokens.get(1)) {
 				Command::ConnectNodes(ids)
 			} else {
 				error
 			}
 		},
-		"disconnect_nodes" => {
+		Cid::DisconnectNodes => {
 			if let Ok(ids) = parse_list(tokens.get(1)) {
 				Command::DisconnectNodes(ids)
 			} else {
 				error
 			}
 		},
-		"remove_unconnected" => {
+		Cid::RemoveUnconnected => {
 			Command::RemoveUnconnected
 		},
-		_ => {
+		Cid::Error => {
 			if cmd.trim_start().starts_with("#") {
 				Command::Ignore
 			} else {
@@ -344,13 +396,25 @@ fn parse_command(input: &str) -> Command {
 	}
 }
 
+fn print_help(out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
+	for item in COMMANDS {
+		match item.1 {
+			Cid::Error | Cid::Ignore => {}
+			_ => {
+				writeln!(out, "{}", item.0)?;
+			}
+		}
+	}
+	Ok(())
+}
+
 fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, call: AllowRecursiveCall) -> Result<(), std::fmt::Error> {
 	let state = &mut sim.sim_state;
 	let mut do_init = false;
 
 	//println!("command: '{}'", input);
 
-	let mut command = parse_command(input);
+	let command = parse_command(input);
 
 	match command {
 		Command::Ignore => {
@@ -360,7 +424,8 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			writeln!(out, "{}", msg)?;
 		},
 		Command::Help => {
-			writeln!(out, "help text...")?;
+			//println!("print help");
+			print_help(out)?;
 		},
 		Command::Get(key) => {
 			let mut buf = String::new();
@@ -370,8 +435,21 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		Command::Set(key, value) => {
 			state.algorithm.set(&key, &value);
 		},
-		Command::State => {
-			writeln!(out, " graph: nodes: {}, links: {}", state.graph.node_count(), state.graph.link_count())?;
+		Command::GraphState => {
+			let node_count = state.graph.node_count();
+			let link_count = state.graph.link_count();
+			let avg_node_degree = state.graph.get_avg_node_degree();
+			let mean_clustering_coefficient = state.graph.get_mean_clustering_coefficient();
+			let mean_link_count = state.graph.get_mean_link_count();
+			let mean_link_distance = state.graph.get_mean_link_distance();
+
+			writeln!(out, "nodes: {}, links: {}", node_count, link_count)?;
+			writeln!(out, "average node degree: {}", avg_node_degree)?;
+			writeln!(out, "mean clustering coefficient: {}", mean_clustering_coefficient)?;
+			writeln!(out, "mean link count: {} ({} variance)", mean_link_count.0, mean_link_count.1)?;
+			writeln!(out, "mean link distance: {} ({} variance)", mean_link_distance.0, mean_link_distance.1)?;
+		},
+		Command::SimState => {
 			write!(out, " algo: ")?;
 			state.algorithm.get("name", out);
 
@@ -400,7 +478,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 
 			let duration = now.elapsed();
 
-			writeln!(out, "{} steps, duration: {}", count, fmt_duration(duration))?;
+			writeln!(out, "\n{} steps, duration: {}", count, fmt_duration(duration))?;
 		},
 		Command::Test => {
 			fn run_test(out: &mut std::fmt::Write, test: &mut PassiveRoutingTest, graph: &Graph, algo: &Box<RoutingAlgorithm>)
@@ -431,8 +509,11 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			state.graph.add_line(count, close);
 			do_init = true;
 		},
-		Command::Move(x, y, z) => {
+		Command::MoveNodes(x, y, z) => {
 			state.graph.move_nodes(Vec3::new(x, y, z));
+		},
+		Command::MoveNode(id, x, y, z) => {
+			state.graph.move_node(id, Vec3::new(x, y, z));
 		},
 		Command::AddLine(count, close) => {
 			state.graph.add_line(count, close);
@@ -459,7 +540,6 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		Command::Algorithm(ref algo) => {
 			match algo.as_str() {
 				"" => {
-					//writeln!(out, "algorithm: {}", state.algorithm.name())?;
 					write!(out, "algorithm: ")?;
 					state.algorithm.get("name", out);
 					write!(out, "\n")?;

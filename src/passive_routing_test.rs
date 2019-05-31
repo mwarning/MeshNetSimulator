@@ -1,13 +1,10 @@
 use std::time::{Instant, Duration};
-use std::io::Write;
 use rand::Rng;
 
 use crate::progress::Progress;
-use crate::sim::{Io, TestPacket, RoutingAlgorithm};
+use crate::sim::TestPacket;
 use crate::dijkstra::Dijkstra;
-use crate::exporter::export_json;
 use crate::graph::*;
-use crate::utils::*;
 
 /*
  * Test if all paths allow for routing.

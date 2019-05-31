@@ -1,11 +1,9 @@
 use std::f32;
 use std::u32;
-use std::fmt::Write;
 
 use crate::utils::*;
 use crate::graph::*;
 use crate::sim::{Io, RoutingAlgorithm, TestPacket};
-use crate::link::Link;
 
 
 const NOP : u32 = 0;

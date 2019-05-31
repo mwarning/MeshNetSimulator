@@ -1,4 +1,3 @@
-use std::fmt::Write;
 use std::f32;
 use std::u32;
 
@@ -176,9 +175,10 @@ impl RoutingAlgorithm for VivaldiRouting
 				let pos = self.nodes[id as usize].pos;
 				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			"name" => {
+				write!(out, "");
+			},
+			_ => {}
 		}
 	}
 
@@ -193,9 +193,7 @@ impl RoutingAlgorithm for VivaldiRouting
 			"description" => {
 				write!(out, "Use Vivaldi coordinates to allow routing.");
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 
@@ -208,9 +206,7 @@ impl RoutingAlgorithm for VivaldiRouting
 					println!("invalid rtt value");
 				}
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 

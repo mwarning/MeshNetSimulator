@@ -1,4 +1,3 @@
-use crate::link::Link;
 use crate::graph::*;
 
 use std::collections::HashMap;

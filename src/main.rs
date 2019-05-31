@@ -22,32 +22,21 @@ mod progress;
 mod tests;
 
 extern crate rand;
-//extern crate unix_socket;
 
-#[macro_use]
-extern crate serde_json;
+//#[macro_use]
+//extern crate serde_json;
 
 use std::thread;
 use std::sync::Arc;
 use std::sync::Mutex;
-use std::f32;
 use std::env;
-use std::mem::size_of;
 
-use sim::RoutingAlgorithm;
-use passive_routing_test::PassiveRoutingTest;
 use cmd::cmd_loop;
 use cmd::ext_loop;
 use cmd::send_to_socket;
 use graph::Graph;
-use vivaldi_routing::*;
-use spring_routing::*;
-use random_routing::*;
-use genetic_routing::*;
-use stats::Stats;
 use tests::*;
 use crate::sim::GlobalState;
-use dijkstra::Dijkstra;
 use std::vec::Vec;
 
 struct TZ {
@@ -258,35 +247,14 @@ fn main() {
 				run_test4();
 				std::process::exit(0);
 			},
-			/*
-			"-n" => {
-				if i + 1 <= args.len() {
-					eprintln!("error: argument missing for -n");
-					std::process::exit(1);
-				}
-
-				if let Ok(n) = args[i+1].parse() {
-					num = n;
-				} else {
-					eprintln!("error: second argument not an integer: -n {}", args[i+1]);
-				}
-			},*/
 			_ => {
 				println!("Unknown argument: {}", cmd);
 				std::process::exit(1);
 			}
 		}
-		//i += 1;
 	}
 
 	let sim = Arc::new(Mutex::new(GlobalState::new()));
-
-/*
-	let sim_handle = sim.clone();
-	let sim_thread = thread::spawn(move || {
-		sim_loop(sim_handle);
-	});
-*/
 
 	// console
 	let cmd_handle = sim.clone();
@@ -300,6 +268,5 @@ fn main() {
 		ext_loop(ext_handle);
 	});
 
-	//sim_thread.join().unwrap();
 	cmd_thread.join().unwrap();
 }

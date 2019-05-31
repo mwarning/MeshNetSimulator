@@ -1,7 +1,5 @@
 
 use std::usize;
-use rand::Rng;
-
 use crate::graph::*;
 use crate::utils::*;
 use crate::sim::{Io, RoutingAlgorithm, TestPacket};

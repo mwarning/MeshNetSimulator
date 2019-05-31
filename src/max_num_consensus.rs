@@ -1,7 +1,5 @@
 
 use std::usize;
-use std::fmt::Write;
-use rand::Rng;
 
 use crate::graph::ID;
 use crate::utils::*;

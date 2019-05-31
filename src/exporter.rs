@@ -1,13 +1,8 @@
 
 use std::fs::File;
-use std::io::Read;
-use std::collections::HashMap;
 use std::u16;
-use std::fmt;
 use std::fmt::Write;
 
-use serde_json::Value;
-use crate::node::Node;
 use crate::sim::RoutingAlgorithm;
 use crate::graph::{Graph, ID};
 use crate::utils::*;
@@ -41,13 +36,13 @@ pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
 			name.clear();
 			label.clear();
 			algo.get_node(id as ID, "name", &mut name);
-			algo.get_node(id as ID, "label",&mut label);
+			algo.get_node(id as ID, "label", &mut label);
 		}
 		let x = node.gpos.x();
 		let y = node.gpos.y();
 		write!(&mut ret,
 			"{{\"id\": \"{}\", \"x\": {}, \"y\": {}, \"name\": \"{}\", \"label\": \"{}\"}}",
-			id, x, y, name, label).unwrap();
+			id, x / DEG2KM, y / DEG2KM, name, label).unwrap();
 	}
 
 	write!(&mut ret, "], \"links\": [").unwrap();

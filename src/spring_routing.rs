@@ -1,6 +1,5 @@
 use std::f32;
 use std::u32;
-use std::fmt::Write;
 
 use crate::utils::*;
 use crate::graph::*;

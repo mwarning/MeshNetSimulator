@@ -1,6 +1,4 @@
 
-use std::fmt::Write;
-use std::fmt;
 use std::f32;
 use std::u16;
 
@@ -52,6 +50,10 @@ impl Graph {
 		for node in &mut self.nodes {
 			node.gpos += pos;
 		}
+	}
+
+	pub fn move_node(&mut self, id: ID, pos: Vec3) {
+		self.nodes[id as usize].gpos += pos;
 	}
 
 	pub fn add_nodes(&mut self, count: u32) {
@@ -162,12 +164,31 @@ impl Graph {
 	
 	}
 */
+	pub fn get_mean_link_distance(&self) -> (f32, f32) {
+		let mut d = 0.0;
+		for link in &self.links {
+			let p1 = self.nodes[link.from as usize].gpos;
+			let p2 = self.nodes[link.to as usize].gpos;
+			d += p1.distance(&p2);
+		}
+		let mean = d / self.links.len() as f32;
+
+		let mut v = 0.0;
+		for link in &self.links {
+			let p1 = self.nodes[link.from as usize].gpos;
+			let p2 = self.nodes[link.to as usize].gpos;
+			v += (p1.distance(&p2) - mean).powi(2);
+		}
+
+		let variance = ((v as f32) / (self.links.len() as f32)).sqrt();
+		(mean, variance)
+	}
 
 	pub fn get_node_degree(&self, id: ID) -> u32 {
 		self.get_neighbors(id).len() as u32
 	}
 
-	pub fn get_avg_node_degree(&self, id: ID) -> f32 {
+	pub fn get_avg_node_degree(&self) -> f32 {
 		let mut n = 0;
 		for id in 0..self.nodes.len() {
 			n += self.get_node_degree(id as u32);
@@ -549,7 +570,7 @@ impl Graph {
 			v += node.gpos;
 		}
 
-		v.scalar_div(self.nodes.len() as f32)
+		v / (self.nodes.len() as f32)
 	}
 
 	pub fn is_directed(&self) -> bool {
@@ -584,6 +605,7 @@ impl Graph {
 	}
 }
 
+// move out
 pub fn graph_to_json(graph: &Graph, ret: &mut String) {
 	use std::fmt::Write;
 

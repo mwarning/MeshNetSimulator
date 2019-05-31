@@ -1,9 +1,6 @@
-use std::time::{Instant, Duration};
-use std::io::Write;
 use rand::Rng;
-use std::fs::File;
 
-use crate::sim::{Io, TestPacket, RoutingAlgorithm};
+use crate::sim::{Io, RoutingAlgorithm};
 use crate::passive_routing_test::PassiveRoutingTest;
 use crate::graph::*;
 use crate::utils::*;
@@ -254,7 +251,7 @@ pub fn run_test4() {
 	vivaldi.reset(graph.node_count());
 
 	let mut io = Io::new(&graph);
-	for step in 1..10 {
+	for _ in 1..10 {
 		vivaldi.step(&mut io);
 	}
 
