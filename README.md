@@ -18,23 +18,57 @@ The graph can be inspected e.g. by using [GraphViewer](https://github.com/mwarni
 
 Some commands on the command line are:
 
-- `step [<steps>]`  
-   Perform simulation steps.
+
+- `clear`  
+  Clear graph state
+- `graph_state`  
+  Show Graph state
+- `sim_state`  
+  Show Simulator state.
+- `reset`  
+  Reset node state.
 - `test`  
-   Check the routing success, this does not change the state of any nodes/links. Nodes are written to a JSON file after each invocation.
-- `stat`: Display statistics.
-- `add_line <number of nodes> <make loop>`  
-   Create a line of nodes.
-- `add_lattice4 <x count> <y count>`  
-   Add a common lattice structure.
-- `add_tree <number of nodes> <cross links>`  
-   Add a random tree structure with some number of additional cross links between the branches.
+  Test routing algorithm (samples, test packets arrived, path stretch).
+- `get <key>`  
+  Get node property.
+- `set <key> <value>`  
+  Set node property.
+- `connect_in_range <range>`  
+  Connect all nodes in range of less then range (in km).
+- `randomize_position <range>`  
+  Randomize nodes in an area with edge length in range (in km).
+- `remove_unconnected`  
+  Remove nodes without any connections.
 - `algorithm [<algorithm>]`  
-   Get or set routing algorithm (e.g. `random`, `vivaldi`)
+  Get or set given algorithm.
+- `add_line <node_count> <create_loop>`  
+  Add a line of nodes. Connect ends to create a loop.
+- `add_tree <node_count> <inter_count>`  
+  Add a tree structure of nodes with interconnections
+- `add_lattice4 <x_xount> <y_count>`  
+  Create a lattice structure of squares.
+- `add_lattice8 <x_xount> <y_count>`  
+  Create a lattice structure of squares and diagonal connections.
+- `remove_nodes <node_list>`  
+  Remove nodes. Node list is a comma separated list of node ids.
+- `connect_nodes <node_list>`  
+  Connect nodes. Node list is a comma separated list of node ids.
+- `disconnect_nodes <node_list>`  
+  Disconnect nodes. Node list is a comma separated list of node ids.
+- `step [<steps>]`  
+  Run simulation steps. Default is 1.
+- `execute <file>`  
+  Execute a script with a command per line.
 - `import <file>`  
-   Import a network from a JSON file.
+  Import a graph as JSON file.
 - `export <file>`  
-   Export the network structure to a JSON file.
+  Export a graph as JSON file.
+- `move_node <node_id> <x> <y> <z>`  
+  Move a node by x/y/z (in km).
+- `move_nodes <x> <y> <z>`  
+  Move all nodes by x/y/z (in km).
+- `help`  
+  Show this help.
 
 ## Related Software
 

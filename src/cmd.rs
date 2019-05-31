@@ -75,7 +75,6 @@ pub fn ext_loop(sim: Arc<Mutex<GlobalState>>) {
 						if let Err(e) = cmd_handler(&mut output, &mut sim, s, AllowRecursiveCall::Yes) {
 							stream.write(e.to_string().as_bytes());
 						} else {
-							println!("Send: {}", &output);
 							stream.write(&output.as_bytes());
 						}
 					}
@@ -189,14 +188,13 @@ enum Cid {
 
 const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("", Cid::Ignore),
-	("help                                 Show this help.", Cid::Help),
 	("clear                                Clear graph state", Cid::Clear),
 	("graph_state                          Show Graph state", Cid::GraphState),
 	("sim_state                            Show Simulator state.", Cid::SimState),
 	("reset                                Reset node state.", Cid::Reset),
-	("test                                 Test routing algorithm.", Cid::Test),
-	("get                                  Get node property.", Cid::Get),
-	("set                                  Set node property.", Cid::Set),
+	("test                                 Test routing algorithm (samples, test packets arrived, path stretch).", Cid::Test),
+	("get <key>                            Get node property.", Cid::Get),
+	("set <key> <value>                    Set node property.", Cid::Set),
 	("connect_in_range <range>             Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
 	("randomize_position <range>           Randomize nodes in an area with edge length in range (in km).", Cid::RandomizePositions),
 	("remove_unconnected                   Remove nodes without any connections.", Cid::RemoveUnconnected),
@@ -204,7 +202,7 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("add_line <node_count> <create_loop>  Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
 	("add_tree <node_count> <inter_count>  Add a tree structure of nodes with interconnections", Cid::AddTree),
 	("add_lattice4 <x_xount> <y_count>     Create a lattice structure of squares.", Cid::AddLattice4),
-	("add_lattice8                         Create a lattice structure of squares and diagonal connections.", Cid::AddLattice8),
+	("add_lattice8 <x_xount> <y_count>     Create a lattice structure of squares and diagonal connections.", Cid::AddLattice8),
 	("remove_nodes <node_list>             Remove nodes. Node list is a comma separated list of node ids.", Cid::RemoveNodes),
 	("connect_nodes <node_list>            Connect nodes. Node list is a comma separated list of node ids.", Cid::ConnectNodes),
 	("disconnect_nodes <node_list>         Disconnect nodes. Node list is a comma separated list of node ids.", Cid::DisconnectNodes),
@@ -214,6 +212,7 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("export <file>                        Export a graph as JSON file.", Cid::Export),
 	("move_node <node_id> <x> <y> <z>      Move a node by x/y/z (in km).", Cid::MoveNode),
 	("move_nodes <x> <y> <z>               Move all nodes by x/y/z (in km).", Cid::MoveNodes),
+	("help                                 Show this help.", Cid::Help),
 ];
 
 fn parse_command(input: &str) -> Command {
