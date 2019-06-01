@@ -526,7 +526,8 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			do_init = true;
 		},
 		Command::RandomizePositions(range) => {
-			state.graph.randomize_positions_2d(range);
+			let center = state.graph.graph_center();
+			state.graph.randomize_positions_2d(center, range);
 		},
 		Command::ConnectInRange(range) => {
 			state.graph.connect_in_range(range);

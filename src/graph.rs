@@ -62,9 +62,21 @@ impl Graph {
 		}
 	}
 
-	pub fn randomize_positions_2d(&mut self, range: f32) {
+	pub fn graph_center(&self) -> Vec3 {
+		let mut center = Vec3::new0();
+		for node in &self.nodes {
+			center += node.gpos;
+		}
+		if self.nodes.len() == 0 {
+			Vec3::new0()
+		} else {
+			center / (self.nodes.len() as f32)
+		}
+	}
+
+	pub fn randomize_positions_2d(&mut self, center: Vec3, range: f32) {
 		for node in &mut self.nodes {
-			node.gpos = Vec3::random_in_area(range).as_2d();
+			node.gpos = center + Vec3::random_in_area(range).as_2d();
 		}
 	}
 
