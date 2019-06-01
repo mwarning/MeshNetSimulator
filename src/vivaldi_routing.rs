@@ -171,11 +171,11 @@ impl RoutingAlgorithm for VivaldiRouting
 
 	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
 		match key {
-			"label" => {
+			"name" => {
 				let pos = self.nodes[id as usize].pos;
 				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
 			},
-			"name" => {
+			"label" => {
 				write!(out, "");
 			},
 			_ => {}
