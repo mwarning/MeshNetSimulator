@@ -13,11 +13,11 @@ use crate::progress::Progress;
 use crate::sim::{Io, GlobalState, RoutingAlgorithm};
 use crate::vivaldi_routing::VivaldiRouting;
 use crate::random_routing::RandomRouting;
-//use crate::spring_routing::SpringRouting;
-//use crate::genetic_routing::GeneticRouting;
+use crate::spring_routing::SpringRouting;
+use crate::genetic_routing::GeneticRouting;
 use crate::importer::import_file;
 use crate::exporter::export_file;
-use crate::utils::{fmt_duration, Vec3};
+use crate::utils::{fmt_duration, Vec3, DEG2KM};
 
 
 static CMD_SOCKET_ADDRESS : &'static str = "127.0.0.1:8011";
@@ -59,23 +59,29 @@ pub fn send_to_socket(args: &[String]) {
 }
 
 pub fn ext_loop(sim: Arc<Mutex<GlobalState>>) {
-	let listener = TcpListener::bind(CMD_SOCKET_ADDRESS).unwrap();
-	println!("Listen for commands on {}", CMD_SOCKET_ADDRESS);
-	//let mut input =  vec![0u8; 512];
-	let mut output = String::new();
+	match TcpListener::bind(CMD_SOCKET_ADDRESS) {
+		Err(err) => {
+			println!("{}", err);
+		},
+		Ok(listener) => {
+			println!("Listen for commands on {}", CMD_SOCKET_ADDRESS);
+			//let mut input =  vec![0u8; 512];
+			let mut output = String::new();
 
-	loop {
-		//input.clear();
-		output.clear();
-		if let Ok((mut stream, addr)) = listener.accept() {
-			let mut buf = [0; 512];
-			if let Ok(n) = stream.read(&mut buf) {
-				if let Ok(s) = std::str::from_utf8(&buf[0..n]) {
-					if let Ok(mut sim) = sim.lock() {
-						if let Err(e) = cmd_handler(&mut output, &mut sim, s, AllowRecursiveCall::Yes) {
-							stream.write(e.to_string().as_bytes());
-						} else {
-							stream.write(&output.as_bytes());
+			loop {
+				//input.clear();
+				output.clear();
+				if let Ok((mut stream, addr)) = listener.accept() {
+					let mut buf = [0; 512];
+					if let Ok(n) = stream.read(&mut buf) {
+						if let Ok(s) = std::str::from_utf8(&buf[0..n]) {
+							if let Ok(mut sim) = sim.lock() {
+								if let Err(e) = cmd_handler(&mut output, &mut sim, s, AllowRecursiveCall::Yes) {
+									stream.write(e.to_string().as_bytes());
+								} else {
+									stream.write(&output.as_bytes());
+								}
+							}
 						}
 					}
 				}
@@ -135,6 +141,7 @@ enum Command {
 	Export(String),
 	MoveNode(u32, f32, f32, f32),
 	MoveNodes(f32, f32, f32),
+	MoveTo(f32, f32, f32),
 }
 
 pub struct SimState {
@@ -183,6 +190,7 @@ enum Cid {
 	Export,
 	MoveNode,
 	MoveNodes,
+	MoveTo
 }
 
 const COMMANDS: &'static [(&'static str, Cid)] = &[
@@ -210,6 +218,7 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("export <file>                        Export a graph as JSON file.", Cid::Export),
 	("move_node <node_id> <x> <y> <z>      Move a node by x/y/z (in km).", Cid::MoveNode),
 	("move_nodes <x> <y> <z>               Move all nodes by x/y/z (in km).", Cid::MoveNodes),
+	("move_to <x> <y> <z>                  Move all nodes to x/y/z (in coordinates).", Cid::MoveTo),
 	("help                                 Show this help.", Cid::Help),
 ];
 
@@ -226,7 +235,6 @@ fn parse_command(input: &str) -> Command {
 	fn lookup_cmd(cmd: &str) -> Cid {
 		for item in COMMANDS {
 			if item.0.starts_with(cmd) && (item.0.len() < cmd.len() || item.0.as_bytes()[cmd.len()] == ' ' as u8) {
-			//if item.0 == cmd {
 				return item.1;
 			}
 		}
@@ -381,6 +389,13 @@ fn parse_command(input: &str) -> Command {
 		},
 		Cid::RemoveUnconnected => {
 			Command::RemoveUnconnected
+		},
+		Cid::MoveTo => {
+			if let (Some(x), Some(y), Some(z)) = scan!(iter, f32, f32, f32) {
+				Command::MoveTo(x, y, z)
+			} else {
+				error
+			}
 		},
 		Cid::Error => {
 			if cmd.is_empty() {
@@ -538,6 +553,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 					write!(out, "algorithm: ")?;
 					state.algorithm.get("name", out);
 					write!(out, "\n")?;
+					write!(out, "available: random, vivaldi, spring, genetic\n")?;
 				},
 				"random" => {
 					state.algorithm = Box::new(RandomRouting::new());
@@ -545,6 +561,14 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 				},
 				"vivaldi" => {
 					state.algorithm = Box::new(VivaldiRouting::new());
+					do_init = true;
+				},
+				"spring" => {
+					state.algorithm = Box::new(SpringRouting::new());
+					do_init = true;
+				},
+				"genetic" => {
+					state.algorithm = Box::new(GeneticRouting::new());
 					do_init = true;
 				},
 				_ => {
@@ -581,6 +605,10 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		},
 		Command::DisconnectNodes(ids) => {
 			state.graph.disconnect_nodes(&ids);
+		},
+		Command::MoveTo(x, y, z) => {
+			let center = state.graph.graph_center() + Vec3::new(x * DEG2KM, y * DEG2KM, z * DEG2KM);
+			state.graph.move_nodes(center);
 		}
 	};
 

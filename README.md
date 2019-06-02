@@ -69,6 +69,8 @@ Some commands on the command line are:
   Move a node by x/y/z (in km).
 - `move_nodes <x> <y> <z>`  
   Move all nodes by x/y/z (in km).
+- `move_to <x> <y> <z>`  
+  Move all nodes to x/y/z (in coordinates).
 - `help`  
   Show this help.
 
