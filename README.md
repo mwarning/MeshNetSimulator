@@ -29,8 +29,8 @@ Some commands on the command line are:
   Show Simulator state.
 - `reset`  
   Reset node state.
-- `test`  
-  Test routing algorithm (samples, test packets arrived, path stretch).
+- `test [<samples>]`  
+  Test routing algorithm with optional samples size (test packets arrived, path stretch).
 - `get <key>`  
   Get node property.
 - `set <key> <value>`  
