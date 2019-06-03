@@ -38,8 +38,8 @@ pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
 			algo.get_node(id as ID, "name", &mut name);
 			algo.get_node(id as ID, "label", &mut label);
 		}
-		let x = node.gpos.x();
-		let y = node.gpos.y();
+		let x = node.pos[0];
+		let y = node.pos[1];
 		write!(&mut ret,
 			"{{\"id\": \"{}\", \"x\": {}, \"y\": {}, \"name\": \"{}\", \"label\": \"{}\"}}",
 			id, x / DEG2KM, y / DEG2KM, name, label).unwrap();

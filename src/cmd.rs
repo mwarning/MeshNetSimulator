@@ -87,7 +87,7 @@ enum Command {
 	GraphState,
 	SimState,
 	Reset,
-	Test,
+	Test(u32),
 	Get(String),
 	Set(String, String),
 	ConnectInRange(f32),
@@ -164,7 +164,7 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("graph_state                          Show Graph state", Cid::GraphState),
 	("sim_state                            Show Simulator state.", Cid::SimState),
 	("reset                                Reset node state.", Cid::Reset),
-	("test                                 Test routing algorithm (samples, test packets arrived, path stretch).", Cid::Test),
+	("test [<samples>]                     Test routing algorithm with (test packets arrived, path stretch).", Cid::Test),
 	("get <key>                            Get node property.", Cid::Get),
 	("set <key> <value>                    Set node property.", Cid::Set),
 	("connect_in_range <range>             Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
@@ -228,7 +228,13 @@ fn parse_command(input: &str) -> Command {
 		Cid::GraphState => Command::GraphState,
 		Cid::Clear => Command::Clear,
 		Cid::Reset => Command::Reset,
-		Cid::Test => Command::Test,
+		Cid::Test => {
+			if let (Some(samples),) = scan!(iter, u32) {
+				Command::Test(samples)
+			} else {
+				Command::Test(1000)
+			}
+		}
 		Cid::Get => { if let (Some(key),) = scan!(iter, String) {
 				Command::Get(key)
 			} else {
@@ -458,21 +464,20 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 
 			writeln!(out, "\n{} steps, duration: {}", count, fmt_duration(duration))?;
 		},
-		Command::Test => {
-			fn run_test(out: &mut std::fmt::Write, test: &mut PassiveRoutingTest, graph: &Graph, algo: &Box<RoutingAlgorithm>)
+		Command::Test(samples) => {
+			fn run_test(out: &mut std::fmt::Write, test: &mut PassiveRoutingTest, graph: &Graph, algo: &Box<RoutingAlgorithm>, samples: u32)
 				-> Result<(), std::fmt::Error>
 			{
-				let samples = 1000;
 				test.clear();
-				test.run_samples(graph, |p| algo.route(&p), samples);
+				test.run_samples(graph, |p| algo.route(&p), samples as usize);
 				writeln!(out, "samples: {},  arrived: {:.1}, stretch: {}, duration: {}",
 					samples,
 					test.arrived(), test.stretch(),
 					fmt_duration(test.duration())
 				)
 			}
-			state.test.setShowProgress(true);
-			run_test(out, &mut state.test, &state.graph, &state.algorithm);
+			state.test.show_progress(true);
+			run_test(out, &mut state.test, &state.graph, &state.algorithm, samples);
 		},
 		Command::Import(ref path) => {
 			import_file(&mut state.graph, path.as_str());
@@ -488,10 +493,10 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			do_init = true;
 		},
 		Command::MoveNodes(x, y, z) => {
-			state.graph.move_nodes(Vec3::new(x, y, z));
+			state.graph.move_nodes([x, y, z]);
 		},
 		Command::MoveNode(id, x, y, z) => {
-			state.graph.move_node(id, Vec3::new(x, y, z));
+			state.graph.move_node(id, [x, y, z]);
 		},
 		Command::AddLine(count, close) => {
 			state.graph.add_line(count, close);
@@ -576,8 +581,8 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			state.graph.disconnect_nodes(&ids);
 		},
 		Command::MoveTo(x, y, z) => {
-			let center = state.graph.graph_center() + Vec3::new(x * DEG2KM, y * DEG2KM, z * DEG2KM);
-			state.graph.move_nodes(center);
+			let center = state.graph.graph_center();
+			state.graph.move_nodes([center[0] + x * DEG2KM, center[1] + y * DEG2KM, center[2] + z * DEG2KM]);
 		}
 	};
 

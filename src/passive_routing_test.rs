@@ -58,7 +58,7 @@ impl PassiveRoutingTest {
 		self.clear_stats();
 	}
 
-	pub fn setShowProgress(&mut self, show_progress: bool) {
+	pub fn show_progress(&mut self, show_progress: bool) {
 		self.show_progress = true;
 	}
 

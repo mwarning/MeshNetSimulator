@@ -46,14 +46,19 @@ impl Graph {
 		self.add_link(b, a, std::u16::MAX);
 	}
 
-	pub fn move_nodes(&mut self, pos: Vec3) {
+	pub fn move_nodes(&mut self, pos: [f32; 3]) {
 		for node in &mut self.nodes {
-			node.gpos += pos;
+			node.pos[0] += pos[0];
+			node.pos[1] += pos[1];
+			node.pos[2] += pos[2];
 		}
 	}
 
-	pub fn move_node(&mut self, id: ID, pos: Vec3) {
-		self.nodes[id as usize].gpos += pos;
+	pub fn move_node(&mut self, id: ID, pos: [f32; 3]) {
+		let p = &mut self.nodes[id as usize].pos;
+		p[0] += pos[0];
+		p[1] += pos[1];
+		p[2] += pos[2];
 	}
 
 	pub fn add_nodes(&mut self, count: u32) {
@@ -62,21 +67,23 @@ impl Graph {
 		}
 	}
 
-	pub fn graph_center(&self) -> Vec3 {
-		let mut center = Vec3::new0();
+	pub fn graph_center(&self) -> [f32; 3] {
+		let mut center = [0.0, 0.0, 0.0];
+		let len = self.nodes.len() as f32;
 		for node in &self.nodes {
-			center += node.gpos;
+			center[0] += node.pos[0] / len;
+			center[1] += node.pos[1] / len;
+			center[2] += node.pos[2] / len;
 		}
-		if self.nodes.len() == 0 {
-			Vec3::new0()
-		} else {
-			center / (self.nodes.len() as f32)
-		}
+
+		center
 	}
 
-	pub fn randomize_positions_2d(&mut self, center: Vec3, range: f32) {
+	pub fn randomize_positions_2d(&mut self, center: [f32; 3], range: f32) {
 		for node in &mut self.nodes {
-			node.gpos = center + Vec3::random_in_area(range).as_2d();
+			let rnd_pos = Vec3::random_in_area(range).as_2d();
+			node.pos[0] = center[0] + (2.0 * rand::random::<f32>() - 1.0) * range;
+			node.pos[1] = center[1] + (2.0 * rand::random::<f32>() - 1.0) * range;
 		}
 	}
 
@@ -91,7 +98,7 @@ impl Graph {
 				if i == j {
 					continue;
 				}
-				let distance = self.nodes[i].gpos.distance(&self.nodes[j].gpos);
+				let distance = Self::pos_distance(&self.nodes[i].pos, &self.nodes[j].pos);
 				if distance <= range {
 					self.connect(i as ID, j as ID);
 				}
@@ -176,20 +183,26 @@ impl Graph {
 	
 	}
 */
+	fn pos_distance(a: &[f32; 3], b: &[f32; 3]) -> f32 {
+		((a[0] - b[0]).powi(2)
+			+ (a[1] - b[2]).powi(2)
+			+ (a[2] - b[2]).powi(2)).sqrt()
+	}
+
 	pub fn get_mean_link_distance(&self) -> (f32, f32) {
 		let mut d = 0.0;
 		for link in &self.links {
-			let p1 = self.nodes[link.from as usize].gpos;
-			let p2 = self.nodes[link.to as usize].gpos;
-			d += p1.distance(&p2);
+			let p1 = self.nodes[link.from as usize].pos;
+			let p2 = self.nodes[link.to as usize].pos;
+			d += Self::pos_distance(&p1, &p2);
 		}
 		let mean = d / self.links.len() as f32;
 
 		let mut v = 0.0;
 		for link in &self.links {
-			let p1 = self.nodes[link.from as usize].gpos;
-			let p2 = self.nodes[link.to as usize].gpos;
-			v += (p1.distance(&p2) - mean).powi(2);
+			let p1 = self.nodes[link.from as usize].pos;
+			let p2 = self.nodes[link.to as usize].pos;
+			v += (Self::pos_distance(&p1, &p2) - mean).powi(2);
 		}
 
 		let variance = ((v as f32) / (self.links.len() as f32)).sqrt();
@@ -238,6 +251,41 @@ impl Graph {
 
 		let variance = ((v as f32) / (len as f32)).sqrt();
 		(mean, variance)
+	}
+/*
+	pub fn link_distances(&self) -> (f32, f32, f32) {
+		let mut d2_min = infinity;
+		let mut d2_max = -infinity;
+		let mut d2_sum = 0.0;
+		for link in &self.links {
+			let to = self.nodes[link.to].gpos;
+			let from = self.nodes[link.from].gpos;
+			let d2 = from * to;
+			if d2 < d2_min {
+				d2_min = d2;
+			}
+			if d2 > d2_max {
+				d2_max = d2;
+			}
+			d2_sum += d2;
+		}
+		(d2_min.sqrt(), d2_mean.sqrt(), d2_max.sqrt())
+	}
+*/
+//linear mapping
+	pub fn adjust_link_quality(&mut self, min: f32, max: f32) {
+		for link in &mut self.links {
+			let from = self.nodes[link.from as usize].pos;
+			let to = self.nodes[link.to as usize].pos;
+			let distance = Self::pos_distance(&from, &to);
+			if distance <= min {
+				link.quality = u16::MIN;
+			} else if distance >= max {
+				link.quality = u16::MAX;
+			} else {
+				link.quality = (u16::MAX as f32 * (distance - min) / (max - min)) as u16;
+			}
+		}
 	}
 
 	pub fn has_link(&self, from: ID, to: ID) -> bool {
@@ -311,7 +359,7 @@ impl Graph {
 		});
 	}
 
-	fn is_bidirectional(&self) -> bool {
+	pub fn is_bidirectional(&self) -> bool {
 		for link in &self.links {
 			if !self.has_link(link.to, link.from) {
 				return false;
@@ -320,7 +368,7 @@ impl Graph {
 		true
 	}
 
-	fn is_valid(&self) -> bool {
+	pub fn is_valid(&self) -> bool {
 		let len = self.nodes.len() as ID;
 		for (i, link) in self.links.iter().enumerate() {
 			if link.to >= len || link.from >= len {
@@ -575,14 +623,17 @@ impl Graph {
 		self.connect_range(range);
 	}*/
 
-	pub fn geo_center(&self) -> Vec3 {
-		let mut v = Vec3::new0();
+	pub fn geo_center(&self) -> [f32; 3] {
+		let mut center = [0.0, 0.0, 0.0];
+		let len = self.nodes.len() as f32;
 
 		for node in &self.nodes {
-			v += node.gpos;
+			center[0] += node.pos[0] / len;
+			center[1] += node.pos[1] / len;
+			center[2] += node.pos[2] / len;
 		}
 
-		v / (self.nodes.len() as f32)
+		center
 	}
 
 	pub fn is_directed(&self) -> bool {
