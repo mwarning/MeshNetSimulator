@@ -20,51 +20,19 @@ use crate::exporter::export_file;
 use crate::utils::{fmt_duration, Vec3, DEG2KM};
 
 
-static CMD_SOCKET_ADDRESS : &'static str = "127.0.0.1:8011";
-
 #[derive(PartialEq)]
 enum AllowRecursiveCall {
 	No,
 	Yes
 }
 
-pub fn send_to_socket(args: &[String]) {
-	let mut buf = vec![0; 1024];
-
-	match TcpStream::connect(CMD_SOCKET_ADDRESS) {
-		Ok(mut stream) => {
-			stream.set_read_timeout(Some(Duration::from_millis(100)));
-			stream.write(args.join(" ").as_bytes());
-			let mut i = 0;
-			loop {
-				if let Ok(n) = stream.read(&mut buf) {
-					if n > 0 {
-						if let Ok(s) = std::str::from_utf8(&buf[0..n]) {
-							//println!("received {} byte: '{}'", n, s);
-							print!("{}", s);
-							i += 1;
-						}
-					} else {
-						break;
-					}
-				} else {
-					break;
-				}
-			}
-		},
-		Err(e) => {
-			eprintln!("{}", e);
-		}
-	}
-}
-
-pub fn ext_loop(sim: Arc<Mutex<GlobalState>>) {
-	match TcpListener::bind(CMD_SOCKET_ADDRESS) {
+pub fn ext_loop(sim: Arc<Mutex<GlobalState>>, address: &str) {
+	match TcpListener::bind(address) {
 		Err(err) => {
 			println!("{}", err);
 		},
 		Ok(listener) => {
-			println!("Listen for commands on {}", CMD_SOCKET_ADDRESS);
+			println!("Listen for commands on {}", address);
 			//let mut input =  vec![0u8; 512];
 			let mut output = String::new();
 

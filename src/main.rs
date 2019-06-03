@@ -26,15 +26,25 @@ extern crate rand;
 use std::thread;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::vec::Vec;
 use std::env;
 
-use cmd::cmd_loop;
-use cmd::ext_loop;
-use cmd::send_to_socket;
-use graph::Graph;
-use tests::*;
+use crate::cmd::cmd_loop;
+use crate::cmd::ext_loop;
+use crate::graph::Graph;
+use crate::tests::*;
 use crate::sim::GlobalState;
-use std::vec::Vec;
+
+
+pub const VERSION : &'static str = "1.0";
+pub const CMD_SOCKET_ADDRESS : &'static str = "127.0.0.1:8011";
+
+
+const HELP_TEXT: &'static str = concat!(
+	"--help|-h         Display this help.\n",
+	"--version|-v      Display version.\n",
+	"--bind <address>  Bind command socket to address. (Default: 127.0.0.1:8011)\n"
+);
 
 struct TZ {
 	k: usize,
@@ -211,23 +221,31 @@ fn main() {
 		size_of::<serde_json::Value>(), size_of::<Vec<usize>>()
 	);*/
 
-	let args : Vec<String> = env::args().skip(1).collect();
-
-	if env::args().next().unwrap().ends_with("_ctl") {
-		send_to_socket(args.as_slice());
-		std::process::exit(0);
-	}
+	let mut cmd_address = CMD_SOCKET_ADDRESS.to_string();
+	let args: Vec<String> = env::args().skip(1).collect();
 
 	if let Some((cmd, args)) = args.split_first() {
 		match cmd.as_ref() {
-			"-h" => {
-				println!("help text");
+			"-h" | "--help" => {
+				println!("{}", HELP_TEXT);
 				std::process::exit(0);
 			},
-			"send" => {
-				send_to_socket(args);
+			"-v" | "--version" => {
+				println!("{}", VERSION);
 				std::process::exit(0);
 			},
+			"--bind" => {
+				if args.len() == 1 {
+					cmd_address = args[0].clone();
+				} else if (args.len() == 0) {
+					println!("Address missing for \"--bind\".");
+					std::process::exit(1);
+				} else {
+					println!("Too many arguments for \"--bind\".");
+					std::process::exit(1);
+				}
+			},
+			// some hard coded scenarios - need to be removed
 			"run1" => {
 				run_test1();
 				std::process::exit(0);
@@ -262,7 +280,7 @@ fn main() {
 	// unix socket
 	let ext_handle = sim.clone();
 	let ext_thread = thread::spawn(move || {
-		ext_loop(ext_handle);
+		ext_loop(ext_handle, &cmd_address);
 	});
 
 	cmd_thread.join().unwrap();
