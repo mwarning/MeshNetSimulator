@@ -230,29 +230,31 @@ impl GeneticRouting {
 
 impl RoutingAlgorithm for GeneticRouting
 {
-	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"name" => {
 				let pos = self.nodes[id as usize].pos;
-				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
+				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z())?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
-	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+	fn get(&self, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"description" => {
 				write!(out, "{}", concat!(
 					"Greedy Routing on virtual coordinates generated ",
 					"by applying spring forces to links."
-				));
+				))?;
 			},
 			"name" => {
-				write!(out, "Sprint Routing");
+				write!(out, "Sprint Routing")?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
 	fn reset(&mut self, len: usize) {

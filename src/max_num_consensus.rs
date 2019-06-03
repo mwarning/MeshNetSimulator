@@ -2,7 +2,6 @@
 use std::usize;
 
 use crate::graph::ID;
-use crate::utils::*;
 use crate::sim::{Io, RoutingAlgorithm};
 
 
@@ -39,23 +38,25 @@ impl MaxNumConsensus {
 
 impl RoutingAlgorithm for MaxNumConsensus
 {
-	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"name" => {
 				let node = &self.nodes[id as usize];
-				write!(out, "{} ({})", id, node.num);
+				write!(out, "{} ({})", id, node.num)?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
-	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+	fn get(&self, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"name" => {
-				write!(out, "Maximum Number Consensus");
+				write!(out, "Maximum Number Consensus")?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
 	fn reset(&mut self, len: usize) {

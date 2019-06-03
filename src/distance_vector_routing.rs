@@ -101,23 +101,25 @@ impl DistanceVectorRouting {
 
 impl RoutingAlgorithm for DistanceVectorRouting
 {
-	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"name" => {
 				let node = &self.nodes[id as usize];
-				write!(out, "{} ({})", id, node.entries.len());
+				write!(out, "{} ({})", id, node.entries.len())?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
-	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+	fn get(&self, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"name" => {
-				write!(out, "Distance Vector Algorithm");
+				write!(out, "Distance Vector Algorithm")?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
 	fn reset(&mut self, len: usize) {

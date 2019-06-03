@@ -237,7 +237,7 @@ fn main() {
 			"--bind" => {
 				if args.len() == 1 {
 					cmd_address = args[0].clone();
-				} else if (args.len() == 0) {
+				} else if args.len() == 0 {
 					println!("Address missing for \"--bind\".");
 					std::process::exit(1);
 				} else {

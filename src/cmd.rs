@@ -2,10 +2,10 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::fs::File;
-use std::time::{Instant, Duration};
+use std::time::Instant;
 use std::io::{BufRead, BufReader};
 use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::net::TcpListener;
 
 use crate::passive_routing_test::PassiveRoutingTest;
 use crate::graph::Graph;
@@ -42,13 +42,11 @@ pub fn ext_loop(sim: Arc<Mutex<GlobalState>>, address: &str) {
 				if let Ok((mut stream, addr)) = listener.accept() {
 					let mut buf = [0; 512];
 					if let Ok(n) = stream.read(&mut buf) {
-						if let Ok(s) = std::str::from_utf8(&buf[0..n]) {
-							if let Ok(mut sim) = sim.lock() {
-								if let Err(e) = cmd_handler(&mut output, &mut sim, s, AllowRecursiveCall::Yes) {
-									stream.write(e.to_string().as_bytes());
-								} else {
-									stream.write(&output.as_bytes());
-								}
+						if let (Ok(s), Ok(mut sim)) = (std::str::from_utf8(&buf[0..n]), sim.lock()) {
+							if let Err(e) = cmd_handler(&mut output, &mut sim, s, AllowRecursiveCall::Yes) {
+								stream.write(e.to_string().as_bytes());
+							} else {
+								stream.write(&output.as_bytes());
 							}
 						}
 					}
@@ -406,11 +404,11 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		},
 		Command::Get(key) => {
 			let mut buf = String::new();
-			state.algorithm.get(&key, &mut buf);
+			state.algorithm.get(&key, &mut buf)?;
 			writeln!(out, "{}", buf)?;
 		},
 		Command::Set(key, value) => {
-			state.algorithm.set(&key, &value);
+			state.algorithm.set(&key, &value)?;
 		},
 		Command::GraphState => {
 			let node_count = state.graph.node_count();
@@ -428,7 +426,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		},
 		Command::SimState => {
 			write!(out, " algo: ")?;
-			state.algorithm.get("name", out);
+			state.algorithm.get("name", out)?;
 
 			writeln!(out, "\n steps: {}", state.sim_steps)?;
 		},
@@ -448,6 +446,9 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			let now = Instant::now();
 			let mut io = Io::new(&state.graph);
 			for step in 0..count {
+				if sim.abort_simulation {
+					break;
+				}
 				state.algorithm.step(&mut io);
 				state.sim_steps += 1;
 				progress.update((count + 1) as usize, step as usize);
@@ -519,7 +520,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			match algo.as_str() {
 				"" => {
 					write!(out, "algorithm: ")?;
-					state.algorithm.get("name", out);
+					state.algorithm.get("name", out)?;
 					write!(out, "\n")?;
 					write!(out, "available: random, vivaldi, spring, genetic\n")?;
 				},

@@ -1,7 +1,6 @@
 
 use std::usize;
 
-use crate::utils::*;
 use crate::graph::ID;
 use crate::sim::{Io, RoutingAlgorithm};
 
@@ -42,33 +41,35 @@ impl DistanceEnumeration {
 
 impl RoutingAlgorithm for DistanceEnumeration
 {
-	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"name" => {
 				let node = &self.nodes[id as usize];
-				write!(out, "{}", node.num);
+				write!(out, "{}", node.num)?;
 			},
 			"label" => {
 				let node = &self.nodes[id as usize];
-				write!(out, "{}", node.hops);
+				write!(out, "{}", node.hops)?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
-	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+	fn get(&self, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"description" => {
 				write!(out, "{}",
 					concat!("Every node selects a random number.",
 						"Every node tries to find the distance to,",
-						" the node with the highes number."));
+						" the node with the highes number."))?;
 			},
 			"name" => {
-				write!(out, "Distance Enumeration");
+				write!(out, "Distance Enumeration")?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
 	fn reset(&mut self, len: usize) {

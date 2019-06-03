@@ -169,35 +169,34 @@ impl RoutingAlgorithm for VivaldiRouting
 		self.time = 0;
 	}
 
-	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"name" => {
 				let pos = self.nodes[id as usize].pos;
-				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
-			},
-			"label" => {
-				write!(out, "");
+				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z())?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
-	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+	fn get(&self, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"rtt" => {
-				write!(out, "{}", self.rtt);
+				write!(out, "{}", self.rtt)?;
 			},
 			"name" => {
-				write!(out, "Vivaldi");
+				write!(out, "Vivaldi")?;
 			},
 			"description" => {
-				write!(out, "Use Vivaldi coordinates to allow routing.");
+				write!(out, "Use Vivaldi coordinates to allow routing.")?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
-	fn set(&mut self, key: &str, value: &str) {
+	fn set(&mut self, key: &str, value: &str) -> Result<(), std::fmt::Error> {
 		match key {
 			"rtt" => {
 				if let Ok(rtt) = value.parse() {
@@ -208,6 +207,7 @@ impl RoutingAlgorithm for VivaldiRouting
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
 	fn step(&mut self, io: &mut Io) {

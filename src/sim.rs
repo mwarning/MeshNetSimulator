@@ -13,7 +13,8 @@ pub struct GlobalState {
 	graph: Graph,
 	test: PassiveRoutingTest,
 	algorithm: Box<RoutingAlgorithm>,
-	pub sim_state: SimState
+	pub sim_state: SimState,
+	pub abort_simulation: bool
 }
 
 impl GlobalState {
@@ -22,7 +23,8 @@ impl GlobalState {
 			graph: Graph::new(),
 			test: PassiveRoutingTest::new(),
 			algorithm: Box::new(RandomRouting::new()),
-			sim_state: SimState::new()
+			sim_state: SimState::new(),
+			abort_simulation: false
 		}
 	}
 }
@@ -45,16 +47,18 @@ impl TestPacket {
 }
 
 pub trait RoutingAlgorithm : Send {
-	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
-		//print_unknown_key(key);
+	fn get_node(&self, _id: ID, _key: &str, _out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
+		Ok(())
 	}
 
-	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+	fn get(&self, key: &str, _out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		print_unknown_key(key);
+		Ok(())
 	}
 
-	fn set(&mut self, key: &str, value: &str) {
+	fn set(&mut self, key: &str, _value: &str) -> Result<(), std::fmt::Error> {
 		print_unknown_key(key);
+		Ok(())
 	}
 
 	// Called to initialize the states or
@@ -66,7 +70,7 @@ pub trait RoutingAlgorithm : Send {
 	fn step(&mut self, io: &mut Io);
 
 	// Get next hop for test packet
-	fn route(&self, packet: &TestPacket) -> Option<ID> {
+	fn route(&self, _packet: &TestPacket) -> Option<ID> {
 		None
 	}
 }

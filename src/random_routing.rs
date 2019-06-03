@@ -65,16 +65,17 @@ impl RandomRouting {
 
 impl RoutingAlgorithm for RandomRouting
 {
-	fn get(&self, key: &str, out: &mut std::fmt::Write) {
+	fn get(&self, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		match key {
 			"name" => {
-				write!(out, "Random Routing");
+				write!(out, "Random Routing")?;
 			},
 			"description" => {
-				write!(out, "Forward traffic to a random neighbor.");
+				write!(out, "Forward traffic to a random neighbor.")?;
 			},
 			_ => {}
 		}
+		Ok(())
 	}
 
 	fn reset(&mut self, len: usize) {
