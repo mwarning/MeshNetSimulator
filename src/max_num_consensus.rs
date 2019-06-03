@@ -45,9 +45,7 @@ impl RoutingAlgorithm for MaxNumConsensus
 				let node = &self.nodes[id as usize];
 				write!(out, "{} ({})", id, node.num);
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 
@@ -56,9 +54,7 @@ impl RoutingAlgorithm for MaxNumConsensus
 			"name" => {
 				write!(out, "Maximum Number Consensus");
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 

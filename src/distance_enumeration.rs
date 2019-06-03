@@ -52,9 +52,7 @@ impl RoutingAlgorithm for DistanceEnumeration
 				let node = &self.nodes[id as usize];
 				write!(out, "{}", node.hops);
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 
@@ -69,9 +67,7 @@ impl RoutingAlgorithm for DistanceEnumeration
 			"name" => {
 				write!(out, "Distance Enumeration");
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 

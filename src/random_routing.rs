@@ -73,9 +73,7 @@ impl RoutingAlgorithm for RandomRouting
 			"description" => {
 				write!(out, "Forward traffic to a random neighbor.");
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 

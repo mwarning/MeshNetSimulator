@@ -236,9 +236,7 @@ impl RoutingAlgorithm for GeneticRouting
 				let pos = self.nodes[id as usize].pos;
 				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 
@@ -253,9 +251,7 @@ impl RoutingAlgorithm for GeneticRouting
 			"name" => {
 				write!(out, "Sprint Routing");
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 

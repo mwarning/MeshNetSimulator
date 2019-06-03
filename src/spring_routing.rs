@@ -116,15 +116,13 @@ impl SpringRouting {
 
 impl RoutingAlgorithm for SpringRouting
 {
-		fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
+	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) {
 		match key {
 			"name" => {
 				let pos = &self.nodes[id as usize].pos;
 				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z()).unwrap();
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 
@@ -139,9 +137,7 @@ impl RoutingAlgorithm for SpringRouting
 			"name" => {
 				write!(out, "Spring Routing");
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 

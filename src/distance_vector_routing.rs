@@ -107,9 +107,7 @@ impl RoutingAlgorithm for DistanceVectorRouting
 				let node = &self.nodes[id as usize];
 				write!(out, "{} ({})", id, node.entries.len());
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 
@@ -118,9 +116,7 @@ impl RoutingAlgorithm for DistanceVectorRouting
 			"name" => {
 				write!(out, "Distance Vector Algorithm");
 			},
-			_ => {
-				print_unknown_key(key);
-			}
+			_ => {}
 		}
 	}
 
