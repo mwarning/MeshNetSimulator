@@ -186,7 +186,7 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("export <file>                        Export a graph as JSON file.", Cid::Export),
 	("move_node <node_id> <x> <y> <z>      Move a node by x/y/z (in km).", Cid::MoveNode),
 	("move_nodes <x> <y> <z>               Move all nodes by x/y/z (in km).", Cid::MoveNodes),
-	("move_to <x> <y> <z>                  Move all nodes to x/y/z (in coordinates).", Cid::MoveTo),
+	("move_to <x> <y> <z>                  Move all nodes to x/y/z (in degrees).", Cid::MoveTo),
 	("help                                 Show this help.", Cid::Help),
 ];
 
