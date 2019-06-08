@@ -3,32 +3,33 @@ use std::time::Duration;
 
 use crate::utils::*;
 use crate::link::Link;
-use crate::passive_routing_test::PassiveRoutingTest;
 use crate::graph::{Graph, ID};
-use crate::cmd::SimState;
+use crate::graph_state::GraphState;
 use crate::random_routing::RandomRouting;
+use crate::passive_routing_test::PassiveRoutingTest;
 
 
 pub struct GlobalState {
-	graph: Graph,
-	test: PassiveRoutingTest,
-	algorithm: Box<RoutingAlgorithm>,
-	pub sim_state: SimState,
-	pub abort_simulation: bool
+	pub gstate: GraphState,
+	pub algorithm: Box<RoutingAlgorithm>,
+	pub test: PassiveRoutingTest,
+	pub sim_steps: u32,
+	pub abort_simulation: bool,
+	pub cmd_address: String,
 }
 
 impl GlobalState {
-	pub fn new() -> Self {
+	pub fn new(cmd_address: &str) -> Self {
 		Self {
-			graph: Graph::new(),
-			test: PassiveRoutingTest::new(),
+			gstate: GraphState::new(),
 			algorithm: Box::new(RandomRouting::new()),
-			sim_state: SimState::new(),
-			abort_simulation: false
+			test: PassiveRoutingTest::new(),
+			sim_steps: 0,
+			abort_simulation: false,
+			cmd_address: cmd_address.to_string()
 		}
 	}
 }
-
 
 pub struct TestPacket {
 	// One hop transmitter and receiver address
@@ -59,6 +60,10 @@ pub trait RoutingAlgorithm : Send {
 	fn set(&mut self, key: &str, _value: &str) -> Result<(), std::fmt::Error> {
 		print_unknown_key(key);
 		Ok(())
+	}
+
+	fn remove_node(&mut self, id: ID) {
+		println!("not implemented");
 	}
 
 	// Called to initialize the states or

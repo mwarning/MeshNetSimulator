@@ -2,25 +2,18 @@
 use std::f32;
 use std::u16;
 
-use serde_json::Value;
-use crate::node::Node;
 use crate::link::Link;
-use crate::utils::*;
 
 
 pub type ID = u32;
-
-// default distance, too small confuses d3.js
-const NODE_SPACING : f32 = 50.0;
 
 /*
  * This graph is designed for fast iteration and access.
 */
 #[derive(Clone)]
 pub struct Graph {
-	pub nodes: Vec<Node>,
+	pub nodes: Vec<u32>,
 	pub links: Vec<Link>, // sorted link list
-	id: u64, //history_id
 }
 
 impl Graph {
@@ -28,81 +21,22 @@ impl Graph {
 		Self {
 			nodes: vec![],
 			links: vec![],
-			id: 0
 		}
 	}
-/*
-	pub fn id(&self) -> u64 {
-		self.id
-	}
-*/
+
 	pub fn clear(&mut self) {
 		self.nodes.clear();
 		self.links.clear();
 	}
 
-	fn connect(&mut self, a: ID, b: ID) {
+	pub fn connect(&mut self, a: ID, b: ID) {
 		self.add_link(a, b, std::u16::MAX);
 		self.add_link(b, a, std::u16::MAX);
 	}
 
-	pub fn move_nodes(&mut self, pos: [f32; 3]) {
-		for node in &mut self.nodes {
-			node.pos[0] += pos[0];
-			node.pos[1] += pos[1];
-			node.pos[2] += pos[2];
-		}
-	}
-
-	pub fn move_node(&mut self, id: ID, pos: [f32; 3]) {
-		let p = &mut self.nodes[id as usize].pos;
-		p[0] += pos[0];
-		p[1] += pos[1];
-		p[2] += pos[2];
-	}
-
 	pub fn add_nodes(&mut self, count: u32) {
 		for _ in 0..count {
-			self.nodes.push(Node::new());
-		}
-	}
-
-	pub fn graph_center(&self) -> [f32; 3] {
-		let mut center = [0.0, 0.0, 0.0];
-		let len = self.nodes.len() as f32;
-		for node in &self.nodes {
-			center[0] += node.pos[0] / len;
-			center[1] += node.pos[1] / len;
-			center[2] += node.pos[2] / len;
-		}
-
-		center
-	}
-
-	pub fn randomize_positions_2d(&mut self, center: [f32; 3], range: f32) {
-		for node in &mut self.nodes {
-			let rnd_pos = Vec3::random_in_area(range).as_2d();
-			node.pos[0] = center[0] + (2.0 * rand::random::<f32>() - 1.0) * range;
-			node.pos[1] = center[1] + (2.0 * rand::random::<f32>() - 1.0) * range;
-		}
-	}
-
-	pub fn connect_in_range(&mut self, range: f32) {
-		let len = self.nodes.len();
-
-		// remove all links
-		self.links.clear();
-
-		for i in 0..len {
-			for j in 0..len {
-				if i == j {
-					continue;
-				}
-				let distance = Self::pos_distance(&self.nodes[i].pos, &self.nodes[j].pos);
-				if distance <= range {
-					self.connect(i as ID, j as ID);
-				}
-			}
+			self.nodes.push(0); //Node::new());
 		}
 	}
 
@@ -182,7 +116,7 @@ impl Graph {
 	pub fn get_central_nodes(&self) -> Vec<ID> {
 	
 	}
-*/
+
 	fn pos_distance(a: &[f32; 3], b: &[f32; 3]) -> f32 {
 		((a[0] - b[0]).powi(2)
 			+ (a[1] - b[2]).powi(2)
@@ -208,7 +142,7 @@ impl Graph {
 		let variance = ((v as f32) / (self.links.len() as f32)).sqrt();
 		(mean, variance)
 	}
-
+*/
 	pub fn get_node_degree(&self, id: ID) -> u32 {
 		self.get_neighbors(id).len() as u32
 	}
@@ -271,7 +205,7 @@ impl Graph {
 		}
 		(d2_min.sqrt(), d2_mean.sqrt(), d2_max.sqrt())
 	}
-*/
+
 //linear mapping
 	pub fn adjust_link_quality(&mut self, min: f32, max: f32) {
 		for link in &mut self.links {
@@ -287,6 +221,7 @@ impl Graph {
 			}
 		}
 	}
+*/
 
 	pub fn has_link(&self, from: ID, to: ID) -> bool {
 		if let Some(_) = self.link_idx(from, to) {
@@ -458,182 +393,8 @@ impl Graph {
 		}
 	}
 
-	fn push_node(&mut self, node: Node) {
-		self.nodes.push(node)
-	}
-
-	pub fn add_node(&mut self, x: f32, y: f32, z: f32) {
-		self.nodes.push(Node::new3(x, y, z));
-	}
-
-	pub fn add_node_with_meta(&mut self, x: f32, y: f32, z: f32, meta: String) {
-		self.nodes.push(Node::new4(x, y, z, meta));
-	}
-
-	pub fn add_line(&mut self, count: u32, close: bool) {
-		if count < 1 {
-			return;
-		}
-
-		let offset = self.nodes.len() as u32;
-
-		for i in 0..count {
-			if close {
-				let r = NODE_SPACING * (count as f32) / (2.0 * f32::consts::PI);
-				let a = 2.0 * (i as f32) * f32::consts::PI / (count as f32);
-				self.add_node(r * a.sin(), r * a.cos(), 0.0);
-			} else {
-				self.add_node(
-					(i as f32) * NODE_SPACING,
-					1.1 * (i % 2) as f32,
-					0.0
-				);
-			}
-
-			if i > 0 {
-				self.connect(offset + i - 1, offset + i);
-			}
-		}
-
-		if close && (count > 2) {
-			self.connect(offset + 0, offset + count - 1);
-		}
-	}
-
-	pub fn add_tree(&mut self, count: u32, intra: u32) {
-		let offset = self.nodes.len() as u32;
-
-		// Connect random nodes
-		for i in 0..count {
-			self.add_node(0.0, 0.0, 0.0);
-			if i > 0 {
-				// Connect node with random previous node
-				loop {
-					let j = rand::random::<ID>() % i;
-					if !self.has_link((offset + i) as ID, (offset + j) as ID) {
-						self.connect((offset + i) as ID, (offset + j) as ID);
-						break;
-					}
-				}
-			}
-		}
-
-		// Interconnect part of the tree with additional connections
-		// Also limit maximum number of possible bidirectional links
-		for _ in 0..intra { //cmp::min(intra, (intra * (intra - 1)) / 2) {
-			loop {
-				let i = rand::random::<ID>() % count;
-				let j = rand::random::<ID>() % count;
-				if !self.has_link((offset + i) as ID, (offset + j) as ID) {
-					self.connect((offset + i) as ID, (offset + j) as ID);
-					break;
-				}
-			}
-		}
-	}
-
-	pub fn add_star(&mut self, count: u32) {
-		let offset = self.nodes.len() as u32;
-
-		if count < 1 {
-			return;
-		}
-
-		self.add_node(0.0, 0.0, 0.0);
-		for i in 0..count {
-			let a = 2.0 * (i as f32) * f32::consts::PI / (count as f32);
-			self.add_node(
-				NODE_SPACING * a.cos(),
-				NODE_SPACING * a.sin(),
-				0.0
-			);
-			self.connect(offset as ID, (offset + 1 + i) as ID);
-		}
-	}
-
-	// Add lattice with horizontal and vertical neighbors
-	pub fn add_lattice4(&mut self, x_count: u32, y_count: u32) {
-		self.add_lattice(x_count, y_count, false);
-	}
-
-	// Add lattice with horizontal, vertical and diagonal neighbors
-	pub fn add_lattice8(&mut self, x_count: u32, y_count: u32) {
-		self.add_lattice(x_count, y_count, true);
-	}
-
-	fn add_lattice(&mut self, x_count: u32, y_count: u32, diag: bool) {
-		if x_count < 1 || y_count < 1 {
-			return;
-		}
-
-		let offset = self.nodes.len() as u32;
-
-		for x in 0..x_count {
-			for y in 0..y_count {
-				self.add_node(
-					(x as f32) * NODE_SPACING,
-					(y as f32) * NODE_SPACING,
-					0.0
-				);
-			}
-		}
-
-		let mut connect = |x1 : u32, y1: u32, x2: u32, y2: u32| {
-			// Validate coordinates
-			if (x2 < x_count) && (y2 < y_count) {
-				let a = offset + x1 * y_count + y1;
-				let b = offset + x2 * y_count + y2;
-				self.connect(a as ID, b as ID);
-			}
-		};
-
-		for x in 0..x_count {
-			for y in 0..y_count {
-				if diag {
-					connect(x, y, x + 1, y + 1);
-					if y > 0 {
-						connect(x, y, x + 1, y - 1);
-					}
-				}
-				connect(x, y, x, y + 1);
-				connect(x, y, x + 1, y);
-			}
-		}
-	}
-
-	/*
-		create radnom network with connections
-		- when in range
-		- power-law distribution
-	
-	fn add_random(&mut self, x_count: usize, y_count: usize) {
-		let offset = self.nodes.len();
-		let range = 10.0;
-		let count = x_count * y_count;
-
-		for x in 0..x_count {
-			for y in 0..y_count {
-				self.add_node();
-				let node = self.nodes.last_mut().unwrap();
-				node.gpos[0] = (x as f32) * NODE_SPACING;
-				node.gpos[1] = (y as f32) * NODE_SPACING;
-			}
-		}
-
-		self.connect_range(range);
-	}*/
-
-	pub fn geo_center(&self) -> [f32; 3] {
-		let mut center = [0.0, 0.0, 0.0];
-		let len = self.nodes.len() as f32;
-
-		for node in &self.nodes {
-			center[0] += node.pos[0] / len;
-			center[1] += node.pos[1] / len;
-			center[2] += node.pos[2] / len;
-		}
-
-		center
+	pub fn clear_links(&mut self) {
+		self.links.clear();
 	}
 
 	pub fn is_directed(&self) -> bool {
@@ -666,46 +427,4 @@ impl Graph {
 	pub fn link_count(&self) -> usize {
 		self.links.len()
 	}
-}
-
-// move out
-pub fn graph_to_json(graph: &Graph, ret: &mut String) {
-	use std::fmt::Write;
-
-	write!(ret, "{{\"nodes\": [").unwrap();
-	let mut comma = false;
-	for (id, node) in graph.nodes.iter().enumerate() {
-		let meta = if node.meta.is_empty() {
-			"{}"
-		} else {
-			node.meta.as_str()
-		};
-
-		if let Ok(v) = serde_json::from_str::<Value>(meta) {
-			let node_name = if let Some(hostname) = get_str(&v, "hostname") {
-				hostname.to_string()
-			} else {
-				id.to_string()
-			};
-
-			let client_count = if let Some(clients) = get_u64(&v, "clients") {
-				clients
-			} else {
-				0
-			};
-
-			if comma {
-				write!(ret, ",").unwrap();
-			}
-
-			comma = true;
-			write!(ret, "{{").unwrap();
-			write!(ret, "\"id\": {},", id).unwrap();
-			write!(ret, "\"label\": \"\",").unwrap();
-			write!(ret, "\"name\": \"{}\",", node_name).unwrap();
-			write!(ret, "\"clients\": \"{}\"", client_count).unwrap();
-			write!(ret, "}}").unwrap();
-		}
-	}
-	write!(ret, "]}}").unwrap();
 }

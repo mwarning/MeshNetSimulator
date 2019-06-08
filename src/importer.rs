@@ -2,19 +2,20 @@
 use std::fs::File;
 use std::io::Read;
 use std::collections::HashMap;
+use std::borrow::BorrowMut;
 
 use serde_json::Value;
-//use node::Node;
+use crate::graph_state::{Meta, Location};
 use crate::graph::{Graph, ID};
 use crate::utils::*;
 
 
-pub fn import_file(graph: &mut Graph, path: &str) {
+pub fn import_file(graph: &mut Graph, loc: Option<&mut Location>, meta: Option<&mut Meta>, path: &str) {
 	match File::open(path) {
 		Ok(mut file) => {
 			let mut data = String::new();
 			match file.read_to_string(&mut data) {
-				Ok(_) => { parse_netjson(graph, &data); },
+				Ok(_) => { parse_netjson(graph, loc, meta, &data); },
 				Err(e) => { println!("file error: {}", e); }
 			}
 		},
@@ -35,13 +36,7 @@ fn extract_location(node: &Value) -> (f32, f32) {
 }
 
 // parse the meshviewer data
-fn parse_netjson(graph: &mut Graph, data: &str) {
-	/*
-	let keep_meta = true;
-	let merge_nodes = false;
-	let ignore_broken = true;
-	*/
-
+fn parse_netjson(graph: &mut Graph, mut loc: Option<&mut Location>, mut meta: Option<&mut Meta>, data: &str) {
 	if let Ok(v) = serde_json::from_str::<Value>(data) {
 		if let (Some(nodes), Some(links)) = (get_array(&v, "nodes"), get_array(&v, "links")) {
 			// map target/source field to node id in graph.nodes
@@ -51,9 +46,18 @@ fn parse_netjson(graph: &mut Graph, data: &str) {
 			for node in nodes {
 				if let Some(node_id) = get_str(&node, "node_id") {
 					let (x, y) = extract_location(node);
-					let meta = serde_json::to_string(&node).unwrap_or(String::new());
+					let meta_data = serde_json::to_string(&node).unwrap_or(String::new());
 					// TODO: move to Node::new() ctor
-					graph.add_node_with_meta(x, y, 0.0, meta);
+					//state.graph.add_node_with_meta(x, y, 0.0, meta);
+					//add("".to_string(), [x, y, 0.0]);
+
+					if let Some(loc) = loc.borrow_mut() {
+						loc.data.insert(id as ID, [x, y, 0.0]);
+					}
+
+					if let Some(meta) = meta.borrow_mut() {
+						meta.data.insert(id as ID, meta_data);
+					}
 
 					// remember node id
 					map.insert(&node_id, id);

@@ -7,7 +7,6 @@ edition = "2018"
 [dependencies]
 rand = "0.6.5"
 serde_json = "1.0.18"
-hyperbolic_graph_generator = "0.1.0"
 
 [profile.release]
 debug = true

@@ -5,6 +5,7 @@ mod graph;
 mod dijkstra;
 mod utils;
 mod stats;
+mod graph_state;
 mod passive_routing_test;
 mod vivaldi_routing;
 mod spring_routing;
@@ -43,6 +44,7 @@ pub const CMD_SOCKET_ADDRESS : &'static str = "127.0.0.1:8011";
 const HELP_TEXT: &'static str = concat!(
 	"--help|-h         Display this help.\n",
 	"--version|-v      Display version.\n",
+	"--run <file>      Run commands from file.\n",
 	"--bind <address>  Bind command socket to address. (Default: 127.0.0.1:8011)\n"
 );
 
@@ -223,6 +225,7 @@ fn main() {
 
 	let mut cmd_address = CMD_SOCKET_ADDRESS.to_string();
 	let args: Vec<String> = env::args().skip(1).collect();
+	let mut run_script = String::new();
 
 	if let Some((cmd, args)) = args.split_first() {
 		match cmd.as_ref() {
@@ -244,6 +247,9 @@ fn main() {
 					println!("Too many arguments for \"--bind\".");
 					std::process::exit(1);
 				}
+			},
+			"--run" => {
+				run_script = format!("run {}", args.join(" "));
 			},
 			// some hard coded scenarios - need to be removed
 			"run1" => {
@@ -269,12 +275,12 @@ fn main() {
 		}
 	}
 
-	let sim = Arc::new(Mutex::new(GlobalState::new()));
+	let sim = Arc::new(Mutex::new(GlobalState::new(&cmd_address)));
 
 	// console
 	let cmd_handle = sim.clone();
 	let cmd_thread = thread::spawn(move || {
-		cmd_loop(cmd_handle);
+		cmd_loop(cmd_handle, &run_script);
 	});
 
 	// unix socket
@@ -284,4 +290,12 @@ fn main() {
 	});
 
 	cmd_thread.join().unwrap();
+	ext_thread.join().unwrap();
+
+	// exit with error code
+	if let Ok(sim) = sim.clone().lock() {
+		if sim.abort_simulation {
+			std::process::exit(1);
+		}
+	}
 }

@@ -7,10 +7,9 @@ use crate::utils::*;
 use crate::exporter::export_file;
 use crate::vivaldi_routing::*;
 use crate::progress::Progress;
+use crate::graph_state::GraphState;
 
-extern crate hyperbolic_graph_generator;
-
-
+/*
 fn create_hg(n: usize) -> Graph {
 	let mut graph = Graph::new();
 	if let Ok((nodes, links)) = hyperbolic_graph_generator::hg_graph_generator(n, 10.0, 2.0, 0.0, 1.0, 1) {
@@ -23,16 +22,17 @@ fn create_hg(n: usize) -> Graph {
 	}
 	graph
 }
+*/
 
 pub fn run_test1() {
-	let mut graph = Graph::new();
+	let mut state = GraphState::new();
 	let mut test = PassiveRoutingTest::new();
 	let mut algorithm = crate::spring_routing::SpringRouting::new();
 	let mut progress = Progress::new();
 
 	let n = 3;
-	graph.add_lattice4(n as u32, n as u32);
-	algorithm.reset(graph.node_count());
+	state.add_lattice4(n as u32, n as u32);
+	algorithm.reset(state.graph.node_count());
 /*
 	fn print<T: RoutingAlgorithm>(algo: &T, len: usize) {
 		let mut meta = NodeMeta::new();
@@ -44,37 +44,37 @@ pub fn run_test1() {
 	}
 */
 	let steps = 4 * n;
-	let mut io = Io::new(&graph);
+	let mut io = Io::new(&state.graph);
 	for step in 1..=steps {
 		println!("step: {}", step);
 		//print(&algorithm, graph.node_count());
 		progress.update(steps, step);
 		algorithm.step(&mut io);
 	}
-	test.run_samples(&graph, |p| algorithm.route(&p), 100);
+	test.run_samples(&state.graph, |p| algorithm.route(&p), 100);
 
 	println!("Nodes:");
 
 	println!("nodes: {}, links: {}, arrived: {:.0}%, stretch: {:.2}, step_duration: {}, test_duration: {}",
-		graph.node_count(), graph.link_count(), test.arrived(), test.stretch(),
+		state.graph.node_count(), state.graph.link_count(), test.arrived(), test.stretch(),
 		fmt_duration(progress.duration()), fmt_duration(test.duration())
 	);
 
-	export_file(&graph, Some(&algorithm), "graph.json");
+	export_file(&state.graph, None, Some(&algorithm), "graph.json");
 }
 
 pub fn run_test2() {
-	let mut graph = Graph::new();
+	let mut state = GraphState::new();
 	let mut test = PassiveRoutingTest::new();
 	let mut algorithm = crate::spring_routing::SpringRouting::new();
 	let mut progress = Progress::new();
 
 	for size in 2..50 {
-		graph.clear();
-		graph.add_lattice4(size, size);
-		algorithm.reset(graph.node_count());
+		state.clear();
+		state.add_lattice4(size, size);
+		algorithm.reset(state.graph.node_count());
 
-		let mut io = Io::new(&graph);
+		let mut io = Io::new(&state.graph);
 
 		// make sure every node information had the change to propagate
 		let steps = (4 * size) as usize;
@@ -86,14 +86,14 @@ pub fn run_test2() {
 
 		//test.run_all(&graph, &algorithm, &mut dijkstra);
 		test.clear();
-		test.run_samples(&graph, |p| algorithm.route(&p), 100);
+		test.run_samples(&state.graph, |p| algorithm.route(&p), 100);
 
 		println!(concat!(
 			"{}:\t",
 			"nodes: {}\tlinks: {}\t arrived: {:.0}%\t",
 			"stretch: {:.2}\tsteps: {}\tduration: {}\t",
 			"connectivity: {}%"),
-			size, graph.node_count(), graph.link_count(),
+			size, state.graph.node_count(), state.graph.link_count(),
 			test.arrived(), test.stretch(),
 			steps, fmt_duration(test.duration()),
 			test.connectivity()
@@ -167,7 +167,7 @@ pub fn run_test3() {
 
 	let mut test = PassiveRoutingTest::new();
 	let mut algorithm = crate::genetic_routing::GeneticRouting::new();
-	let mut graph = Graph::new();
+	let mut state = GraphState::new();
 	let mut program = [0u32; 8];
 	let max_symbols = crate::genetic_routing::MAX_SYMBOLS;
 	let max_possible_programs = program.len().pow(max_symbols as u32);
@@ -175,7 +175,7 @@ pub fn run_test3() {
 	let mut progress = Progress::new();
 
 	// creat a 3x3 lattice
-	graph.add_lattice4(3, 3);
+	state.add_lattice4(3, 3);
 
 	let mut valid = 0;
 	let mut found = 0;
@@ -190,8 +190,8 @@ pub fn run_test3() {
 
 			// test fitness
 			algorithm.set_program(&program);
-			algorithm.reset(graph.node_count());
-			let fitness = test_program(&program, &graph, &mut test, &mut algorithm);
+			algorithm.reset(state.graph.node_count());
+			let fitness = test_program(&program, &state.graph, &mut test, &mut algorithm);
 			if fitness > 0.0 {
 				// yay
 				found += 1;
@@ -242,19 +242,18 @@ impl Test4 {
 }*/
 
 pub fn run_test4() {
+	let mut state = GraphState::new();
 	let mut vivaldi = VivaldiRouting::new();
 
-	let mut graph = Graph::new();
-
 	// creat a 3x3 lattice
-	graph.add_tree(30, 3);
-	vivaldi.reset(graph.node_count());
+	state.add_tree(30, 3);
+	vivaldi.reset(state.graph.node_count());
 
-	let mut io = Io::new(&graph);
+	let mut io = Io::new(&state.graph);
 	for _ in 1..10 {
 		vivaldi.step(&mut io);
 	}
 
-	println!("convergence: {:.4}", vivaldi.get_convergence());
-	export_file(&graph, Some(&vivaldi), "graph.json");
+	println!("convergence: {}", vivaldi.get_convergence());
+	export_file(&state.graph, None, Some(&vivaldi), "graph.json");
 }

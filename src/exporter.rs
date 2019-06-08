@@ -4,14 +4,15 @@ use std::u16;
 use std::fmt::Write;
 
 use crate::sim::RoutingAlgorithm;
+use crate::graph_state::{Location};
 use crate::graph::{Graph, ID};
 use crate::utils::*;
 
 
-pub fn export_file(graph: &Graph, algo: Option<&RoutingAlgorithm>, path: &str) {
+pub fn export_file(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingAlgorithm>, path: &str) {
 	use std::io::Write;
 	if let Ok(mut file) = File::create(path) {
-		let content = export_json(&graph, algo);
+		let content = export_json(&graph, loc, algo);
 		file.write_all(content.as_bytes()).unwrap();
 		//println!("Wrote {}", path);
 	} else {
@@ -19,35 +20,40 @@ pub fn export_file(graph: &Graph, algo: Option<&RoutingAlgorithm>, path: &str) {
 	}
 }
 
-pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
+pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingAlgorithm>) -> String {
 	let mut ret = String::new();
 	let mut name = String::new();
 	let mut label = String::new();
 
 	write!(&mut ret, "{{").unwrap();
 	write!(&mut ret, "\"nodes\": [").unwrap();
+
 	let mut comma1 = false;
-	for (id, node) in graph.nodes.iter().enumerate() {
+	for id in 0..graph.node_count() as ID {
 		if comma1 {
 			write!(&mut ret, ",").unwrap();
 		}
 		comma1 = true;
+
 		if let Some(algo) = algo {
 			name.clear();
 			label.clear();
-			algo.get_node(id as ID, "name", &mut name);
-			algo.get_node(id as ID, "label", &mut label);
+			algo.get_node(id, "name", &mut name);
+			algo.get_node(id, "label", &mut label);
 		}
-		let x = node.pos[0];
-		let y = node.pos[1];
-		write!(&mut ret,
-			"{{\"id\": \"{}\", \"x\": {}, \"y\": {}, \"name\": \"{}\", \"label\": \"{}\"}}",
-			id, x / DEG2KM, y / DEG2KM, name, label).unwrap();
+
+		write!(&mut ret, "{{\"id\": \"{}\", ", id).unwrap();
+		if let Some(loc) = loc {
+			if let Some(pos) = loc.get_position(id) {
+				write!(&mut ret, "\"x\": {}, \"y\": {}, ", pos[0] / DEG2KM, pos[1] / DEG2KM).unwrap();
+			}
+		}
+
+		write!(&mut ret, "\"name\": \"{}\", \"label\": \"{}\"}}", name, label).unwrap();
 	}
 
 	write!(&mut ret, "], \"links\": [").unwrap();
 	let mut comma2 = false;
-	//for (id, node) in graph.nodes.iter().enumerate() {
 	for link in &graph.links {
 		if link.from > link.to {
 			continue;
@@ -57,6 +63,7 @@ pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
 			write!(&mut ret, ",").unwrap();
 		}
 		comma2 = true;
+
 		// how to remember
 		let source_id = link.from;
 		let source_tq = (link.quality() as f32) / (u16::MAX as f32);
@@ -66,6 +73,7 @@ pub fn export_json(graph: &Graph, algo: Option<&RoutingAlgorithm>) -> String {
 		} else {
 			0.0
 		};
+
 		write!(&mut ret, "{{\"source\": \"{}\", \"target\": \"{}\", \"source_tq\": {}, \"target_tq\": {}}}",
 			source_id, target_id, source_tq, target_tq
 		).unwrap();

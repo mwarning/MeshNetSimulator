@@ -20,7 +20,6 @@ Every time toplogy or node state changes, a new graph.json file is written. You 
 
 Some commands on the command line are:
 
-
 - `clear`  
   Clear graph state
 - `graph_state`  
@@ -59,8 +58,8 @@ Some commands on the command line are:
   Disconnect nodes. Node list is a comma separated list of node ids.
 - `step [<steps>]`  
   Run simulation steps. Default is 1.
-- `execute <file>`  
-  Execute a script with a command per line.
+- `run <file>`  
+  Run commands from a script.
 - `import <file>`  
   Import a graph as JSON file.
 - `export <file>`  
@@ -71,6 +70,8 @@ Some commands on the command line are:
   Move all nodes by x/y/z (in km).
 - `move_to <x> <y> <z>`  
   Move all nodes to x/y/z (in degrees).
+- `exit`  
+  Exit simulator.
 - `help`  
   Show this help.
 

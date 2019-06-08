@@ -191,6 +191,9 @@ impl RoutingAlgorithm for VivaldiRouting
 			"description" => {
 				write!(out, "Use Vivaldi coordinates to allow routing.")?;
 			},
+			"convergence" => {
+				write!(out, "{}", self.get_convergence())?;
+			},
 			_ => {}
 		}
 		Ok(())
