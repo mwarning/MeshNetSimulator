@@ -77,11 +77,19 @@ Some commands on the command line are:
 
 ## Related Software
 
+### Big Projects
+
 [OMNeT++](https://www.omnetpp.org/): OMNeT++ is an extensible, modular, component-based C++ simulation library and framework, primarily for building network simulators.
 
 [ns-3](https://www.nsnam.org/): ns-3 is a discrete-event network simulator for Internet systems, targeted primarily for research and educational use. 
 
 [EMANE](https://github.com/adjacentlink/emane): Extendable Mobile Ad-hoc Network Emulator.
+
+### Small Projects
+
+[MLC](https://github.com/axn/mlc): Use lxc containers to simulate mesh networks.
+
+[Network Mesh Emulator](https://github.com/dbritos/Network-mesh-emulator): Use VirtualBox images with OpenWrt.
 
 ## Various Links
 
