@@ -2,8 +2,7 @@
 use std::time::Duration;
 
 use crate::utils::*;
-use crate::link::Link;
-use crate::graph::{Graph, ID};
+use crate::graph::{Graph, Link, ID};
 use crate::graph_state::GraphState;
 use crate::random_routing::RandomRouting;
 use crate::passive_routing_test::PassiveRoutingTest;

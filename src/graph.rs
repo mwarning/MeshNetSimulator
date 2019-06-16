@@ -1,32 +1,75 @@
 
 use std::f32;
 use std::u16;
+use std::fmt;
 
-use crate::link::Link;
+use std::cmp::Ordering;
+//TODO: rename to Links and GraphState to Graph
 
 
 pub type ID = u32;
+
+#[derive(Clone)]
+pub struct Link
+{
+	pub from: ID,
+	pub to: ID,
+	pub quality: u16,
+	//bandwidth: u16,
+	//channel: u8
+	cost: u16,
+}
+
+impl Link {
+	pub fn new(from: ID, to: ID, quality: u16) -> Self {
+		Self {from, to, quality, cost: 1}
+	}
+
+	pub fn cost(&self) -> u16 {
+		self.cost
+	}
+
+	pub fn bandwidth(&self) -> u16 {
+		1
+	}
+
+	pub fn quality(&self) -> u16 {
+		self.quality
+	}
+
+	fn cmp(&self, from: ID, to: ID) -> Ordering {
+		let i = ((self.from as u64) << 32) + (self.to as u64);
+		let j = ((from as u64) << 32) + (to as u64);
+		i.cmp(&j)
+	}
+}
+
+impl fmt::Debug for Link {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		write!(f, "{{{} => {}}}", self.from, self.to)
+	}
+}
 
 /*
  * This graph is designed for fast iteration and access.
 */
 #[derive(Clone)]
 pub struct Graph {
-	pub nodes: Vec<u32>,
 	pub links: Vec<Link>, // sorted link list
+	pub node_count: usize,
 }
 
 impl Graph {
 	pub fn new() -> Self {
 		Self {
-			nodes: vec![],
 			links: vec![],
+			node_count: 0,
 		}
 	}
 
 	pub fn clear(&mut self) {
-		self.nodes.clear();
 		self.links.clear();
+		self.node_count = 0;
 	}
 
 	pub fn connect(&mut self, a: ID, b: ID) {
@@ -35,16 +78,14 @@ impl Graph {
 	}
 
 	pub fn add_nodes(&mut self, count: u32) {
-		for _ in 0..count {
-			self.nodes.push(0); //Node::new());
-		}
+		self.node_count += count as usize;
 	}
 
 	pub fn add_graph(&mut self, graph: Graph) {
-		let nlen = self.nodes.len() as ID;
+		let nlen = self.node_count as ID;
 		let llen = self.links.len();
 
-		self.nodes.extend(graph.nodes);
+		self.node_count += graph.node_count;
 		self.links.extend(graph.links);
 
 		for link in &mut self.links[llen..] {
@@ -149,18 +190,18 @@ impl Graph {
 
 	pub fn get_avg_node_degree(&self) -> f32 {
 		let mut n = 0;
-		for id in 0..self.nodes.len() {
+		for id in 0..self.node_count {
 			n += self.get_node_degree(id as u32);
 		}
-		(n as f32) / (self.nodes.len() as f32)
+		(n as f32) / (self.node_count as f32)
 	}
 
 	pub fn get_mean_clustering_coefficient(&self) -> f32 {
 		let mut cc = 0.0f32;
-		for id in 0..self.nodes.len() {
+		for id in 0..self.node_count {
 			cc += self.get_local_clustering_coefficient(id as u32);
 		}
-		cc / (self.nodes.len() as f32)
+		cc / (self.node_count as f32)
 	}
 
 	// Get neighbor count mean and variance
@@ -168,7 +209,7 @@ impl Graph {
 		let mut degrees = Vec::new();
 		let mut v = 0.0;
 		let mut c = 0;
-		let len = self.nodes.len() as u32;
+		let len = self.node_count as u32;
 
 		// calculate mean
 		for id in 0..len {
@@ -260,17 +301,6 @@ impl Graph {
 		}
 	}
 
-	fn link_index(&self, from: ID, to: ID) -> Option<usize> {
-		match self.links.binary_search_by(|link| link.cmp(from, to)) {
-			Ok(idx) => {
-				Some(idx)
-			},
-			Err(_) => {
-				None
-			}
-		}
-	}
-
 	fn del_link(&mut self, a: ID, b: ID) {
 		self.del_links(&vec![a, b]);
 	}
@@ -304,7 +334,7 @@ impl Graph {
 	}
 
 	pub fn is_valid(&self) -> bool {
-		let len = self.nodes.len() as ID;
+		let len = self.node_count as ID;
 		for (i, link) in self.links.iter().enumerate() {
 			if link.to >= len || link.from >= len {
 				return false;
@@ -322,7 +352,11 @@ impl Graph {
 	}
 
 	pub fn remove_node(&mut self, id: ID) {
-		self.nodes.remove(id as usize);
+		if self.node_count == 0 {
+			return;
+		}
+
+		self.node_count -= 1;
 
 		for link in &mut self.links {
 			if link.to > id {
@@ -360,12 +394,14 @@ impl Graph {
 	}
 
 	pub fn add_link(&mut self, from: ID, to: ID, tq: u16) {
-		match self.links.binary_search_by(|link| link.cmp(from, to)) {
-			Ok(idx) => {
-				self.links[idx].quality = tq;
-			},
-			Err(idx) => {
-				self.links.insert(idx, Link::new(from, to, tq));
+		if from != to {
+			match self.links.binary_search_by(|link| link.cmp(from, to)) {
+				Ok(idx) => {
+					self.links[idx].quality = tq;
+				},
+				Err(idx) => {
+					self.links.insert(idx, Link::new(from, to, tq));
+				}
 			}
 		}
 	}
@@ -399,7 +435,7 @@ impl Graph {
 
 	pub fn is_directed(&self) -> bool {
 		for link in &self.links {
-			if self.link_index(link.to, link.from).is_none() {
+			if self.link_idx(link.to, link.from).is_none() {
 				return false;
 			}
 		}
@@ -408,7 +444,7 @@ impl Graph {
 
 	pub fn remove_unconnected_nodes(&mut self) {
 		let mut remove = Vec::new();
-		for id in 0..self.nodes.len() as ID {
+		for id in 0..self.node_count as ID {
 			if self.get_node_degree(id) == 0 {
 				remove.push(id);
 			}
@@ -416,15 +452,74 @@ impl Graph {
 		self.remove_nodes(&remove);
 	}
 
-	pub fn print_stats(&self) {
-		println!("Nodes: {}, Links: {}", self.nodes.len(), self.links.len());
-	}
-
 	pub fn node_count(&self) -> usize {
-		self.nodes.len()
+		self.node_count
 	}
 
 	pub fn link_count(&self) -> usize {
 		self.links.len()
+	}
+
+	pub fn link_cost_sum(&self) -> f32 {
+		self.links.iter().fold(0.0, |acc, link| acc + link.cost() as f32)
+	}
+
+	pub fn spanning_tree(&self) -> Graph {
+		Self::minimum_spanning_tree_impl(&self.links, self.node_count)
+	}
+
+	pub fn minimum_spanning_tree(&self) -> Graph {
+		// sort links by cost
+		let links = {
+			let mut links = self.links.clone();
+			links.sort_unstable_by(|a, b| a.cost().cmp(&b.cost()));
+			links
+		};
+
+		Self::minimum_spanning_tree_impl(&links, self.node_count)
+	}
+
+	// kruskal
+	fn minimum_spanning_tree_impl(links: &[Link], node_count: usize) -> Graph {
+		let mut roots = Vec::with_capacity(node_count);
+		let mut mst = Vec::new();
+
+		// initial root of every node is itself
+		for i in 0..node_count {
+			roots.push(i as ID);
+		}
+
+		// Find root of node
+		fn root(roots: &mut [ID], i: ID) -> usize {
+			let mut i = i as usize;
+			while roots[i] != i as ID {
+				// Path halving optimization
+				let tmp = roots[roots[i] as usize];
+				roots[i] = tmp;
+				i = tmp as usize;
+			}
+			i
+		}
+
+		for link in links {
+			let x = root(&mut roots, link.from);
+			let y = root(&mut roots, link.to);
+			if x != y {
+				mst.push(link.clone());
+				roots[x] = roots[y];
+			}
+		}
+
+		let mst_node_count = if mst.len() > 0 {
+			mst.len() + 1
+		} else {
+			node_count
+		};
+
+		if mst_node_count == node_count {
+			Graph{ node_count: mst_node_count, links: mst }
+		} else {
+			Graph::new()
+		}
 	}
 }

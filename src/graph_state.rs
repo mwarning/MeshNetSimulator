@@ -37,8 +37,12 @@ impl Location {
 		self.data.clear();
 	}
 
-	fn remove_node(&mut self, id: ID) {
+	pub fn remove_node(&mut self, id: ID) {
 		self.data.remove(&id);
+	}
+
+	pub fn insert(&mut self, id: ID, pos: [f32; 3]) {
+		self.data.insert(id, pos);
 	}
 
 	pub fn move_nodes(&mut self, pos: [f32; 3]) {
@@ -59,7 +63,6 @@ impl Location {
 
 	pub fn graph_center(&self) -> [f32; 3] {
 		let mut c = [0.0, 0.0, 0.0];
-		let len = self.data.len() as f32;
 
 		for pos in self.data.values() {
 			c[0] += pos[0];
@@ -67,6 +70,7 @@ impl Location {
 			c[2] += pos[2];
 		}
 
+		let len = self.data.len() as f32;
 		[c[0] / len, c[1] / len, c[2] / len]
 	}
 
@@ -106,6 +110,10 @@ impl Meta {
 
 	fn remove_node(&mut self, id: ID) {
 		self.data.remove(&id);
+	}
+
+	fn insert(&mut self, id: ID, data: String) {
+		self.data.insert(id, data);
 	}
 }
 
@@ -194,7 +202,7 @@ impl GraphState {
 			} else {
 				[(i as f32) * NODE_SPACING, 1.1 * (i % 2) as f32, 0.0]
 			};
-			self.location.data.insert(offset + i, pos);
+			self.location.insert(offset + i, pos);
 
 			if i > 0 {
 				self.graph.connect(offset + i - 1, offset + i);
@@ -211,18 +219,18 @@ impl GraphState {
 		self.graph.add_nodes(count);
 
 		// Connect random nodes
-		for i in 0..count {
+		for i in 1..count {
 			//self.add_node(0.0, 0.0, 0.0);
-			if i > 0 {
+			//if i > 0 {
 				// Connect node with random previous node
 				loop {
 					let j = rand::random::<ID>() % i;
-					if !self.graph.has_link((offset + i) as ID, (offset + j) as ID) {
+					if i != j && !self.graph.has_link((offset + i) as ID, (offset + j) as ID) {
 						self.graph.connect((offset + i) as ID, (offset + j) as ID);
 						break;
 					}
 				}
-			}
+			//}
 		}
 
 		// Interconnect part of the tree with additional connections
@@ -231,12 +239,18 @@ impl GraphState {
 			loop {
 				let i = rand::random::<ID>() % count;
 				let j = rand::random::<ID>() % count;
-				if !self.graph.has_link((offset + i) as ID, (offset + j) as ID) {
+				if i != j && !self.graph.has_link((offset + i) as ID, (offset + j) as ID) {
 					self.graph.connect((offset + i) as ID, (offset + j) as ID);
 					break;
 				}
 			}
 		}
+/*
+		println!("add_tree:");
+		for link in &self.graph.links {
+			println!("link {} => {} ({})", link.from, link.to, link.quality);
+		}
+*/
 	}
 
 	pub fn add_star(&mut self, count: u32) {
@@ -251,7 +265,7 @@ impl GraphState {
 		//self.add_node(0.0, 0.0, 0.0);
 		for i in 0..count {
 			let a = 2.0 * (i as f32) * f32::consts::PI / (count as f32);
-			self.location.data.insert(offset + i, [
+			self.location.insert(offset + i, [
 				NODE_SPACING * a.cos(),
 				NODE_SPACING * a.sin(),
 				0.0
@@ -281,7 +295,7 @@ impl GraphState {
 		let mut i = 0;
 		for x in 0..x_count {
 			for y in 0..y_count {
-				self.location.data.insert(offset + i, [
+				self.location.insert(offset + i, [
 					(x as f32) * NODE_SPACING,
 					(y as f32) * NODE_SPACING,
 					0.0
@@ -320,7 +334,7 @@ impl GraphState {
 
 		write!(ret, "{{\"nodes\": [")?;
 		let mut comma = false;
-		for id in 0..self.graph.nodes.len() as u32 {
+		for id in 0..self.graph.node_count() as u32 {
 			let meta_data = if let Some(data) = self.meta.data.get(&id) {
 				data.as_str()
 			} else {

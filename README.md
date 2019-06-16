@@ -36,7 +36,7 @@ Some commands on the command line are:
   Set node property.
 - `connect_in_range <range>`  
   Connect all nodes in range of less then range (in km).
-- `randomize_position <range>`  
+- `rnd_position <range>`  
   Randomize nodes in an area with edge length in range (in km).
 - `remove_unconnected`  
   Remove nodes without any connections.
@@ -70,6 +70,10 @@ Some commands on the command line are:
   Move all nodes by x/y/z (in km).
 - `move_to <x> <y> <z>`  
   Move all nodes to x/y/z (in degrees).
+- `show_mst`  
+  Mark the minimum spanning tree.
+- `crop_mst`  
+  Only leave the minimum spanning tree.
 - `exit`  
   Exit simulator.
 - `help`  

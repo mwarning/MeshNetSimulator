@@ -116,6 +116,8 @@ enum Command {
 	SimState,
 	Reset,
 	Exit,
+	ShowMinimumSpanningTree,
+	CropMinimumSpanningTree,
 	Test(u32),
 	Get(String),
 	Set(String, String),
@@ -149,6 +151,8 @@ enum Cid {
 	SimState,
 	Reset,
 	Exit,
+	ShowMinimumSpanningTree,
+	CropMinimumSpanningTree,
 	Test,
 	Get,
 	Set,
@@ -183,7 +187,7 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("set <key> <value>                    Set node property.", Cid::Set),
 	("connect_in_range <range>             Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
 	("positions <true|false>               Enable geo positions.", Cid::Positions),
-	("randomize_positions <range>          Randomize nodes in an area with edge length in range (in km).", Cid::RandomizePositions),
+	("rnd_positions <range>                Randomize nodes in an area with edge length in range (in km).", Cid::RandomizePositions),
 	("remove_unconnected                   Remove nodes without any connections.", Cid::RemoveUnconnected),
 	("algorithm [<algorithm>]              Get or set given algorithm.", Cid::Algorithm),
 	("add_line <node_count> <create_loop>  Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
@@ -200,6 +204,8 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("move_node <node_id> <x> <y> <z>      Move a node by x/y/z (in km).", Cid::MoveNode),
 	("move_nodes <x> <y> <z>               Move all nodes by x/y/z (in km).", Cid::MoveNodes),
 	("move_to <x> <y> <z>                  Move all nodes to x/y/z (in degrees).", Cid::MoveTo),
+	("show_mst                             Mark the minimum spanning tree.", Cid::ShowMinimumSpanningTree),
+	("crop_mst                             Only leave the minimum spanning tree.", Cid::CropMinimumSpanningTree),
 	("exit                                 Exit simulator.", Cid::Exit),
 	("help                                 Show this help.", Cid::Help),
 ];
@@ -214,9 +220,15 @@ fn parse_command(input: &str) -> Command {
 	let mut iter = tokens.iter().skip(1);
 	let cmd = tokens.get(0).unwrap_or(&"");
 
+	fn is_first_token(string: &str, tok: &str) -> bool {
+		string.starts_with(tok)
+			&& (string.len() > tok.len())
+			&& (string.as_bytes()[tok.len()] == ' ' as u8)
+	}
+
 	fn lookup_cmd(cmd: &str) -> Cid {
 		for item in COMMANDS {
-			if item.0.starts_with(cmd) && (item.0.len() < cmd.len() || item.0.as_bytes()[cmd.len()] == ' ' as u8) {
+			if is_first_token(item.0, cmd) {
 				return item.1;
 			}
 		}
@@ -245,6 +257,8 @@ fn parse_command(input: &str) -> Command {
 		Cid::Clear => Command::Clear,
 		Cid::Reset => Command::Reset,
 		Cid::Exit => Command::Exit,
+		Cid::ShowMinimumSpanningTree => Command::ShowMinimumSpanningTree,
+		Cid::CropMinimumSpanningTree => Command::CropMinimumSpanningTree,
 		Cid::Test => {
 			if let (Some(samples),) = scan!(iter, u32) {
 				Command::Test(samples)
@@ -415,6 +429,8 @@ fn print_help(out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 }
 
 fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, call: AllowRecursiveCall) -> Result<(), std::fmt::Error> {
+	let mut mark_links : Option<Graph> = None;
+	let mut explicit_export = false;
 	let mut do_init = false;
 
 	//println!("command: '{}'", input);
@@ -429,6 +445,18 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			sim.abort_simulation = true;
 			send_dummy_to_socket(&sim.cmd_address);
 			send_dummy_to_stdin();
+		},
+		Command::ShowMinimumSpanningTree => {
+			let mst = sim.gstate.graph.minimum_spanning_tree();
+			if mst.node_count() > 0 {
+				mark_links = Some(mst);
+			}
+		},
+		Command::CropMinimumSpanningTree => {
+			let mst = sim.gstate.graph.minimum_spanning_tree();
+			if mst.node_count() > 0 {
+				sim.gstate.graph = mst;
+			}
 		},
 		Command::Error(msg) => {
 			//TODO: return Result error
@@ -516,8 +544,9 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			writeln!(out, "read {}", path)?;
 		},
 		Command::Export(ref path) => {
-			export_file(&sim.gstate.graph, Some(&sim.gstate.location), Some(&*sim.algorithm), path.as_str());
-			writeln!(out, "wrote {}", path)?;
+			explicit_export = true;
+			//export_file(&sim.gstate.graph, Some(&sim.gstate.location), Some(&*sim.algorithm), mark_links, path.as_str());
+			//writeln!(out, "wrote {}", path)?;
 		},
 		Command::AddLine(count, close) => {
 			sim.gstate.add_line(count, close);
@@ -632,7 +661,15 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		sim.test.clear();
 	}
 
-	export_file(&sim.gstate.graph, Some(&sim.gstate.location), Some(&*sim.algorithm), "graph.json");
+	/*
+	 * location: geo position
+	 * algorithm: name and label
+	 * node color?
+	 * link color?
+	 * selected?
+	 */
+	 //explicit_export?
+	export_file(&sim.gstate.graph, Some(&sim.gstate.location), Some(&*sim.algorithm), mark_links.as_ref(), "graph.json");
 
 	Ok(())
 }

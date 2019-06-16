@@ -9,10 +9,11 @@ use crate::graph::{Graph, ID};
 use crate::utils::*;
 
 
-pub fn export_file(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingAlgorithm>, path: &str) {
+pub fn export_file(graph: &Graph, loc: Option<&Location>,
+	algo: Option<&RoutingAlgorithm>, mark_links: Option<&Graph>, path: &str) {
 	use std::io::Write;
 	if let Ok(mut file) = File::create(path) {
-		let content = export_json(&graph, loc, algo);
+		let content = export_json(&graph, loc, algo, mark_links);
 		file.write_all(content.as_bytes()).unwrap();
 		//println!("Wrote {}", path);
 	} else {
@@ -20,7 +21,7 @@ pub fn export_file(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingA
 	}
 }
 
-pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingAlgorithm>) -> String {
+pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingAlgorithm>, mark_links: Option<&Graph>) -> String {
 	let mut ret = String::new();
 	let mut name = String::new();
 	let mut label = String::new();
@@ -69,14 +70,24 @@ pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingA
 		let source_tq = (link.quality() as f32) / (u16::MAX as f32);
 		let target_id = link.to;
 		let target_tq = if let Some(link) = graph.get_link(target_id, source_id) {
+			//println!("found reverse link: {}", link.quality());
 			(link.quality() as f32) / (u16::MAX as f32)
 		} else {
 			0.0
 		};
 
-		write!(&mut ret, "{{\"source\": \"{}\", \"target\": \"{}\", \"source_tq\": {}, \"target_tq\": {}}}",
+		write!(&mut ret, "{{\"source\": \"{}\", \"target\": \"{}\", \"source_tq\": {}, \"target_tq\": {}",
 			source_id, target_id, source_tq, target_tq
 		).unwrap();
+
+		// mark link with color
+		if let Some(mark) = mark_links {
+			if mark.has_link(source_id, target_id) {
+				write!(&mut ret, "\"color\": \"#FF00FF\"").unwrap();
+			}
+		}
+
+		write!(&mut ret, "}}").unwrap();
 	}
 
 	write!(&mut ret, "]}}").unwrap();

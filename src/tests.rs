@@ -60,7 +60,7 @@ pub fn run_test1() {
 		fmt_duration(progress.duration()), fmt_duration(test.duration())
 	);
 
-	export_file(&state.graph, None, Some(&algorithm), "graph.json");
+	export_file(&state.graph, None, Some(&algorithm), None, "graph.json");
 }
 
 pub fn run_test2() {
@@ -255,5 +255,5 @@ pub fn run_test4() {
 	}
 
 	println!("convergence: {}", vivaldi.get_convergence());
-	export_file(&state.graph, None, Some(&vivaldi), "graph.json");
+	export_file(&state.graph, None, Some(&vivaldi), None, "graph.json");
 }
