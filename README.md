@@ -2,7 +2,7 @@
 
 This is a simple simulator for sketching mesh network routing strategies in the hopes to find better approaches to mesh routing. Please note that this simulator does not virtualize a TCP/IP stack nor all characteristics of wireless connections. The dynamic nature of MANETs is also not (yet) covered by this simulator.
 
-The simulator is controled via a command line that can also be reached over a network. The output from the simulator is a json files and can be displayed using the [Graph Viewer](https://github.com/mwarning/GraphViewer/).
+The simulator is controled via a command line that can also be reached over a network. The output from the simulator is a json files and can be displayed using the [Mesh Graph Viewer](https://github.com/mwarning/MeshGraphViewer/).
 
 The motivation for this project is that community networks such as [Freifunk](https://freifunk.net) struggle with scaling issues of their [MANET](https://en.wikipedia.org/wiki/Mobile_ad_hoc_network)s. The cause is management traffic caused by hundreds of nodes.
 
