@@ -479,7 +479,7 @@ impl Graph {
 		Self::minimum_spanning_tree_impl(&links, self.node_count)
 	}
 
-	// kruskal
+	// Implementation of the Kruskal minimum spanning tree algorithm
 	fn minimum_spanning_tree_impl(links: &[Link], node_count: usize) -> Graph {
 		let mut roots = Vec::with_capacity(node_count);
 		let mut mst = Vec::new();
@@ -489,7 +489,7 @@ impl Graph {
 			roots.push(i as ID);
 		}
 
-		// Find root of node
+		// find root of node
 		fn root(roots: &mut [ID], i: ID) -> usize {
 			let mut i = i as usize;
 			while roots[i] != i as ID {
@@ -510,16 +510,11 @@ impl Graph {
 			}
 		}
 
-		let mst_node_count = if mst.len() > 0 {
-			mst.len() + 1
-		} else {
-			node_count
-		};
+		// count roots of all minimum spanning trees
+		let roots_count = roots.iter().enumerate().fold(0,
+			|acc, (i, j)| acc + ((i as u32) == *j) as usize
+		);
 
-		if mst_node_count == node_count {
-			Graph{ node_count: mst_node_count, links: mst }
-		} else {
-			Graph::new()
-		}
+		Graph{ node_count: (mst.len() + roots_count), links: mst }
 	}
 }
