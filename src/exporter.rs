@@ -43,14 +43,22 @@ pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingA
 			algo.get_node(id, "label", &mut label);
 		}
 
-		write!(&mut ret, "{{\"id\": \"{}\", ", id).unwrap();
+		write!(&mut ret, "{{\"id\": \"{}\"", id).unwrap();
 		if let Some(loc) = loc {
 			if let Some(pos) = loc.get_position(id) {
-				write!(&mut ret, "\"x\": {}, \"y\": {}, ", pos[0] / DEG2KM, pos[1] / DEG2KM).unwrap();
+				write!(&mut ret, ", \"x\": {}, \"y\": {}", pos[0] / DEG2KM, pos[1] / DEG2KM).unwrap();
 			}
 		}
 
-		write!(&mut ret, "\"name\": \"{}\", \"label\": \"{}\"}}", name, label).unwrap();
+		if !name.is_empty() {
+			write!(&mut ret, ", \"name\": \"{}\"", name).unwrap();
+		}
+
+		if !label.is_empty() {
+			write!(&mut ret, ", \"label\": \"{}\"", label).unwrap();
+		}
+
+		write!(&mut ret, "}}").unwrap();
 	}
 
 	write!(&mut ret, "], \"links\": [").unwrap();
@@ -65,25 +73,30 @@ pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingA
 		}
 		comma2 = true;
 
-		// how to remember
 		let source_id = link.from;
 		let source_tq = (link.quality() as f32) / (u16::MAX as f32);
 		let target_id = link.to;
 		let target_tq = if let Some(link) = graph.get_link(target_id, source_id) {
-			//println!("found reverse link: {}", link.quality());
 			(link.quality() as f32) / (u16::MAX as f32)
 		} else {
 			0.0
 		};
 
-		write!(&mut ret, "{{\"source\": \"{}\", \"target\": \"{}\", \"source_tq\": {}, \"target_tq\": {}",
-			source_id, target_id, source_tq, target_tq
+		write!(&mut ret, "{{\"source\": \"{}\", \"target\": \"{}\"",
+			source_id, target_id,
 		).unwrap();
+
+		// always show quality (for now)
+		if true {
+			write!(&mut ret, ", \"source_tq\": {}, \"target_tq\": {}",
+				source_tq, target_tq
+			).unwrap();
+		}
 
 		// mark link with color
 		if let Some(mark) = mark_links {
 			if mark.has_link(source_id, target_id) {
-				write!(&mut ret, "\"color\": \"#FF00FF\"").unwrap();
+				write!(&mut ret, ", \"color\": \"#FF00FF\"").unwrap();
 			}
 		}
 
