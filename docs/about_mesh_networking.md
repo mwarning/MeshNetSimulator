@@ -373,7 +373,7 @@ Link State Routing protocol. Layer 3. Based on the concept of MPR. Every node us
 
 ## BATMAN-adv
 
-Layer 2. Packet lost metric (`batman_IV`) or bandwith metric (`batman_V`).
+Layer 2. Packet lost metric (`batman_IV` protocol version) or bandwith metric (`batman_V`).
 
 [batman-adv - Kernel Space L2 Mesh Routing](https://downloads.open-mesh.org/batman/papers/batman-adv_v_intro.pdf)
 

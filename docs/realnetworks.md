@@ -34,15 +34,18 @@
 
 A commercial Token with low band transmitter and blue tooth.
 
-* BTLE (2.4 GHz) and MURS (150 MHz)
+* BTLE (2.4 GHz) to mobile phone and MURS (150 MHz), USA only
 * intended for hikers to send position (from phone app), meeting point, small messages in general
 * small size, low weight and low power consumption
 * long distance transmission (~ 3mil?)
 * very small transmission bandwith (MURS), ~ 250 bytes per minute on the entire band
+  * changed to another frequency now
 * controlled via phone app and bluetooth
 * expensive (~ 150EUR)
+* mesh protocol documented in "ECHO: Efficient Zero-Control Network-WideBroadcast for Mobile Multi-hop Wireless Networks"
 
 (Packet sniffing the Gotenna - DEF CON 25)[https://www.youtube.com/watch?v=pKP74WGa_s0]
+[Kickstarter](https://www.kickstarter.com/projects/gotenna/gotenna-mesh-off-grid-people-powered-connectivity)
 
 ## With primary links over the Internet
 
