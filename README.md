@@ -8,7 +8,13 @@ The motivation for this project is that community networks such as [Freifunk](ht
 
 Also part of this repository are [basic information](docs/about_mesh_networking.md) about mesh routing protocols.
 
-Note: The project was formally written in JavaScript. Use the commit history if you want to look at that version.
+## Overall Workflow
+
+1. Design algorithm
+2. Test algorithm (<= MeshNetSimulator)
+3. Code program
+4. Test on virtual hardware
+5. Test on real hardware
 
 ## How to Use
 
