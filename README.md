@@ -4,7 +4,7 @@ This is a simple simulator for sketching mesh network routing strategies in the 
 
 The simulator is controled via a command line that can also be reached over a network. The output from the simulator is a json files and can be displayed using the [Mesh Graph Viewer](https://github.com/mwarning/MeshGraphViewer/).
 
-The motivation for this project is that community networks such as [Freifunk](https://freifunk.net) struggle with scaling issues of their [MANET](https://en.wikipedia.org/wiki/Mobile_ad_hoc_network)s. The cause is management traffic caused by hundreds of nodes.
+The motivation for this project is that community networks such as [Freifunk](https://freifunk.net) struggle with scaling issues of their [MANET](https://en.wikipedia.org/wiki/Mobile_ad_hoc_network)s. The cause is management traffic caused by hundreds of nodes. But testing new algorithms for scalability is a problem since many nodes are required. That is what this high speed simulator is helping with.
 
 Also part of this repository are [basic information](docs/about_mesh_networking.md) about mesh routing protocols.
 
