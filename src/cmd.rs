@@ -116,6 +116,7 @@ enum Command {
 	SimState,
 	Reset,
 	Exit,
+	Progress(Option<bool>),
 	ShowMinimumSpanningTree,
 	CropMinimumSpanningTree,
 	Test(u32),
@@ -124,7 +125,7 @@ enum Command {
 	ConnectInRange(f32),
 	RandomizePositions(f32),
 	RemoveUnconnected,
-	Algorithm(String),
+	Algorithm(Option<String>),
 	AddLine(u32, bool),
 	AddTree(u32, u32),
 	AddLattice4(u32, u32),
@@ -151,6 +152,7 @@ enum Cid {
 	SimState,
 	Reset,
 	Exit,
+	Progress,
 	ShowMinimumSpanningTree,
 	CropMinimumSpanningTree,
 	Test,
@@ -187,13 +189,14 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("set <key> <value>                    Set node property.", Cid::Set),
 	("connect_in_range <range>             Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
 	("positions <true|false>               Enable geo positions.", Cid::Positions),
+	("progress [<true|false>]              Show simulation progress.", Cid::Progress),
 	("rnd_positions <range>                Randomize nodes in an area with edge length in range (in km).", Cid::RandomizePositions),
 	("remove_unconnected                   Remove nodes without any connections.", Cid::RemoveUnconnected),
-	("algorithm [<algorithm>]              Get or set given algorithm.", Cid::Algorithm),
-	("add_line <node_count> <create_loop>  Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
-	("add_tree <node_count> <inter_count>  Add a tree structure of nodes with interconnections", Cid::AddTree),
-	("add_lattice4 <x_xount> <y_count>     Create a lattice structure of squares.", Cid::AddLattice4),
-	("add_lattice8 <x_xount> <y_count>     Create a lattice structure of squares and diagonal connections.", Cid::AddLattice8),
+	("algo [<algorithm>]                   Get or set given algorithm.", Cid::Algorithm),
+	("line <node_count> <create_loop>      Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
+	("tree <node_count> <inter_count>      Add a tree structure of nodes with interconnections", Cid::AddTree),
+	("lattice4 <x_xount> <y_count>         Create a lattice structure of squares.", Cid::AddLattice4),
+	("lattice8 <x_xount> <y_count>         Create a lattice structure of squares and diagonal connections.", Cid::AddLattice8),
 	("remove_nodes <node_list>             Remove nodes. Node list is a comma separated list of node ids.", Cid::RemoveNodes),
 	("connect_nodes <node_list>            Connect nodes. Node list is a comma separated list of node ids.", Cid::ConnectNodes),
 	("disconnect_nodes <node_list>         Disconnect nodes. Node list is a comma separated list of node ids.", Cid::DisconnectNodes),
@@ -257,6 +260,13 @@ fn parse_command(input: &str) -> Command {
 		Cid::Clear => Command::Clear,
 		Cid::Reset => Command::Reset,
 		Cid::Exit => Command::Exit,
+		Cid::Progress => {
+			if let (Some(progress),) = scan!(iter, bool) {
+				Command::Progress(Some(progress))
+			} else {
+				Command::Progress(None)
+			}
+		},
 		Cid::ShowMinimumSpanningTree => Command::ShowMinimumSpanningTree,
 		Cid::CropMinimumSpanningTree => Command::CropMinimumSpanningTree,
 		Cid::Test => {
@@ -371,9 +381,9 @@ fn parse_command(input: &str) -> Command {
 		},
 		Cid::Algorithm => {
 			if let (Some(algo),) = scan!(iter, String) {
-				Command::Algorithm(algo)
+				Command::Algorithm(Some(algo))
 			} else {
-				Command::Algorithm("".to_string())
+				Command::Algorithm(None)
 			}
 		},
 		Cid::RemoveNodes => {
@@ -441,6 +451,17 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		Command::Ignore => {
 			// nothing to do
 		},
+		Command::Progress(show) => {
+			if let Some(show) = show {
+				sim.show_progress = show;
+			}
+
+			writeln!(out, "show progress: {}", if sim.show_progress {
+				"enabled"
+			} else {
+				"disabled"
+			})?;
+		},
 		Command::Exit => {
 			sim.abort_simulation = true;
 			send_dummy_to_socket(&sim.cmd_address);
@@ -453,6 +474,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			}
 		},
 		Command::CropMinimumSpanningTree => {
+			// mst is only a uni-directional graph...!!
 			let mst = sim.gstate.graph.minimum_spanning_tree();
 			if mst.node_count() > 0 {
 				sim.gstate.graph = mst;
@@ -505,6 +527,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			//state.graph.clear();
 			sim.sim_steps = 0;
 			do_init = true;
+			writeln!(out, "done")?;
 		},
 		Command::Step(count) => {
 			let mut progress = Progress::new();
@@ -514,9 +537,13 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 				if sim.abort_simulation {
 					break;
 				}
+
 				sim.algorithm.step(&mut io);
 				sim.sim_steps += 1;
-				progress.update((count + 1) as usize, step as usize);
+
+				if sim.show_progress {
+					progress.update((count + 1) as usize, step as usize);
+				}
 			}
 
 			let duration = now.elapsed();
@@ -535,7 +562,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 					fmt_duration(test.duration())
 				)
 			}
-			sim.test.show_progress(true);
+			sim.test.show_progress(sim.show_progress);
 			run_test(out, &mut sim.test, &sim.gstate.graph, &sim.algorithm, samples);
 		},
 		Command::Import(ref path) => {
@@ -558,10 +585,6 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		Command::MoveNode(id, x, y, z) => {
 			sim.gstate.location.move_node(id, [x, y, z]);
 		},
-		Command::AddLine(count, close) => {
-			sim.gstate.add_line(count, close);
-			do_init = true;
-		},
 		Command::AddTree(count, intra) => {
 			sim.gstate.add_tree(count, intra);
 			do_init = true;
@@ -576,11 +599,18 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		},
 		Command::Positions(enable) => {
 			if enable {
+				// add positions to node that have none
 				let node_count = sim.gstate.graph.node_count();
 				sim.gstate.location.init_positions(node_count, [0.0, 0.0, 0.0]);
 			} else {
 				sim.gstate.location.clear();
 			}
+
+			writeln!(out, "positions: {}", if enable {
+				"enabled"
+			} else {
+				"disabled"
+			});
 		}
 		Command::RandomizePositions(range) => {
 			let count = sim.gstate.graph.node_count();
@@ -590,33 +620,34 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		Command::ConnectInRange(range) => {
 			sim.gstate.connect_in_range(range);
 		},
-		Command::Algorithm(ref algo) => {
-			match algo.as_str() {
-				"" => {
-					write!(out, "algorithm: ")?;
-					sim.algorithm.get("name", out)?;
-					write!(out, "\n")?;
-					write!(out, "available: random, vivaldi, spring, genetic\n")?;
-				},
-				"random" => {
-					sim.algorithm = Box::new(RandomRouting::new());
-					do_init = true;
-				},
-				"vivaldi" => {
-					sim.algorithm = Box::new(VivaldiRouting::new());
-					do_init = true;
-				},
-				"spring" => {
-					sim.algorithm = Box::new(SpringRouting::new());
-					do_init = true;
-				},
-				"genetic" => {
-					sim.algorithm = Box::new(GeneticRouting::new());
-					do_init = true;
-				},
-				_ => {
-					writeln!(out, "Unknown algorithm: {}", algo)?;
-				} 
+		Command::Algorithm(algo) => {
+			if let Some(algo) = algo {
+				match algo.as_str() {
+					"random" => {
+						sim.algorithm = Box::new(RandomRouting::new());
+						do_init = true;
+					},
+					"vivaldi" => {
+						sim.algorithm = Box::new(VivaldiRouting::new());
+						do_init = true;
+					},
+					"spring" => {
+						sim.algorithm = Box::new(SpringRouting::new());
+						do_init = true;
+					},
+					"genetic" => {
+						sim.algorithm = Box::new(GeneticRouting::new());
+						do_init = true;
+					},
+					_ => {
+						writeln!(out, "Unknown algorithm: {}", algo)?;
+					}
+				}
+			} else {
+				write!(out, "selected: ")?;
+				sim.algorithm.get("name", out)?;
+				write!(out, "\n")?;
+				write!(out, "available: random, vivaldi, spring, genetic\n")?;
 			}
 		},
 		Command::Run(path) => {

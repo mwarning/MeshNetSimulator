@@ -14,6 +14,7 @@ pub struct GlobalState {
 	pub test: PassiveRoutingTest,
 	pub sim_steps: u32,
 	pub abort_simulation: bool,
+	pub show_progress: bool,
 	pub cmd_address: String,
 }
 
@@ -25,6 +26,7 @@ impl GlobalState {
 			test: PassiveRoutingTest::new(),
 			sim_steps: 0,
 			abort_simulation: false,
+			show_progress: false,
 			cmd_address: cmd_address.to_string()
 		}
 	}

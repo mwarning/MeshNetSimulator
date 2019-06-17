@@ -28,6 +28,8 @@ Some commands on the command line are:
 
 - `clear`  
   Clear graph state
+- `algo [<name>]`  
+  Set or algorithms.
 - `graph_state`  
   Show Graph state
 - `sim_state`  
@@ -48,13 +50,13 @@ Some commands on the command line are:
   Remove nodes without any connections.
 - `algorithm [<algorithm>]`  
   Get or set given algorithm.
-- `add_line <node_count> <create_loop>`  
+- `line <node_count> <create_loop>`  
   Add a line of nodes. Connect ends to create a loop.
-- `add_tree <node_count> <inter_count>`  
+- `tree <node_count> <inter_count>`  
   Add a tree structure of nodes with interconnections
-- `add_lattice4 <x_xount> <y_count>`  
+- `lattice4 <x_xount> <y_count>`  
   Create a lattice structure of squares.
-- `add_lattice8 <x_xount> <y_count>`  
+- `lattice8 <x_xount> <y_count>`  
   Create a lattice structure of squares and diagonal connections.
 - `remove_nodes <node_list>`  
   Remove nodes. Node list is a comma separated list of node ids.
