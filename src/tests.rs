@@ -5,7 +5,6 @@ use crate::passive_routing_test::PassiveRoutingTest;
 use crate::graph::*;
 use crate::utils::*;
 use crate::exporter::export_file;
-use crate::vivaldi_routing::*;
 use crate::progress::Progress;
 use crate::graph_state::GraphState;
 
@@ -27,7 +26,7 @@ fn create_hg(n: usize) -> Graph {
 pub fn run_test1() {
 	let mut state = GraphState::new();
 	let mut test = PassiveRoutingTest::new();
-	let mut algorithm = crate::spring_routing::SpringRouting::new();
+	let mut algorithm = crate::algorithms::spring_routing::SpringRouting::new();
 	let mut progress = Progress::new();
 
 	let n = 3;
@@ -66,7 +65,7 @@ pub fn run_test1() {
 pub fn run_test2() {
 	let mut state = GraphState::new();
 	let mut test = PassiveRoutingTest::new();
-	let mut algorithm = crate::spring_routing::SpringRouting::new();
+	let mut algorithm = crate::algorithms::spring_routing::SpringRouting::new();
 	let mut progress = Progress::new();
 
 	for size in 2..50 {
@@ -104,7 +103,7 @@ pub fn run_test2() {
 }
 
 pub fn run_test3() {
-	fn test_program(program: &[u32], graph: &Graph, test: &mut PassiveRoutingTest, algorithm: &mut crate::genetic_routing::GeneticRouting) -> f32 {
+	fn test_program(program: &[u32], graph: &Graph, test: &mut PassiveRoutingTest, algorithm: &mut crate::algorithms::genetic_routing::GeneticRouting) -> f32 {
 		algorithm.reset(graph.node_count());
 		let mut io = Io::new(&graph);
 
@@ -151,14 +150,14 @@ pub fn run_test3() {
 
 	fn is_valid_program(program: &[u32]) -> bool {
 		// Dummy input
-		let vars = crate::genetic_routing::Vars {
+		let vars = crate::algorithms::genetic_routing::Vars {
 			input: [0.0f32, 0.0, 0.0],
 			own: [1.0f32, 1.0, 1.0],
 			mean: [0.0f32, 0.0, 0.0],
 			neighs: [0.0f32, 0.0, 0.0],
 		};
 
-		if let Some(v) = crate::genetic_routing::run_program(&program, &vars) {
+		if let Some(v) = crate::algorithms::genetic_routing::run_program(&program, &vars) {
 			v[0].is_finite() && v[1].is_finite() && v[2].is_finite()
 		} else {
 			false
@@ -166,10 +165,10 @@ pub fn run_test3() {
 	}
 
 	let mut test = PassiveRoutingTest::new();
-	let mut algorithm = crate::genetic_routing::GeneticRouting::new();
+	let mut algorithm = crate::algorithms::genetic_routing::GeneticRouting::new();
 	let mut state = GraphState::new();
 	let mut program = [0u32; 8];
-	let max_symbols = crate::genetic_routing::MAX_SYMBOLS;
+	let max_symbols = crate::algorithms::genetic_routing::MAX_SYMBOLS;
 	let max_possible_programs = program.len().pow(max_symbols as u32);
 	let max_programs = 3000000000;
 	let mut progress = Progress::new();
@@ -213,7 +212,7 @@ pub fn run_test3() {
 
 
 struct Test4 {
-	vivaldi: VivaldiRouting,
+	vivaldi: crate::algorithms::vivaldi_routing::VivaldiRouting,
 	graph: Graph,
 	init: bool
 }
@@ -243,7 +242,7 @@ impl Test4 {
 
 pub fn run_test4() {
 	let mut state = GraphState::new();
-	let mut vivaldi = VivaldiRouting::new();
+	let mut vivaldi = crate::algorithms::vivaldi_routing::VivaldiRouting::new();
 
 	// creat a 3x3 lattice
 	state.add_tree(30, 3);
