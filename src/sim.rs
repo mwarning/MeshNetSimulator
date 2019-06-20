@@ -16,6 +16,7 @@ pub struct GlobalState {
 	pub abort_simulation: bool,
 	pub show_progress: bool,
 	pub cmd_address: String,
+	pub export_path: String
 }
 
 impl GlobalState {
@@ -27,6 +28,7 @@ impl GlobalState {
 			sim_steps: 0,
 			abort_simulation: false,
 			show_progress: false,
+			export_path: "graph.json".to_string(),
 			cmd_address: cmd_address.to_string()
 		}
 	}

@@ -44,14 +44,16 @@ Some commands on the command line are:
   Set node property.
 - `connect_in_range <range>`  
   Connect all nodes in range of less then range (in km).
-- `rnd_position <range>`  
-  Randomize nodes in an area with edge length in range (in km).
+- `rnd_pos <range>`  
+  Randomize node positions in an area with width (in km) around node center.
 - `remove_unconnected`  
   Remove nodes without any connections.
 - `algorithm [<algorithm>]`  
   Get or set given algorithm.
 - `line <node_count> <create_loop>`  
   Add a line of nodes. Connect ends to create a loop.
+- `star <edge_count>`    
+  Add star structure of nodes.
 - `tree <node_count> <inter_count>`  
   Add a tree structure of nodes with interconnections
 - `lattice4 <x_xount> <y_count>`  

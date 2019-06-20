@@ -74,7 +74,7 @@ impl PassiveRoutingTest {
 		// max steps to try until we give up
 		let max_steps = costs_min * max_stretch;
 
-		for i in 0..max_steps {
+		for _ in 0..max_steps {
 			if let Some(next) = route(&packet) {
 				// Check if link really exists
 				if let Some(link) = graph.get_link(packet.receiver, next) {
@@ -164,7 +164,7 @@ impl PassiveRoutingTest {
 		let now = Instant::now();
 		let tests = (node_count as usize).pow(2);
 		//let mut progress = Progress::new("test: ");
-		let mut test = 0;
+		//let mut test = 0;
 
 		//progress.start(tests, 0);
 		for source in 0..node_count {
@@ -184,7 +184,7 @@ impl PassiveRoutingTest {
 
 				self.test_path(&graph, &mut route, source as ID, target as ID, min as u32);
 
-				test += 1;
+				//test += 1;
 				//progress.update(tests, test);
 			}
 		}

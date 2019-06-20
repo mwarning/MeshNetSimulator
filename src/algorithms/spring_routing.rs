@@ -40,7 +40,7 @@ impl Node {
 		vec_filter(&mut self.neighbors, |ref e| (e.last_updated + 5) >= time);
 	}
 
-	fn route(&self, packet: &TestPacket, dst_pos: &Vec3) -> Option<ID> {
+	fn route(&self, _packet: &TestPacket, dst_pos: &Vec3) -> Option<ID> {
 		let mut d_next = f32::INFINITY;
 		let mut n_next = None;
 

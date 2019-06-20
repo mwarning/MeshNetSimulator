@@ -260,17 +260,17 @@ impl GraphState {
 			return;
 		}
 
-		self.graph.add_nodes(count);
+		self.graph.add_nodes(count + 1);
+		self.location.insert(offset, [0.0, 0.0, 0.0]);
 
-		//self.add_node(0.0, 0.0, 0.0);
 		for i in 0..count {
 			let a = 2.0 * (i as f32) * f32::consts::PI / (count as f32);
-			self.location.insert(offset + i, [
+			self.location.insert(offset + i + 1, [
 				NODE_SPACING * a.cos(),
 				NODE_SPACING * a.sin(),
 				0.0
 			]);
-			self.graph.connect(offset as ID, (offset + 1 + i) as ID);
+			self.graph.connect(offset, offset + i + 1);
 		}
 	}
 

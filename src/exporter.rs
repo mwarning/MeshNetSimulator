@@ -39,8 +39,8 @@ pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingA
 		if let Some(algo) = algo {
 			name.clear();
 			label.clear();
-			algo.get_node(id, "name", &mut name);
-			algo.get_node(id, "label", &mut label);
+			let _ = algo.get_node(id, "name", &mut name);
+			let _ = algo.get_node(id, "label", &mut label);
 		}
 
 		write!(&mut ret, "{{\"id\": \"{}\"", id).unwrap();

@@ -34,7 +34,6 @@ pub struct Vars {
 // A virtual machine to run small programs with the availability of some environment varibles
 pub fn run_program(prog: &[u32], vars: &Vars) -> Option<[f32; 3]> {
 	let mut st = [[0.0, 0.0, 0.0]; 32];
-	let mut ip = 0;
 	let mut sp = 0;
 
 	for ip in 0..prog.len() {

@@ -51,7 +51,7 @@ impl fmt::Debug for Link {
 }
 
 /*
- * This graph is designed for fast iteration and access.
+ * This graph is designed for fast iteration and access of neighbors.
 */
 #[derive(Clone)]
 pub struct Graph {
@@ -113,7 +113,7 @@ impl Graph {
 	}
 
 	// Check if all nodes have the same degree
-	pub fn is_regular(&self, r: usize) -> bool {
+	pub fn is_regular(&self) -> bool {
 		let mut from = 0;
 		let mut n = 0;
 		let mut prev_n = 0;

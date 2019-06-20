@@ -31,8 +31,8 @@ enum AllowRecursiveCall {
 fn send_dummy_to_socket(address: &str) {
 	match TcpStream::connect(address) {
 		Ok(mut stream) => {
-			stream.set_read_timeout(Some(Duration::from_millis(100)));
-			stream.write("".as_bytes());
+			let _ = stream.set_read_timeout(Some(Duration::from_millis(100)));
+			let _ = stream.write("".as_bytes());
 		},
 		Err(e) => {
 			eprintln!("{}", e);
@@ -41,7 +41,7 @@ fn send_dummy_to_socket(address: &str) {
 }
 
 fn send_dummy_to_stdin() {
-	std::io::stdout().write("".as_bytes());
+	let _ = std::io::stdout().write("".as_bytes());
 }
 
 pub fn ext_loop(sim: Arc<Mutex<GlobalState>>, address: &str) {
@@ -57,7 +57,7 @@ pub fn ext_loop(sim: Arc<Mutex<GlobalState>>, address: &str) {
 			loop {
 				//input.clear();
 				output.clear();
-				if let Ok((mut stream, addr)) = listener.accept() {
+				if let Ok((mut stream, _addr)) = listener.accept() {
 					let mut buf = [0; 512];
 					if let Ok(n) = stream.read(&mut buf) {
 						if let (Ok(s), Ok(mut sim)) = (std::str::from_utf8(&buf[0..n]), sim.lock()) {
@@ -65,9 +65,9 @@ pub fn ext_loop(sim: Arc<Mutex<GlobalState>>, address: &str) {
 								// abort loop
 								break;
 							} else if let Err(e) = cmd_handler(&mut output, &mut sim, s, AllowRecursiveCall::Yes) {
-								stream.write(e.to_string().as_bytes());
+								let _ = stream.write(e.to_string().as_bytes());
 							} else {
-								stream.write(&output.as_bytes());
+								let _ = stream.write(&output.as_bytes());
 							}
 						}
 					}
@@ -83,14 +83,14 @@ pub fn cmd_loop(sim: Arc<Mutex<GlobalState>>, run: &str) {
 
 	loop {
 		if input.len() == 0 {
-			std::io::stdin().read_line(&mut input);
+			let _ = std::io::stdin().read_line(&mut input);
 		}
 		if let Ok(mut sim) = sim.lock() {
 			output.clear();
 			if let Err(e) = cmd_handler(&mut output, &mut sim, &input, AllowRecursiveCall::Yes) {
-				std::io::stderr().write(e.to_string().as_bytes());
+				let _ = std::io::stderr().write(e.to_string().as_bytes());
 			} else {
-				std::io::stdout().write(output.as_bytes());
+				let _ = std::io::stdout().write(output.as_bytes());
 			}
 			if sim.abort_simulation {
 				// abort loop
@@ -128,6 +128,7 @@ enum Command {
 	Algorithm(Option<String>),
 	AddLine(u32, bool),
 	AddTree(u32, u32),
+	AddStar(u32),
 	AddLattice4(u32, u32),
 	AddLattice8(u32, u32),
 	Positions(bool),
@@ -137,7 +138,7 @@ enum Command {
 	Step(u32),
 	Run(String),
 	Import(String),
-	Export(String),
+	ExportPath(Option<String>),
 	MoveNode(u32, f32, f32, f32),
 	MoveNodes(f32, f32, f32),
 	MoveTo(f32, f32, f32),
@@ -164,6 +165,7 @@ enum Cid {
 	Algorithm,
 	AddLine,
 	AddTree,
+	AddStar,
 	AddLattice4,
 	AddLattice8,
 	Positions,
@@ -173,44 +175,45 @@ enum Cid {
 	Step,
 	Run,
 	Import,
-	Export,
+	ExportPath,
 	MoveNode,
 	MoveNodes,
 	MoveTo
 }
 
 const COMMANDS: &'static [(&'static str, Cid)] = &[
-	("clear                                Clear graph state", Cid::Clear),
-	("graph_state                          Show Graph state", Cid::GraphState),
-	("sim_state                            Show Simulator state.", Cid::SimState),
-	("reset                                Reset node state.", Cid::Reset),
-	("test [<samples>]                     Test routing algorithm with (test packets arrived, path stretch).", Cid::Test),
-	("get <key>                            Get node property.", Cid::Get),
-	("set <key> <value>                    Set node property.", Cid::Set),
-	("connect_in_range <range>             Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
-	("positions <true|false>               Enable geo positions.", Cid::Positions),
-	("progress [<true|false>]              Show simulation progress.", Cid::Progress),
-	("rnd_positions <range>                Randomize nodes in an area with edge length in range (in km).", Cid::RandomizePositions),
-	("remove_unconnected                   Remove nodes without any connections.", Cid::RemoveUnconnected),
-	("algo [<algorithm>]                   Get or set given algorithm.", Cid::Algorithm),
-	("line <node_count> <create_loop>      Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
-	("tree <node_count> <inter_count>      Add a tree structure of nodes with interconnections", Cid::AddTree),
-	("lattice4 <x_xount> <y_count>         Create a lattice structure of squares.", Cid::AddLattice4),
-	("lattice8 <x_xount> <y_count>         Create a lattice structure of squares and diagonal connections.", Cid::AddLattice8),
-	("remove_nodes <node_list>             Remove nodes. Node list is a comma separated list of node ids.", Cid::RemoveNodes),
-	("connect_nodes <node_list>            Connect nodes. Node list is a comma separated list of node ids.", Cid::ConnectNodes),
-	("disconnect_nodes <node_list>         Disconnect nodes. Node list is a comma separated list of node ids.", Cid::DisconnectNodes),
-	("step [<steps>]                       Run simulation steps. Default is 1.", Cid::Step),
-	("run <file>                           Run commands from a script.", Cid::Run),
-	("import <file>                        Import a graph as JSON file.", Cid::Import),
-	("export <file>                        Export a graph as JSON file.", Cid::Export),
-	("move_node <node_id> <x> <y> <z>      Move a node by x/y/z (in km).", Cid::MoveNode),
-	("move_nodes <x> <y> <z>               Move all nodes by x/y/z (in km).", Cid::MoveNodes),
-	("move_to <x> <y> <z>                  Move all nodes to x/y/z (in degrees).", Cid::MoveTo),
-	("show_mst                             Mark the minimum spanning tree.", Cid::ShowMinimumSpanningTree),
-	("crop_mst                             Only leave the minimum spanning tree.", Cid::CropMinimumSpanningTree),
-	("exit                                 Exit simulator.", Cid::Exit),
-	("help                                 Show this help.", Cid::Help),
+	("clear                              Clear graph state", Cid::Clear),
+	("graph_state                        Show Graph state", Cid::GraphState),
+	("sim_state                          Show Simulator state.", Cid::SimState),
+	("reset                              Reset node state.", Cid::Reset),
+	("test [<samples>]                   Test routing algorithm with (test packets arrived, path stretch).", Cid::Test),
+	("get <key>                          Get node property.", Cid::Get),
+	("set <key> <value>                  Set node property.", Cid::Set),
+	("connect_in_range <range>           Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
+	("positions <true|false>             Enable geo positions.", Cid::Positions),
+	("progress [<true|false>]            Show simulation progress.", Cid::Progress),
+	("rnd_pos <range>                    Randomize node positions in an area with width (in km) around node center.", Cid::RandomizePositions),
+	("remove_unconnected                 Remove nodes without any connections.", Cid::RemoveUnconnected),
+	("algo [<algorithm>]                 Get or set given algorithm.", Cid::Algorithm),
+	("line <node_count> <create_loop>    Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
+	("star <edge_count>                  Add star structure of nodes.", Cid::AddStar),
+	("tree <node_count> [<inter_count>]  Add a tree structure of nodes with interconnections", Cid::AddTree),
+	("lattice4 <x_xount> <y_count>       Create a lattice structure of squares.", Cid::AddLattice4),
+	("lattice8 <x_xount> <y_count>       Create a lattice structure of squares and diagonal connections.", Cid::AddLattice8),
+	("remove_nodes <node_list>           Remove nodes. Node list is a comma separated list of node ids.", Cid::RemoveNodes),
+	("connect_nodes <node_list>          Connect nodes. Node list is a comma separated list of node ids.", Cid::ConnectNodes),
+	("disconnect_nodes <node_list>       Disconnect nodes. Node list is a comma separated list of node ids.", Cid::DisconnectNodes),
+	("step [<steps>]                     Run simulation steps. Default is 1.", Cid::Step),
+	("run <file>                         Run commands from a script.", Cid::Run),
+	("import <file>                      Import a graph as JSON file.", Cid::Import),
+	("export [<file>]                    Get or set graph export file.", Cid::ExportPath),
+	("move_node <node_id> <x> <y> <z>    Move a node by x/y/z (in km).", Cid::MoveNode),
+	("move_nodes <x> <y> <z>             Move all nodes by x/y/z (in km).", Cid::MoveNodes),
+	("move_to <x> <y> <z>                Move all nodes to x/y/z (in degrees).", Cid::MoveTo),
+	("show_mst                           Mark the minimum spanning tree.", Cid::ShowMinimumSpanningTree),
+	("crop_mst                           Only leave the minimum spanning tree.", Cid::CropMinimumSpanningTree),
+	("exit                               Exit simulator.", Cid::Exit),
+	("help                               Show this help.", Cid::Help),
 ];
 
 fn parse_command(input: &str) -> Command {
@@ -309,11 +312,11 @@ fn parse_command(input: &str) -> Command {
 				error
 			}
 		},
-		Cid::Export => {
+		Cid::ExportPath => {
 			if let (Some(path),) = scan!(iter, String) {
-				Command::Export(path)
+				Command::ExportPath(Some(path))
 			} else {
-				error
+				Command::ExportPath(None)
 			}
 		},
 		Cid::MoveNodes => {
@@ -338,8 +341,17 @@ fn parse_command(input: &str) -> Command {
 			}
 		},
 		Cid::AddTree => {
-			if let (Some(count), Some(intra)) = scan!(iter, u32, u32) {
+			if let (Some(count), Some(intra)) = scan!(iter.clone(), u32, u32) {
 				Command::AddTree(count, intra)
+			} else if let (Some(count),) = scan!(iter, u32) {
+				Command::AddTree(count, 0)
+			} else {
+				error
+			}
+		},
+		Cid::AddStar => {
+			if let (Some(count),) = scan!(iter, u32) {
+				Command::AddStar(count)
 			} else {
 				error
 			}
@@ -440,7 +452,6 @@ fn print_help(out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 
 fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, call: AllowRecursiveCall) -> Result<(), std::fmt::Error> {
 	let mut mark_links : Option<Graph> = None;
-	let mut explicit_export = false;
 	let mut do_init = false;
 
 	//println!("command: '{}'", input);
@@ -563,17 +574,19 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 				)
 			}
 			sim.test.show_progress(sim.show_progress);
-			run_test(out, &mut sim.test, &sim.gstate.graph, &sim.algorithm, samples);
+			run_test(out, &mut sim.test, &sim.gstate.graph, &sim.algorithm, samples)?;
 		},
 		Command::Import(ref path) => {
 			import_file(&mut sim.gstate.graph, Some(&mut sim.gstate.location), Some(&mut sim.gstate.meta), path.as_str());
 			do_init = true;
 			writeln!(out, "read {}", path)?;
 		},
-		Command::Export(ref path) => {
-			explicit_export = true;
-			//export_file(&sim.gstate.graph, Some(&sim.gstate.location), Some(&*sim.algorithm), mark_links, path.as_str());
-			//writeln!(out, "wrote {}", path)?;
+		Command::ExportPath(path) => {
+			if let Some(path) = path {
+				sim.export_path = path;
+			}
+
+			writeln!(out, "Export path: {}", sim.export_path)?;
 		},
 		Command::AddLine(count, close) => {
 			sim.gstate.add_line(count, close);
@@ -587,6 +600,10 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		},
 		Command::AddTree(count, intra) => {
 			sim.gstate.add_tree(count, intra);
+			do_init = true;
+		},
+		Command::AddStar(count) => {
+			sim.gstate.add_star(count);
 			do_init = true;
 		},
 		Command::AddLattice4(x_count, y_count) => {
@@ -610,10 +627,9 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 				"enabled"
 			} else {
 				"disabled"
-			});
+			})?;
 		}
 		Command::RandomizePositions(range) => {
-			let count = sim.gstate.graph.node_count();
 			let center = sim.gstate.location.graph_center();
 			sim.gstate.location.randomize_positions_2d(center, range);
 		},
@@ -656,7 +672,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 					for (index, line) in BufReader::new(file).lines().enumerate() {
 						let line = line.unwrap();
 						if let Err(err) = cmd_handler(out, sim, &line, AllowRecursiveCall::No) {
-							writeln!(out, "Error in {}:{}", path, index);
+							writeln!(out, "Error in {}:{}: {}", path, index, err)?;
 							sim.abort_simulation = true;
 							break;
 						}
@@ -692,15 +708,13 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		sim.test.clear();
 	}
 
-	/*
-	 * location: geo position
-	 * algorithm: name and label
-	 * node color?
-	 * link color?
-	 * selected?
-	 */
-	 //explicit_export?
-	export_file(&sim.gstate.graph, Some(&sim.gstate.location), Some(&*sim.algorithm), mark_links.as_ref(), "graph.json");
+	export_file(
+		&sim.gstate.graph,
+		Some(&sim.gstate.location),
+		Some(&*sim.algorithm),
+		mark_links.as_ref(),
+		sim.export_path.as_ref()
+	);
 
 	Ok(())
 }
