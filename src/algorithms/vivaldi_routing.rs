@@ -4,24 +4,195 @@ use std::u32;
 use crate::utils::*;
 use crate::graph::*;
 use crate::sim::{Io, TestPacket, RoutingAlgorithm};
+use std::ops::{AddAssign, DivAssign, Index, Add, Mul, Div, Sub, Deref};
 
-/*
-fn get_local_error(pos: Vec3, neighbors: &Vec<Neighbor>) -> f32 {
-	/*
-	let mut mean = Vec3::new0();
-	for v in neighbors {
-		mean += v.pos;
+
+#[derive(Clone, Copy, PartialEq)]
+struct VVec {
+	data: [f32; 8]
+}
+
+impl VVec {
+	pub fn new() -> Self {
+		Self { data: [0.0; 8] }
 	}
 
-	pos.distance(&mean)
-	*/
-	1.0
-}*/
+	pub fn new_nan() -> Self {
+		Self { data: [f32::NAN; 8] }
+	}
+
+	pub fn vec_sub(&self, v: &VVec) -> VVec {
+		let mut ret = VVec::new();
+		for i in 0..self.data.len() {
+			ret.data[i] = self.data[i] - v.data[i];
+		}
+		ret
+	}
+
+	pub fn vec_add(&self, v: &VVec) -> VVec {
+		let mut ret = VVec::new();
+		for i in 0..self.data.len() {
+			ret.data[i] = self.data[i] + v.data[i];
+		}
+		ret
+	}
+
+	pub fn length(&self) -> f32 {
+		let mut ret = 0.0;
+		for i in 0..self.data.len() {
+			ret += self.data[i] * self.data[i];
+		}
+		ret.sqrt()
+	}
+
+	pub fn unit(&self) -> VVec {
+		self.scalar_mul(1.0 / self.length())
+	}
+
+	pub fn angle(&self, v: &VVec) -> f32 {
+		(self.unit() * v.unit()).acos()
+	}
+
+	pub fn vec_mul(&self, v: &VVec) -> f32 {
+		let mut ret = 0.0;
+		for i in 0..self.data.len() {
+			ret += self.data[i] * v.data[i];
+		}
+		ret
+	}
+
+	pub fn scalar_mul(&self, s: f32) -> VVec {
+		let mut ret = self.clone();
+		for i in 0..ret.data.len() {
+			ret.data[i] *= s
+		}
+		ret
+	}
+
+	pub fn scalar_div(&self, s: f32) -> VVec {
+		self.scalar_mul(1.0 / s)
+	}
+
+	pub fn distance(&self, v: &VVec) -> f32 {
+		self.vec_sub(v).length()
+	}
+
+	pub fn direction(&self, v: &VVec) -> VVec {
+		self.vec_sub(v).unit()
+	}
+
+	pub fn is_near_null(&self, eta: f32) -> bool {
+		for n in &self.data {
+			if (*n >= eta) && (*n <= -eta) {
+				return false;
+			}
+		}
+		true
+	}
+
+	pub fn is_finite(&self) -> bool {
+		for n in &self.data {
+			if !n.is_finite() {
+				return false;
+			}
+		}
+		true
+	}
+
+	pub fn to_finite(&self) -> Self {
+		let mut ret = Self::new_nan();
+		let mut i = 0;
+		for n in &self.data {
+			if n.is_finite() {
+				ret.data[i] = *n;
+				i += 1;
+			}
+		}
+		ret
+	}
+
+	pub fn as_slice(&self) -> &[f32; 8] {
+		&self.data
+	}
+
+	pub fn random_unit() -> VVec {
+		VVec::random_in_area(1.0).unit()
+	}
+
+	// random around in the box of (0, 0, 0)
+	pub fn random_in_area(r: f32) -> VVec {
+		let mut ret = VVec::new();
+		for i in 0..ret.data.len() {
+			ret.data[i] = (2.0 * rand::random::<f32>() - 1.0) * r;
+		}
+		ret
+	}
+}
+
+impl Index<usize> for VVec {
+    type Output = f32;
+
+    fn index(&self, idx: usize) -> &Self::Output {
+        &self.data[idx]
+    }
+}
+
+impl AddAssign<VVec> for VVec {
+	fn add_assign(&mut self, v: VVec) {
+		*self = *self + v;
+	}
+}
+
+impl DivAssign<f32> for VVec {
+	fn div_assign(&mut self, s: f32) {
+		*self = *self / s;
+	}
+}
+
+impl Add<VVec> for VVec {
+	type Output = VVec;
+
+	fn add(self, v: VVec) -> VVec {
+		self.vec_add(&v)
+	}
+}
+
+impl Sub<VVec> for VVec {
+	type Output = VVec;
+
+	fn sub(self, rhs: VVec) -> VVec {
+		self.vec_sub(&rhs)
+	}
+}
+
+impl Mul<VVec> for VVec {
+	type Output = f32;
+
+	fn mul(self, rhs: VVec) -> f32 {
+		self.vec_mul(&rhs)
+	}
+}
+
+impl Mul<f32> for VVec {
+	type Output = VVec;
+
+	fn mul(self, rhs: f32) -> VVec {
+		self.scalar_mul(rhs)
+	}
+}
+
+impl Div<f32> for VVec {
+	type Output = VVec;
+
+	fn div(self, rhs: f32) -> VVec {
+		self.scalar_div(rhs)
+	}
+}
 
 #[derive(Clone)]
 struct Neighbor {
 	id: ID,
-	pos: Vec3,
+	pos: VVec,
 	error: f32,
 	last_updated: u32
 }
@@ -34,26 +205,26 @@ impl PartialEq for Neighbor {
 
 #[derive(Clone)]
 struct Node {
-	pos: Vec3,
+	pos: VVec,
 	error: f32,
-	pos_old: Vec3,
+	pos_old: VVec,
 	neighbors: Vec<Neighbor>,
 }
 
 impl Node {
 	fn new() -> Self {
 		Self {
-			pos: Vec3::new0(),
+			pos: VVec::new(),
 			error: 0.0,
-			pos_old: Vec3::new0(),
+			pos_old: VVec::new(),
 			neighbors: vec![],
 		}
 	}
 
 	fn reset(&mut self) {
-		self.pos = Vec3::new0();
+		self.pos = VVec::new();
 		self.error = 0.0;
-		self.pos_old = Vec3::new0();
+		self.pos_old = VVec::new();
 		self.neighbors.clear();
 	}
 
@@ -61,7 +232,7 @@ impl Node {
 		vec_filter(&mut self.neighbors, |ref e| (e.last_updated + 5) >= time);
 	}
 
-	fn route(&self, packet: &TestPacket, dst_pos: &Vec3) -> Option<ID> {
+	fn route(&self, packet: &TestPacket, dst_pos: &VVec) -> Option<ID> {
 		let mut d_next = f32::INFINITY;
 		let mut n_next = None;
 
@@ -76,7 +247,7 @@ impl Node {
 		n_next
 	}
 
-	fn update(&mut self, from_id: ID, from_pos: Vec3, from_error: f32, time: u32, rtt: f32) {
+	fn update(&mut self, from_id: ID, from_pos: VVec, from_error: f32, time: u32, rtt: f32) {
 		vec_add_entry(&mut self.neighbors,
 			&Neighbor {
 				id: from_id,
@@ -89,8 +260,25 @@ impl Node {
 		self.vivaldi_update(&from_pos, from_error, rtt);
 	}
 
+	fn cut_old_pos(&mut self) {
+		let n = std::cmp::min(std::cmp::max(self.neighbors.len(), 1), 8);
+		println!("n: {}, neigh: {}", n, self.neighbors.len());
+		for i in n..8 {
+			self.pos_old.data[i] = 0.0;
+		}
+		/*
+		for i in 0..n {
+			if !self.pos_old[i].is_finite() {
+				self.pos_old.data[i] = 0.0;
+			}
+		}
+		for i in n..8 {
+			self.pos_old.data[i] = f32::NAN;
+		}*/
+	}
+
 	// Vivaldi algorithm
-	fn vivaldi_update(&mut self, pos: &Vec3, error: f32, rtt: f32) {
+	fn vivaldi_update(&mut self, pos: &VVec, error: f32, rtt: f32) {
 		//let rtt = self.rtt;
 		let ce = 0.25;
 		let cc = 0.25;
@@ -120,7 +308,7 @@ impl Node {
 		// Choose random direction if both positions are identical
 		let direction = if ab.is_near_null(0.01) {
 			//println!("random direction");
-			Vec3::random_unit()
+			VVec::random_unit()
 		} else {
 			ab
 		};
@@ -173,7 +361,7 @@ impl RoutingAlgorithm for VivaldiRouting
 		match key {
 			"name" => {
 				let pos = self.nodes[id as usize].pos;
-				write!(out, "{:.1}/{:.1}/{:.1}", pos.x(), pos.y(), pos.z())?;
+				write!(out, "{:.1}/{:.1}/{:.1}", pos[0], pos[1], pos[2])?;
 			},
 			_ => {}
 		}
@@ -220,6 +408,7 @@ impl RoutingAlgorithm for VivaldiRouting
 		for node in &mut self.nodes {
 			node.pos_old = node.pos;
 			node.timeout_entries(self.time);
+			node.cut_old_pos();
 		}
 
 		// simulate broadcast traffic
