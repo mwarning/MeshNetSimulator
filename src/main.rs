@@ -28,7 +28,7 @@ use crate::tests::*;
 use crate::sim::GlobalState;
 
 
-pub const VERSION : &'static str = "1.0";
+pub const VERSION : &'static str = "0.8";
 pub const CMD_SOCKET_ADDRESS : &'static str = "127.0.0.1:8011";
 
 
