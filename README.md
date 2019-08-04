@@ -41,30 +41,41 @@ Now the web browsers opens and commands can be passed to the MeshNetSimulator fr
 
 The interactive command line allows to control the routing simulator. It is accessible from the terminal and via TCP/UDP/Unix socket.
 
-Routing algorithm:
+Simulation:
 
 - `algo [<name>]`  
-  Set or print algorithms.
-- `step [<steps>]`  
+  Set current routing algorithm or print list of available algorithms.
+- `sim_step [<steps>]`  
   Run simulation steps. Default is 1.
+- `sim_reset`  
+  Reset simulator state.
+- `sim_info`  
+  Show simulator state.
 - `progress <true|false>`  
   Show simulation progress.
 - `test [<samples>]`  
-  Test routing algorithm with optional samples size (test packets arrived, path stretch).
+  Test routing algorithm with optional samples size.  
+  Does not change node state.
 - `debug_init <source> <target>`  
-  Debug routing path from source to target.
+  Debug routing path from source to target.  
+  Does not change node state.
 - `debug_step`  
-  Perform a routing step on the path that was initialized.
+  Perform a routing step on the path that was initialized.  
+  Does not change node state.
 
-Inspect the graph:
+Graph info:
 
+- `graph_info`  
+  Show graph state.
 - `get <key>`  
   Get node property.
 - `set <key> <value>`  
   Set node property.
 
-Change the graph topology:
+Graph topology:
 
+- `graph_clear`  
+  Clear graph.
 - `line <node_count> <create_loop>`  
   Add a line of nodes. Connect ends to create a loop.
 - `star <edge_count>`    
@@ -84,7 +95,7 @@ Change the graph topology:
 - `remove_unconnected`  
   Remove nodes without any connections.
 
-Change the graph positions:
+Graph positions:
 
 - `positions <true|false>`  
   Enable geo positions.
@@ -95,19 +106,11 @@ Change the graph positions:
 - `move_to <x> <y> <z>`  
   Move all nodes to x/y/z (in degrees).
 - `rnd_pos <range>`  
-  Randomize node positions in an area with width (in km) around node center.
+  Randomize node positions in an area with width (in km) around current node center.
 - `connect_in_range <range>`  
   Connect all nodes in range of less then range (in km).
 
 Meta:
-- `graph_state`  
-  Show Graph state
-- `sim_state`  
-  Show Simulator state.
-- `clear`  
-  Clear graph state
-- `reset`  
-  Reset node state.
 - `run <file>`  
   Run commands from a script.
 - `import <file>`  

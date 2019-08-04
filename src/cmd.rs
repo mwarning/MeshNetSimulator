@@ -113,10 +113,10 @@ enum Command {
 	Error(String),
 	Ignore,
 	Help,
-	Clear,
-	GraphState,
-	SimState,
-	Reset,
+	ClearGraph,
+	GraphInfo,
+	SimInfo,
+	ResetSim,
 	Exit,
 	Progress(Option<bool>),
 	ShowMinimumSpanningTree,
@@ -139,7 +139,7 @@ enum Command {
 	RemoveNodes(Vec<u32>),
 	ConnectNodes(Vec<u32>),
 	DisconnectNodes(Vec<u32>),
-	Step(u32),
+	SimStep(u32),
 	Run(String),
 	Import(String),
 	ExportPath(Option<String>),
@@ -152,10 +152,10 @@ enum Command {
 enum Cid {
 	Error,
 	Help,
-	Clear,
-	GraphState,
-	SimState,
-	Reset,
+	ClearGraph,
+	GraphInfo,
+	SimInfo,
+	ResetSim,
 	Exit,
 	Progress,
 	ShowMinimumSpanningTree,
@@ -178,7 +178,7 @@ enum Cid {
 	RemoveNodes,
 	ConnectNodes,
 	DisconnectNodes,
-	Step,
+	SimStep,
 	Run,
 	Import,
 	ExportPath,
@@ -187,22 +187,22 @@ enum Cid {
 	MoveTo
 }
 
+
 const COMMANDS: &'static [(&'static str, Cid)] = &[
-	("clear                              Clear graph state", Cid::Clear),
-	("graph_state                        Show Graph state", Cid::GraphState),
-	("sim_state                          Show Simulator state.", Cid::SimState),
-	("reset                              Reset node state.", Cid::Reset),
+	("algo [<algorithm>]                 Get or set given algorithm.", Cid::Algorithm),
+	("sim_step [<steps>]                 Run simulation steps. Default is 1.", Cid::SimStep),
+	("sim_reset                          Reset simulation.", Cid::ResetSim),
+	("sim_info                           Show simulator information.", Cid::SimInfo),
+	("progress [<true|false>]            Show simulation progress.", Cid::Progress),
 	("test [<samples>]                   Test routing algorithm with (test packets arrived, path stretch).", Cid::Test),
-	("debug <from> <to>                  Debug a path step wise.", Cid::DebugPath),
+	("debug_init <from> <to>             Debug a path step wise.", Cid::DebugPath),
 	("debug_step                         Perform step on path.", Cid::DebugPathStep),
+
+	("graph_info                         Show graph information", Cid::GraphInfo),
 	("get <key>                          Get node property.", Cid::Get),
 	("set <key> <value>                  Set node property.", Cid::Set),
-	("connect_in_range <range>           Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
-	("positions <true|false>             Enable geo positions.", Cid::Positions),
-	("progress [<true|false>]            Show simulation progress.", Cid::Progress),
-	("rnd_pos <range>                    Randomize node positions in an area with width (in km) around node center.", Cid::RandomizePositions),
-	("remove_unconnected                 Remove nodes without any connections.", Cid::RemoveUnconnected),
-	("algo [<algorithm>]                 Get or set given algorithm.", Cid::Algorithm),
+
+	("graph_clear                        Clear graph", Cid::ClearGraph),
 	("line <node_count> [<create_loop>]  Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
 	("star <edge_count>                  Add star structure of nodes.", Cid::AddStar),
 	("tree <node_count> [<inter_count>]  Add a tree structure of nodes with interconnections", Cid::AddTree),
@@ -211,15 +211,20 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("remove_nodes <node_list>           Remove nodes. Node list is a comma separated list of node ids.", Cid::RemoveNodes),
 	("connect_nodes <node_list>          Connect nodes. Node list is a comma separated list of node ids.", Cid::ConnectNodes),
 	("disconnect_nodes <node_list>       Disconnect nodes. Node list is a comma separated list of node ids.", Cid::DisconnectNodes),
-	("step [<steps>]                     Run simulation steps. Default is 1.", Cid::Step),
+	("remove_unconnected                 Remove nodes without any connections.", Cid::RemoveUnconnected),
+
+	("positions <true|false>             Enable geo positions.", Cid::Positions),
 	("move_node <node_id> <x> <y> <z>    Move a node by x/y/z (in km).", Cid::MoveNode),
 	("move_nodes <x> <y> <z>             Move all nodes by x/y/z (in km).", Cid::MoveNodes),
 	("move_to <x> <y> <z>                Move all nodes to x/y/z (in degrees).", Cid::MoveTo),
-	("show_mst                           Mark the minimum spanning tree.", Cid::ShowMinimumSpanningTree),
-	("crop_mst                           Only leave the minimum spanning tree.", Cid::CropMinimumSpanningTree),
+	("rnd_pos <range>                    Randomize node positions in an area with width (in km) around node center.", Cid::RandomizePositions),
+	("connect_in_range <range>           Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
+
 	("run <file>                         Run commands from a script.", Cid::Run),
 	("import <file>                      Import a graph as JSON file.", Cid::Import),
 	("export [<file>]                    Get or set graph export file.", Cid::ExportPath),
+	("show_mst                           Mark the minimum spanning tree.", Cid::ShowMinimumSpanningTree),
+	("crop_mst                           Only leave the minimum spanning tree.", Cid::CropMinimumSpanningTree),
 	("exit                               Exit simulator.", Cid::Exit),
 	("help                               Show this help.", Cid::Help),
 ];
@@ -266,10 +271,10 @@ fn parse_command(input: &str) -> Command {
 
 	match lookup_cmd(cmd) {
 		Cid::Help => Command::Help,
-		Cid::SimState => Command::SimState,
-		Cid::GraphState => Command::GraphState,
-		Cid::Clear => Command::Clear,
-		Cid::Reset => Command::Reset,
+		Cid::SimInfo => Command::SimInfo,
+		Cid::GraphInfo => Command::GraphInfo,
+		Cid::ClearGraph => Command::ClearGraph,
+		Cid::ResetSim => Command::ResetSim,
 		Cid::Exit => Command::Exit,
 		Cid::Progress => {
 			if let (Some(progress),) = scan!(iter, bool) {
@@ -309,8 +314,8 @@ fn parse_command(input: &str) -> Command {
 				error
 			}
 		},
-		Cid::Step => {
-			Command::Step(if let (Some(count),) = scan!(iter, u32) {
+		Cid::SimStep => {
+			Command::SimStep(if let (Some(count),) = scan!(iter, u32) {
 				count
 			} else {
 				1
@@ -530,41 +535,45 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		Command::Set(key, value) => {
 			sim.algorithm.set(&key, &value)?;
 		},
-		Command::GraphState => {
+		Command::GraphInfo => {
 			let state = &mut sim.gstate;
 			let node_count = state.graph.node_count();
 			let link_count = state.graph.link_count();
 			let avg_node_degree = state.graph.get_avg_node_degree();
-			let mean_clustering_coefficient = state.graph.get_mean_clustering_coefficient();
-			let mean_link_count = state.graph.get_mean_link_count();
-			let mean_link_distance = state.get_mean_link_distance();
 
 			writeln!(out, "nodes: {}, links: {}", node_count, link_count)?;
 			writeln!(out, "locations: {}, metadata: {}", state.location.data.len(), state.meta.data.len())?;
 			writeln!(out, "average node degree: {}", avg_node_degree)?;
-			writeln!(out, "mean clustering coefficient: {}", mean_clustering_coefficient)?;
-			writeln!(out, "mean link count: {} ({} variance)", mean_link_count.0, mean_link_count.1)?;
-			writeln!(out, "mean link distance: {} ({} variance)", mean_link_distance.0, mean_link_distance.1)?;
+/*
+			if (verbose) {
+				let mean_clustering_coefficient = state.graph.get_mean_clustering_coefficient();
+				let mean_link_count = state.graph.get_mean_link_count();
+				let mean_link_distance = state.get_mean_link_distance();
+				writeln!(out, "mean clustering coefficient: {}", mean_clustering_coefficient)?;
+				writeln!(out, "mean link count: {} ({} variance)", mean_link_count.0, mean_link_count.1)?;
+				writeln!(out, "mean link distance: {} ({} variance)", mean_link_distance.0, mean_link_distance.1)?;
+			}
+*/
 		},
-		Command::SimState => {
+		Command::SimInfo => {
 			write!(out, " algo: ")?;
 			sim.algorithm.get("name", out)?;
 
 			writeln!(out, "\n steps: {}", sim.sim_steps)?;
 		},
-		Command::Clear => {
+		Command::ClearGraph => {
 			sim.gstate.graph.clear();
 			do_init = true;
 			writeln!(out, "done")?;
 		},
-		Command::Reset => {
+		Command::ResetSim => {
 			sim.test.clear();
 			//state.graph.clear();
 			sim.sim_steps = 0;
 			do_init = true;
 			writeln!(out, "done")?;
 		},
-		Command::Step(count) => {
+		Command::SimStep(count) => {
 			let mut progress = Progress::new();
 			let now = Instant::now();
 			let mut io = Io::new(&sim.gstate.graph);
