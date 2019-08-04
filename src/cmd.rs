@@ -202,7 +202,7 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("rnd_pos <range>                    Randomize node positions in an area with width (in km) around node center.", Cid::RandomizePositions),
 	("remove_unconnected                 Remove nodes without any connections.", Cid::RemoveUnconnected),
 	("algo [<algorithm>]                 Get or set given algorithm.", Cid::Algorithm),
-	("line <node_count> <create_loop>    Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
+	("line <node_count> [<create_loop>]  Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
 	("star <edge_count>                  Add star structure of nodes.", Cid::AddStar),
 	("tree <node_count> [<inter_count>]  Add a tree structure of nodes with interconnections", Cid::AddTree),
 	("lattice4 <x_xount> <y_count>       Create a lattice structure of squares.", Cid::AddLattice4),
@@ -211,14 +211,14 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("connect_nodes <node_list>          Connect nodes. Node list is a comma separated list of node ids.", Cid::ConnectNodes),
 	("disconnect_nodes <node_list>       Disconnect nodes. Node list is a comma separated list of node ids.", Cid::DisconnectNodes),
 	("step [<steps>]                     Run simulation steps. Default is 1.", Cid::Step),
-	("run <file>                         Run commands from a script.", Cid::Run),
-	("import <file>                      Import a graph as JSON file.", Cid::Import),
-	("export [<file>]                    Get or set graph export file.", Cid::ExportPath),
 	("move_node <node_id> <x> <y> <z>    Move a node by x/y/z (in km).", Cid::MoveNode),
 	("move_nodes <x> <y> <z>             Move all nodes by x/y/z (in km).", Cid::MoveNodes),
 	("move_to <x> <y> <z>                Move all nodes to x/y/z (in degrees).", Cid::MoveTo),
 	("show_mst                           Mark the minimum spanning tree.", Cid::ShowMinimumSpanningTree),
 	("crop_mst                           Only leave the minimum spanning tree.", Cid::CropMinimumSpanningTree),
+	("run <file>                         Run commands from a script.", Cid::Run),
+	("import <file>                      Import a graph as JSON file.", Cid::Import),
+	("export [<file>]                    Get or set graph export file.", Cid::ExportPath),
 	("exit                               Exit simulator.", Cid::Exit),
 	("help                               Show this help.", Cid::Help),
 ];
@@ -351,16 +351,22 @@ fn parse_command(input: &str) -> Command {
 			}
 		},
 		Cid::AddLine => {
-			if let (Some(count), Some(close)) = scan!(iter, u32, bool) {
+			let mut iter1 = iter.clone();
+			let mut iter2 = iter.clone();
+			if let (Some(count), Some(close)) = scan!(iter1, u32, bool) {
 				Command::AddLine(count, close)
+			} else if let (Some(count),) = scan!(iter2, u32) {
+				Command::AddLine(count, false)
 			} else {
 				error
 			}
 		},
 		Cid::AddTree => {
-			if let (Some(count), Some(intra)) = scan!(iter.clone(), u32, u32) {
+			let mut iter1 = iter.clone();
+			let mut iter2 = iter.clone();
+			if let (Some(count), Some(intra)) = scan!(iter1, u32, u32) {
 				Command::AddTree(count, intra)
-			} else if let (Some(count),) = scan!(iter, u32) {
+			} else if let (Some(count),) = scan!(iter2, u32) {
 				Command::AddTree(count, 0)
 			} else {
 				error
@@ -576,7 +582,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 
 			let duration = now.elapsed();
 
-			writeln!(out, "\n{} steps, duration: {}", count, fmt_duration(duration))?;
+			writeln!(out, "{} steps, duration: {}", count, fmt_duration(duration))?;
 		},
 		Command::Test(samples) => {
 			fn run_test(out: &mut std::fmt::Write, test: &mut PassiveRoutingTest, graph: &Graph, algo: &Box<RoutingAlgorithm>, samples: u32)
@@ -691,6 +697,9 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 					_ => {
 						writeln!(out, "Unknown algorithm: {}", algo)?;
 					}
+				}
+				if do_init {
+					writeln!(out, "Done")?;
 				}
 			} else {
 				write!(out, "selected: ")?;
