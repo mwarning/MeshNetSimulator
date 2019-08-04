@@ -17,6 +17,7 @@ use crate::algorithms::vivaldi_routing::VivaldiRouting;
 use crate::algorithms::random_routing::RandomRouting;
 use crate::algorithms::spring_routing::SpringRouting;
 use crate::algorithms::genetic_routing::GeneticRouting;
+use crate::algorithms::spanning_tree_routing::SpanningTreeRouting;
 use crate::importer::import_file;
 use crate::exporter::export_file;
 use crate::utils::{fmt_duration, DEG2KM};
@@ -694,6 +695,10 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 						sim.algorithm = Box::new(GeneticRouting::new());
 						do_init = true;
 					},
+					"tree" => {
+						sim.algorithm = Box::new(SpanningTreeRouting::new());
+						do_init = true;
+					}
 					_ => {
 						writeln!(out, "Unknown algorithm: {}", algo)?;
 					}
@@ -705,7 +710,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 				write!(out, "selected: ")?;
 				sim.algorithm.get("name", out)?;
 				write!(out, "\n")?;
-				write!(out, "available: random, vivaldi, spring, genetic\n")?;
+				write!(out, "available: random, vivaldi, spring, genetic, tree\n")?;
 			}
 		},
 		Command::Run(path) => {

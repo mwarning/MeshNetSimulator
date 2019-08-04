@@ -25,6 +25,7 @@ pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingA
 	let mut ret = String::new();
 	let mut name = String::new();
 	let mut label = String::new();
+	let mut color = String::new();
 
 	write!(&mut ret, "{{").unwrap();
 	write!(&mut ret, "\"nodes\": [").unwrap();
@@ -39,8 +40,10 @@ pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingA
 		if let Some(algo) = algo {
 			name.clear();
 			label.clear();
+			color.clear();
 			let _ = algo.get_node(id, "name", &mut name);
 			let _ = algo.get_node(id, "label", &mut label);
+			let _ = algo.get_node(id, "color", &mut color);
 		}
 
 		write!(&mut ret, "{{\"id\": \"{}\"", id).unwrap();
@@ -56,6 +59,10 @@ pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingA
 
 		if !label.is_empty() {
 			write!(&mut ret, ", \"label\": \"{}\"", label).unwrap();
+		}
+
+		if !color.is_empty() {
+			write!(&mut ret, ", \"color\": \"{}\"", color).unwrap();
 		}
 
 		write!(&mut ret, "}}").unwrap();
