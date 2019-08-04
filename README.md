@@ -8,6 +8,8 @@ The motivation for this project is that community networks such as [Freifunk](ht
 
 Also part of this repository are [basic information](docs/about_mesh_networking.md) about mesh routing protocols.
 
+Note: While some routing algorithms have been implemented. Most of them are not in a working state right now.
+
 ## Overall Workflow
 
 1. Design algorithm
@@ -16,13 +18,24 @@ Also part of this repository are [basic information](docs/about_mesh_networking.
 4. Test on virtual hardware
 5. Test on real hardware
 
-## How to Use
+### How to Use
 
 Run the program and use the command line commands to create/load a topology. Then select a routing algorithm, perform a few simulation steps and run the test command.
 
-Every time toplogy or node state changes, a new graph.json file is written. You can use the [GraphViewer](https://github.com/mwarning/GraphViewer) frontend to visualize the topology and node states.
+```
+$ mkdir ~/simulation
+$ cd simulation
+$ ./MeshNetSimulator-amd64-linux
+Listen for commands on 127.0.0.1:8011
+```
 
+Every time toplogy or node state changes, a new file `graph.json` file is written. You can use the [GraphViewer](https://github.com/mwarning/GraphViewer) frontend to visualize the topology and node states:
 
+```
+$ ./MeshNetViewer-amd64-linux ~/simulation/graph.json --open --call tcp://127.0.0.1:8011 --config config.json
+```
+
+Now the web browsers opens and commands can be passed to the MeshNetSimulator from the command line in the web browser interface. Results will be displayed.
 
 ## Command Line
 
@@ -40,6 +53,10 @@ Some commands on the command line are:
   Reset node state.
 - `test [<samples>]`  
   Test routing algorithm with optional samples size (test packets arrived, path stretch).
+- `debug_path_init <source> <target>`  
+  Debug routing path from source to target.
+- `debug_path_step`  
+  Perform a routing step on the path that was initialized.
 - `get <key>`  
   Get node property.
 - `set <key> <value>`  
@@ -56,7 +73,7 @@ Some commands on the command line are:
   Add a line of nodes. Connect ends to create a loop.
 - `star <edge_count>`    
   Add star structure of nodes.
-- `tree <node_count> <inter_count>`  
+- `tree <node_count> [<inter_count>]`  
   Add a tree structure of nodes with interconnections
 - `lattice4 <x_xount> <y_count>`  
   Create a lattice structure of squares.
