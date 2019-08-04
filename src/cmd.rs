@@ -9,6 +9,7 @@ use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 
 use crate::passive_routing_test::PassiveRoutingTest;
+use crate::debug_path::DebugPath;
 use crate::graph::Graph;
 use crate::progress::Progress;
 use crate::sim::{Io, GlobalState, RoutingAlgorithm};
@@ -120,6 +121,8 @@ enum Command {
 	ShowMinimumSpanningTree,
 	CropMinimumSpanningTree,
 	Test(u32),
+	DebugPath(u32, u32),
+	DebugPathStep,
 	Get(String),
 	Set(String, String),
 	ConnectInRange(f32),
@@ -157,6 +160,8 @@ enum Cid {
 	ShowMinimumSpanningTree,
 	CropMinimumSpanningTree,
 	Test,
+	DebugPath,
+	DebugPathStep,
 	Get,
 	Set,
 	ConnectInRange,
@@ -187,6 +192,8 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("sim_state                          Show Simulator state.", Cid::SimState),
 	("reset                              Reset node state.", Cid::Reset),
 	("test [<samples>]                   Test routing algorithm with (test packets arrived, path stretch).", Cid::Test),
+	("debug_path <from> <to>             Debug a path step wise.", Cid::DebugPath),
+	("debug_path_step                    Perform step on path.", Cid::DebugPathStep),
 	("get <key>                          Get node property.", Cid::Get),
 	("set <key> <value>                  Set node property.", Cid::Set),
 	("connect_in_range <range>           Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
@@ -278,7 +285,17 @@ fn parse_command(input: &str) -> Command {
 			} else {
 				Command::Test(1000)
 			}
-		}
+		},
+		Cid::DebugPath => {
+			if let (Some(from), Some(to)) = scan!(iter, u32, u32) {
+				Command::DebugPath(from, to)
+			} else {
+				error
+			}
+		},
+		Cid::DebugPathStep => {
+			Command::DebugPathStep
+		},
 		Cid::Get => { if let (Some(key),) = scan!(iter, String) {
 				Command::Get(key)
 			} else {
@@ -576,6 +593,22 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			sim.test.show_progress(sim.show_progress);
 			run_test(out, &mut sim.test, &sim.gstate.graph, &sim.algorithm, samples)?;
 		},
+		Command::DebugPath(from, to) => {
+			let node_count = sim.gstate.graph.node_count() as u32;
+			if (from < node_count) && (from < node_count) {
+				sim.debug_path.init(from, to);
+			} else {
+				writeln!(out, "Invalid path: {} => {}", from, to)?;
+			}
+		},
+		Command::DebugPathStep => {
+			fn run_test(out: &mut std::fmt::Write, debug_path: &mut DebugPath, graph: &Graph, algo: &Box<RoutingAlgorithm>)
+				-> Result<(), std::fmt::Error>
+			{
+				debug_path.step(out, graph, |p| algo.route(&p))
+			}
+			run_test(out, &mut sim.debug_path, &sim.gstate.graph, &sim.algorithm)?;
+		}
 		Command::Import(ref path) => {
 			import_file(&mut sim.gstate.graph, Some(&mut sim.gstate.location), Some(&mut sim.gstate.meta), path.as_str());
 			do_init = true;

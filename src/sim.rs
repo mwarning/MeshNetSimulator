@@ -6,12 +6,14 @@ use crate::graph::{Graph, Link, ID};
 use crate::graph_state::GraphState;
 use crate::algorithms::random_routing::RandomRouting;
 use crate::passive_routing_test::PassiveRoutingTest;
+use crate::debug_path::DebugPath;
 
 
 pub struct GlobalState {
 	pub gstate: GraphState,
 	pub algorithm: Box<RoutingAlgorithm>,
 	pub test: PassiveRoutingTest,
+	pub debug_path: DebugPath,
 	pub sim_steps: u32,
 	pub abort_simulation: bool,
 	pub show_progress: bool,
@@ -25,6 +27,7 @@ impl GlobalState {
 			gstate: GraphState::new(),
 			algorithm: Box::new(RandomRouting::new()),
 			test: PassiveRoutingTest::new(),
+			debug_path: DebugPath::new(),
 			sim_steps: 0,
 			abort_simulation: false,
 			show_progress: false,

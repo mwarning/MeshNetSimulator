@@ -6,6 +6,7 @@ mod stats;
 mod graph_state;
 mod algorithms;
 mod passive_routing_test;
+mod debug_path;
 mod importer;
 mod exporter;
 mod sim;
