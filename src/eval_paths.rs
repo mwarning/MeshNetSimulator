@@ -11,7 +11,7 @@ use crate::graph::*;
  * Test if all paths allow for routing.
  * This test does not allow the state of the routing algorithm to change.
  */
-pub struct PassiveRoutingTest {
+pub struct EvalPaths {
 	show_progress: bool,
 	is_done: bool,
 	packets_send: u32,
@@ -26,7 +26,7 @@ pub struct PassiveRoutingTest {
 	dijkstra: Dijkstra
 }
 
-impl PassiveRoutingTest {
+impl EvalPaths {
 	pub fn new() -> Self {
 		Self {
 			show_progress: false,

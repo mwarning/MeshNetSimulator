@@ -8,7 +8,7 @@ use std::io::{BufRead, BufReader};
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 
-use crate::passive_routing_test::PassiveRoutingTest;
+use crate::eval_paths::EvalPaths;
 use crate::debug_path::DebugPath;
 use crate::graph::Graph;
 use crate::progress::Progress;
@@ -586,7 +586,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			writeln!(out, "{} steps, duration: {}", count, fmt_duration(duration))?;
 		},
 		Command::Test(samples) => {
-			fn run_test(out: &mut std::fmt::Write, test: &mut PassiveRoutingTest, graph: &Graph, algo: &Box<RoutingAlgorithm>, samples: u32)
+			fn run_test(out: &mut std::fmt::Write, test: &mut EvalPaths, graph: &Graph, algo: &Box<RoutingAlgorithm>, samples: u32)
 				-> Result<(), std::fmt::Error>
 			{
 				test.clear();

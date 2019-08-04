@@ -1,7 +1,7 @@
 use rand::Rng;
 
 use crate::sim::{Io, RoutingAlgorithm};
-use crate::passive_routing_test::PassiveRoutingTest;
+use crate::eval_paths::EvalPaths;
 use crate::graph::*;
 use crate::utils::*;
 use crate::exporter::export_file;
@@ -25,7 +25,7 @@ fn create_hg(n: usize) -> Graph {
 
 pub fn run_test1() {
 	let mut state = GraphState::new();
-	let mut test = PassiveRoutingTest::new();
+	let mut test = EvalPaths::new();
 	let mut algorithm = crate::algorithms::spring_routing::SpringRouting::new();
 	let mut progress = Progress::new();
 
@@ -64,7 +64,7 @@ pub fn run_test1() {
 
 pub fn run_test2() {
 	let mut state = GraphState::new();
-	let mut test = PassiveRoutingTest::new();
+	let mut test = EvalPaths::new();
 	let mut algorithm = crate::algorithms::spring_routing::SpringRouting::new();
 	let mut progress = Progress::new();
 
@@ -103,7 +103,7 @@ pub fn run_test2() {
 }
 
 pub fn run_test3() {
-	fn test_program(program: &[u32], graph: &Graph, test: &mut PassiveRoutingTest, algorithm: &mut crate::algorithms::genetic_routing::GeneticRouting) -> f32 {
+	fn test_program(program: &[u32], graph: &Graph, test: &mut EvalPaths, algorithm: &mut crate::algorithms::genetic_routing::GeneticRouting) -> f32 {
 		algorithm.reset(graph.node_count());
 		let mut io = Io::new(&graph);
 
@@ -164,7 +164,7 @@ pub fn run_test3() {
 		}
 	}
 
-	let mut test = PassiveRoutingTest::new();
+	let mut test = EvalPaths::new();
 	let mut algorithm = crate::algorithms::genetic_routing::GeneticRouting::new();
 	let mut state = GraphState::new();
 	let mut program = [0u32; 8];

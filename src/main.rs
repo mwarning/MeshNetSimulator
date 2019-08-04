@@ -5,7 +5,7 @@ mod utils;
 mod stats;
 mod graph_state;
 mod algorithms;
-mod passive_routing_test;
+mod eval_paths;
 mod debug_path;
 mod importer;
 mod exporter;
