@@ -47,6 +47,8 @@ Routing algorithm:
   Set or print algorithms.
 - `step [<steps>]`  
   Run simulation steps. Default is 1.
+- `progress <true|false>`  
+  Show simulation progress.
 - `test [<samples>]`  
   Test routing algorithm with optional samples size (test packets arrived, path stretch).
 - `debug_init <source> <target>`  
@@ -84,6 +86,8 @@ Change the graph topology:
 
 Change the graph positions:
 
+- `positions <true|false>`  
+  Enable geo positions.
 - `move_node <node_id> <x> <y> <z>`  
   Move a node by x/y/z (in km).
 - `move_nodes <x> <y> <z>`  
