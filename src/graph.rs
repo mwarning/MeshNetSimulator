@@ -4,12 +4,15 @@ use std::u16;
 use std::fmt;
 
 use std::cmp::Ordering;
+
+use crate::utils::vec_filter;
+
 //TODO: rename to Links and GraphState to Graph
 
 
 pub type ID = u32;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Link
 {
 	pub from: ID,
@@ -358,6 +361,7 @@ impl Graph {
 
 		self.node_count -= 1;
 
+		// adjust index
 		for link in &mut self.links {
 			if link.to > id {
 				link.to -= 1;
@@ -366,6 +370,12 @@ impl Graph {
 				link.from -= 1;
 			}
 		}
+
+		// remove links
+		vec_filter(&mut self.links, |ref link| link.from != id && link.to != id);
+
+		// sort
+		self.links.sort_unstable_by(|a, b| a.cmp(b.from, b.to));
 	}
 
 	pub fn remove_nodes(&mut self, nodes: &Vec<ID>) {
