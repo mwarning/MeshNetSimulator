@@ -53,9 +53,9 @@ Some commands on the command line are:
   Reset node state.
 - `test [<samples>]`  
   Test routing algorithm with optional samples size (test packets arrived, path stretch).
-- `debug_path_init <source> <target>`  
+- `debug_init <source> <target>`  
   Debug routing path from source to target.
-- `debug_path_step`  
+- `debug_step`  
   Perform a routing step on the path that was initialized.
 - `get <key>`  
   Get node property.
