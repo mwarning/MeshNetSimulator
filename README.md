@@ -39,36 +39,30 @@ Now the web browsers opens and commands can be passed to the MeshNetSimulator fr
 
 ## Command Line
 
-Some commands on the command line are:
+The interactive command line allows to control the routing simulator. It is accessible from the terminal and via TCP/UDP/Unix socket.
 
-- `clear`  
-  Clear graph state
+Routing algorithm:
+
 - `algo [<name>]`  
-  Set or algorithms.
-- `graph_state`  
-  Show Graph state
-- `sim_state`  
-  Show Simulator state.
-- `reset`  
-  Reset node state.
+  Set or print algorithms.
+- `step [<steps>]`  
+  Run simulation steps. Default is 1.
 - `test [<samples>]`  
   Test routing algorithm with optional samples size (test packets arrived, path stretch).
 - `debug_init <source> <target>`  
   Debug routing path from source to target.
 - `debug_step`  
   Perform a routing step on the path that was initialized.
+
+Inspect the graph:
+
 - `get <key>`  
   Get node property.
 - `set <key> <value>`  
   Set node property.
-- `connect_in_range <range>`  
-  Connect all nodes in range of less then range (in km).
-- `rnd_pos <range>`  
-  Randomize node positions in an area with width (in km) around node center.
-- `remove_unconnected`  
-  Remove nodes without any connections.
-- `algorithm [<algorithm>]`  
-  Get or set given algorithm.
+
+Change the graph topology:
+
 - `line <node_count> <create_loop>`  
   Add a line of nodes. Connect ends to create a loop.
 - `star <edge_count>`    
@@ -85,20 +79,37 @@ Some commands on the command line are:
   Connect nodes. Node list is a comma separated list of node ids.
 - `disconnect_nodes <node_list>`  
   Disconnect nodes. Node list is a comma separated list of node ids.
-- `step [<steps>]`  
-  Run simulation steps. Default is 1.
-- `run <file>`  
-  Run commands from a script.
-- `import <file>`  
-  Import a graph as JSON file.
-- `export <file>`  
-  Export a graph as JSON file.
+- `remove_unconnected`  
+  Remove nodes without any connections.
+
+Change the graph positions:
+
 - `move_node <node_id> <x> <y> <z>`  
   Move a node by x/y/z (in km).
 - `move_nodes <x> <y> <z>`  
   Move all nodes by x/y/z (in km).
 - `move_to <x> <y> <z>`  
   Move all nodes to x/y/z (in degrees).
+- `rnd_pos <range>`  
+  Randomize node positions in an area with width (in km) around node center.
+- `connect_in_range <range>`  
+  Connect all nodes in range of less then range (in km).
+
+Meta:
+- `graph_state`  
+  Show Graph state
+- `sim_state`  
+  Show Simulator state.
+- `clear`  
+  Clear graph state
+- `reset`  
+  Reset node state.
+- `run <file>`  
+  Run commands from a script.
+- `import <file>`  
+  Import a graph as JSON file.
+- `export <file>`  
+  Export a graph as JSON file.
 - `show_mst`  
   Mark the minimum spanning tree.
 - `crop_mst`  
