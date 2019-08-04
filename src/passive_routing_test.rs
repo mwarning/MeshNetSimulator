@@ -6,6 +6,7 @@ use crate::sim::TestPacket;
 use crate::dijkstra::Dijkstra;
 use crate::graph::*;
 
+
 /*
  * Test if all paths allow for routing.
  * This test does not allow the state of the routing algorithm to change.
@@ -20,6 +21,7 @@ pub struct PassiveRoutingTest {
 	route_costs_min_sum: u32,
 	nodes_connected: usize,
 	nodes_disconnected: usize,
+	max_stretch: u32,
 	run_time: Duration,
 	dijkstra: Dijkstra
 }
@@ -36,6 +38,7 @@ impl PassiveRoutingTest {
 			route_costs_min_sum: 0,
 			nodes_connected: 0,
 			nodes_disconnected: 0,
+			max_stretch: 2,
 			run_time: Duration::new(0, 0),
 			dijkstra: Dijkstra::new(),
 		}
@@ -65,25 +68,22 @@ impl PassiveRoutingTest {
 	fn test_path(&mut self, graph: &Graph, mut route: impl FnMut(&TestPacket) -> Option<u32>,
 			source: ID, target: ID, costs_min: u32) {
 		// maximum stretch we record
-		let max_stretch = 2;
 		let mut packet = TestPacket::new(source, source, source, target);
-		let mut costs = 0u32;
+		let mut path_costs = 0u32;
 
 		self.packets_send += 1;
 
 		// max steps to try until we give up
-		let max_steps = costs_min * max_stretch;
+		let max_steps = costs_min * self.max_stretch;
 
 		for _ in 0..max_steps {
 			if let Some(next) = route(&packet) {
 				// Check if link really exists
 				if let Some(link) = graph.get_link(packet.receiver, next) {
-					costs += link.cost() as u32;
+					path_costs += link.cost() as u32;
 					if next == packet.destination {
 						// packet arrived
 						self.packets_arrived += 1;
-						self.route_costs_sum += costs;
-						self.route_costs_min_sum += costs_min;
 						break;
 					} else {
 						// forward packet
@@ -91,14 +91,19 @@ impl PassiveRoutingTest {
 						packet.receiver = next;
 					}
 				} else {
+					// invalid next hop
 					self.packets_lost += 1;
 					break;
 				}
 			} else {
+				// no next hop
 				self.packets_lost += 1;
 				break;
 			}
 		}
+
+		self.route_costs_sum += path_costs;
+		self.route_costs_min_sum += costs_min;
 	}
 
 	pub fn run_samples(&mut self, graph: &Graph, mut route: impl FnMut(&TestPacket) -> Option<u32>,
