@@ -233,15 +233,16 @@ impl GraphState {
 			//}
 		}
 
-		// Interconnect part of the tree with additional connections
-		// Also limit maximum number of possible bidirectional links
-		for _ in 0..intra { //cmp::min(intra, (intra * (intra - 1)) / 2) {
-			loop {
-				let i = rand::random::<ID>() % count;
-				let j = rand::random::<ID>() % count;
-				if i != j && !self.graph.has_link((offset + i) as ID, (offset + j) as ID) {
-					self.graph.connect((offset + i) as ID, (offset + j) as ID);
-					break;
+		// hm, move this out. Execution cannot be guaranteed
+		if count > 2 {
+			for _ in 0..std::cmp::min(intra, (count * (count - 1)) / 2 - (count + 1)) {
+				loop {
+					let i = rand::random::<ID>() % count;
+					let j = rand::random::<ID>() % count;
+					if i != j && !self.graph.has_link((offset + i) as ID, (offset + j) as ID) {
+						self.graph.connect((offset + i) as ID, (offset + j) as ID);
+						break;
+					}
 				}
 			}
 		}
