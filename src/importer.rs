@@ -10,19 +10,11 @@ use crate::graph::{Graph, ID};
 use crate::utils::*;
 
 
-pub fn import_file(graph: &mut Graph, loc: Option<&mut Location>, meta: Option<&mut Meta>, path: &str) {
-	match File::open(path) {
-		Ok(mut file) => {
-			let mut data = String::new();
-			match file.read_to_string(&mut data) {
-				Ok(_) => { parse_netjson(graph, loc, meta, &data); },
-				Err(e) => { println!("file error: {}", e); }
-			}
-		},
-		Err(e) => {
-			println!("file error: {}", e);
-		}
-	}
+pub fn import_file(graph: &mut Graph, loc: Option<&mut Location>, meta: Option<&mut Meta>, path: &str) -> Result<(), MyError> {
+	let mut file = File::open(path)?;
+	let mut data = String::new();
+	file.read_to_string(&mut data)?;
+	parse_netjson(graph, loc, meta, &data)
 }
 
 fn extract_location(node: &Value) -> (f32, f32) {
@@ -36,15 +28,18 @@ fn extract_location(node: &Value) -> (f32, f32) {
 }
 
 // parse the meshviewer data
-fn parse_netjson(graph: &mut Graph, mut loc: Option<&mut Location>, mut meta: Option<&mut Meta>, data: &str) {
-	if let Ok(v) = serde_json::from_str::<Value>(data) {
-		if let (Some(nodes), Some(links)) = (get_array(&v, "nodes"), get_array(&v, "links")) {
-			// map target/source field to node id in graph.nodes
-			let mut map = HashMap::<&str, usize>::new();
-			let mut id = graph.node_count();
+fn parse_netjson(graph: &mut Graph, mut loc: Option<&mut Location>, mut meta: Option<&mut Meta>, data: &str) -> Result<(), MyError> {
+	let v = serde_json::from_str::<Value>(data)?;
 
-			for node in nodes {
-				if let Some(node_id) = get_str(&node, "node_id") {
+	if let (Some(nodes), Some(links)) = (get_array(&v, "nodes"), get_array(&v, "links")) {
+		// map target/source field to node id in graph.nodes
+		let mut map = HashMap::<&str, usize>::new();
+		let mut id = graph.node_count();
+
+		for node in nodes {
+			// try different keys (netjson uses node_id)
+			for key in &["node_id", "id"] {
+				if let Some(node_id) = get_str(&node, key) {
 					let (x, y) = extract_location(node);
 					let meta_data = serde_json::to_string(&node).unwrap_or(String::new());
 					// TODO: move to Node::new() ctor
@@ -62,22 +57,26 @@ fn parse_netjson(graph: &mut Graph, mut loc: Option<&mut Location>, mut meta: Op
 					// remember node id
 					map.insert(&node_id, id);
 					id += 1;
-				}
-			}
-
-			for link in links {
-				if let (Some(source), Some(source_tq), Some(target), Some(target_tq)) =
-						(get_str(link, "source"), get_f64(link, "source_tq"),
-						get_str(link, "target"), get_f64(link, "target_tq")) {
-					if let (Some(source_id), Some(target_id)) = (map.get(source), map.get(target)) {
-						graph.add_link(*source_id as ID, *target_id as ID, (source_tq * std::u16::MAX as f64) as u16);
-						graph.add_link(*target_id as ID, *source_id as ID, (target_tq * std::u16::MAX as f64) as u16);
-					}
+					break;
 				}
 			}
 		}
+
+		graph.add_nodes(map.len() as u32);
+
+		for link in links {
+			if let (Some(source), Some(source_tq), Some(target), Some(target_tq)) =
+					(get_str(link, "source"), get_f64(link, "source_tq"),
+					get_str(link, "target"), get_f64(link, "target_tq")) {
+				if let (Some(source_id), Some(target_id)) = (map.get(source), map.get(target)) {
+					graph.add_link(*source_id as ID, *target_id as ID, (source_tq * std::u16::MAX as f64) as u16);
+					graph.add_link(*target_id as ID, *source_id as ID, (target_tq * std::u16::MAX as f64) as u16);
+				}
+			}
+		}
+		Ok(())
 	} else {
-		println!("JSON was not well-formatted");
+		Err(MyError::new("nodes/links fields missing".to_string()))
 	}
 }
 

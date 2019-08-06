@@ -16,6 +16,41 @@ pub const RAD2DEG : f32 = 360.0 / (2.0 * f32::consts::PI);
 
 pub const DEG2KM : f32 = 40076.0 / 360.0;
 
+
+pub struct MyError {
+	msg: String
+}
+
+impl MyError {
+	pub fn new(msg: String) -> Self {
+		Self { msg: msg }
+	}
+}
+
+impl From<std::io::Error> for MyError {
+    fn from(error: std::io::Error) -> Self {
+        MyError::new(error.to_string())
+    }
+}
+
+impl From<serde_json::error::Error> for MyError {
+    fn from(error: serde_json::error::Error) -> Self {
+        MyError::new(error.to_string())
+    }
+}
+
+impl From<std::fmt::Error> for MyError {
+    fn from(error: std::fmt::Error) -> Self {
+        MyError::new(error.to_string())
+    }
+}
+
+impl fmt::Display for MyError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.msg)
+    }
+}
+
 pub fn print_unknown_key(key: &str) {
 	println!("unknown key: {}", key);
 }

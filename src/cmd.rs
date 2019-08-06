@@ -20,7 +20,7 @@ use crate::algorithms::genetic_routing::GeneticRouting;
 use crate::algorithms::spanning_tree_routing::SpanningTreeRouting;
 use crate::importer::import_file;
 use crate::exporter::export_file;
-use crate::utils::{fmt_duration, DEG2KM};
+use crate::utils::{fmt_duration, DEG2KM, MyError};
 
 
 #[derive(PartialEq)]
@@ -122,8 +122,8 @@ enum Command {
 	ShowMinimumSpanningTree,
 	CropMinimumSpanningTree,
 	Test(u32),
-	DebugPath(u32, u32),
-	DebugPathStep,
+	Debug(u32, u32),
+	DebugStep(u32),
 	Get(String),
 	Set(String, String),
 	ConnectInRange(f32),
@@ -161,8 +161,8 @@ enum Cid {
 	ShowMinimumSpanningTree,
 	CropMinimumSpanningTree,
 	Test,
-	DebugPath,
-	DebugPathStep,
+	Debug,
+	DebugStep,
 	Get,
 	Set,
 	ConnectInRange,
@@ -195,13 +195,13 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("sim_info                           Show simulator information.", Cid::SimInfo),
 	("progress [<true|false>]            Show simulation progress.", Cid::Progress),
 	("test [<samples>]                   Test routing algorithm with (test packets arrived, path stretch).", Cid::Test),
-	("debug_init <from> <to>             Debug a path step wise.", Cid::DebugPath),
-	("debug_step                         Perform step on path.", Cid::DebugPathStep),
-
+	("debug_init <from> <to>             Debug a path step wise.", Cid::Debug),
+	("debug_step [<steps>]               Perform step on path.", Cid::DebugStep),
+	("", Cid::Error),
 	("graph_info                         Show graph information", Cid::GraphInfo),
 	("get <key>                          Get node property.", Cid::Get),
 	("set <key> <value>                  Set node property.", Cid::Set),
-
+	("", Cid::Error),
 	("graph_clear                        Clear graph", Cid::ClearGraph),
 	("line <node_count> [<create_loop>]  Add a line of nodes. Connect ends to create a loop.", Cid::AddLine),
 	("star <edge_count>                  Add star structure of nodes.", Cid::AddStar),
@@ -212,14 +212,14 @@ const COMMANDS: &'static [(&'static str, Cid)] = &[
 	("connect_nodes <node_list>          Connect nodes. Node list is a comma separated list of node ids.", Cid::ConnectNodes),
 	("disconnect_nodes <node_list>       Disconnect nodes. Node list is a comma separated list of node ids.", Cid::DisconnectNodes),
 	("remove_unconnected                 Remove nodes without any connections.", Cid::RemoveUnconnected),
-
+	("", Cid::Error),
 	("positions <true|false>             Enable geo positions.", Cid::Positions),
 	("move_node <node_id> <x> <y> <z>    Move a node by x/y/z (in km).", Cid::MoveNode),
 	("move_nodes <x> <y> <z>             Move all nodes by x/y/z (in km).", Cid::MoveNodes),
 	("move_to <x> <y> <z>                Move all nodes to x/y/z (in degrees).", Cid::MoveTo),
 	("rnd_pos <range>                    Randomize node positions in an area with width (in km) around node center.", Cid::RandomizePositions),
 	("connect_in_range <range>           Connect all nodes in range of less then range (in km).", Cid::ConnectInRange),
-
+	("", Cid::Error),
 	("run <file>                         Run commands from a script.", Cid::Run),
 	("import <file>                      Import a graph as JSON file.", Cid::Import),
 	("export [<file>]                    Get or set graph export file.", Cid::ExportPath),
@@ -292,15 +292,19 @@ fn parse_command(input: &str) -> Command {
 				Command::Test(1000)
 			}
 		},
-		Cid::DebugPath => {
+		Cid::Debug => {
 			if let (Some(from), Some(to)) = scan!(iter, u32, u32) {
-				Command::DebugPath(from, to)
+				Command::Debug(from, to)
 			} else {
 				error
 			}
 		},
-		Cid::DebugPathStep => {
-			Command::DebugPathStep
+		Cid::DebugStep => {
+			if let (Some(steps),) = scan!(iter, u32) {
+				Command::DebugStep(steps)
+			} else {
+				Command::DebugStep(1)
+			}
 		},
 		Cid::Get => { if let (Some(key),) = scan!(iter, String) {
 				Command::Get(key)
@@ -470,7 +474,7 @@ fn parse_command(input: &str) -> Command {
 	}
 }
 
-fn print_help(out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
+fn print_help(out: &mut std::fmt::Write) -> Result<(), MyError> {
 	for item in COMMANDS {
 		if item.1 != Cid::Error {
 			writeln!(out, "{}", item.0)?;
@@ -479,7 +483,7 @@ fn print_help(out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 	Ok(())
 }
 
-fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, call: AllowRecursiveCall) -> Result<(), std::fmt::Error> {
+fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, call: AllowRecursiveCall) -> Result<(), MyError> {
 	let mut mark_links : Option<Graph> = None;
 	let mut do_init = false;
 
@@ -592,7 +596,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 
 			let duration = now.elapsed();
 
-			writeln!(out, "{} steps, duration: {}", count, fmt_duration(duration))?;
+			writeln!(out, "Run {} simulation steps, duration: {}", count, fmt_duration(duration))?;
 		},
 		Command::Test(samples) => {
 			fn run_test(out: &mut std::fmt::Write, test: &mut EvalPaths, graph: &Graph, algo: &Box<RoutingAlgorithm>, samples: u32)
@@ -609,33 +613,37 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			sim.test.show_progress(sim.show_progress);
 			run_test(out, &mut sim.test, &sim.gstate.graph, &sim.algorithm, samples)?;
 		},
-		Command::DebugPath(from, to) => {
+		Command::Debug(from, to) => {
 			let node_count = sim.gstate.graph.node_count() as u32;
 			if (from < node_count) && (from < node_count) {
 				sim.debug_path.init(from, to);
+				writeln!(out, "Init path debugger: {} => {}", from, to)?;
 			} else {
 				writeln!(out, "Invalid path: {} => {}", from, to)?;
 			}
 		},
-		Command::DebugPathStep => {
+		Command::DebugStep(steps) => {
 			fn run_test(out: &mut std::fmt::Write, debug_path: &mut DebugPath, graph: &Graph, algo: &Box<RoutingAlgorithm>)
-				-> Result<(), std::fmt::Error>
+				-> Result<(), MyError>
 			{
 				debug_path.step(out, graph, |p| algo.route(&p))
 			}
-			run_test(out, &mut sim.debug_path, &sim.gstate.graph, &sim.algorithm)?;
+
+			for _ in 0..steps {
+				run_test(out, &mut sim.debug_path, &sim.gstate.graph, &sim.algorithm)?;
+			}
 		}
 		Command::Import(ref path) => {
-			import_file(&mut sim.gstate.graph, Some(&mut sim.gstate.location), Some(&mut sim.gstate.meta), path.as_str());
+			import_file(&mut sim.gstate.graph, Some(&mut sim.gstate.location), Some(&mut sim.gstate.meta), path.as_str())?;
 			do_init = true;
-			writeln!(out, "read {}", path)?;
+			writeln!(out, "Import done: {}", path)?;
 		},
 		Command::ExportPath(path) => {
 			if let Some(path) = path {
 				sim.export_path = path;
 			}
 
-			writeln!(out, "Export path: {}", sim.export_path)?;
+			writeln!(out, "Export done: {}", sim.export_path)?;
 		},
 		Command::AddLine(count, close) => {
 			sim.gstate.add_line(count, close);
