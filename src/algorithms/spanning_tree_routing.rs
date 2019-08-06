@@ -7,14 +7,11 @@ use crate::utils::vec_filter;
 
 /*
 * Routing on top of an Spanning Tree.
-* 
-* Tasks:
-* - create a spanning tree
 */
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 struct Path {
-	id: u32,
+	id: u32, // todo: remove
 	path: Vec<u32>,
 }
 
@@ -24,22 +21,17 @@ impl Path {
 	}
 
 	fn with(id: u32) -> Self {
-		Self {id: id, path: Vec::new()}
+		Self {id: id, path: vec![id]}
 	}
 
 	fn len(&self) -> usize {
 		self.path.len()
 	}
 
-	fn last(&self) -> Option<u32> {
-		if let Some(n) = self.path.last() {
-			Some(*n)
-		} else {
-			None
-		}
+	fn push(&mut self, id: u32) {
+		self.path.push(id);
 	}
 }
-
 
 #[derive(Clone)]
 struct Packet {
@@ -59,7 +51,7 @@ impl Packet {
 #[derive(Clone, PartialEq)]
 struct Neighbor {
 	id: u32,
-	n: u8,
+	//n: u8,
 	last_updated: u32,
 }
 
@@ -72,6 +64,18 @@ struct Node {
 
 	// the entry with the smallest id is the root
 	neighbors: Vec<Neighbor>
+}
+
+fn has_duplicates(path: &Vec<u32>) -> bool {
+	let len = path.len();
+	for i in 0..len {
+		for j in 0..len {
+			if i != j && path[i] == path[j] {
+				return true;
+			}
+		}
+	}
+	false
 }
 
 impl Node {
@@ -102,12 +106,6 @@ impl Node {
 		let time = self.time;
 		vec_filter(&mut self.neighbors, |ref e| (e.last_updated + 5) >= time);
 
-		fn clone_append(path: &Path, id: u32) -> Path {
-			let mut v = path.clone();
-			v.path.push(id);
-			v
-		}
-
 		Packet {
 			sender_id: self.id,
 			path: self.path.clone()
@@ -123,21 +121,7 @@ impl Node {
 				}
 			}
 
-			let mut n = 0;
-			for i in 0..200 {
-				let mut taken = false;
-				for neighbor in neighbors.iter() {
-					if neighbor.n == i {
-						taken = true;
-					}
-				}
-				if !taken {
-					n = i;
-					break;
-				}
-			}
-
-			neighbors.push(Neighbor{id: packet.sender_id, n: (n as u8), last_updated: time});
+			neighbors.push(Neighbor{id: packet.sender_id, last_updated: time});
 		}
 
 		fn is_loop(path: &[u32], id: u32) -> bool {
@@ -151,52 +135,69 @@ impl Node {
 
 		if Self::is_better(&packet.path, &self.path) {
 			self.path = packet.path.clone();
-			self.path.path.push(packet.sender_id);
+			self.path.path.push(self.id);
 		}
 
 		update_neighbor(&mut self.neighbors, packet, self.time);
 	}
 
-	fn route(&self, dpath: &Path) -> Option<ID> {
-		if let Some(destination) = dpath.last() {
-			// destination is this node
-			if destination == self.id {
-				return None;
-			}
+	fn route(&self, dpath: &Path, destination: ID) -> Option<ID> {
+		println!("self.id: {}, path: {:?}, dpath: {:?}", self.id, self.path, dpath);
 
-			// desination is a direct neighbor
-			for neighbor in &self.neighbors {
-				if neighbor.id == destination {
-					return Some(destination);
+		fn get_common_len(p1: &Path, p2: &Path) -> usize {
+			let len = usize::min(p1.len(), p2.len());
+			for i in 0..len {
+				if p1.path[i] != p2.path[i] {
+					return i;
 				}
 			}
+			len
+		}
 
-			// different tree!
-			if dpath.id != self.path.id {
-				return None;
+		// destination is this node
+		if destination == self.id {
+			println!("destination reached");
+			return None;
+		}
+
+		// desination is a direct neighbor
+		for neighbor in &self.neighbors {
+			if neighbor.id == destination {
+				println!("direct neighbor found");
+				return Some(destination);
 			}
+		}
 
-			if dpath.len() == self.path.len() {
-				// no idea what to do...
-				return None;
-			} else if dpath.len() < self.path.len() {
-				// move up the tree
-				return self.path.last();
-			} else {
-				// move down the tree
-				let neighbor_id = dpath.path[self.path.len()];
+		// different tree!
+		if dpath.id != self.path.id {
+			println!("different root! {} {}", dpath.id, self.path.id);
+			return None;
+		}
 
-				for neighbor in &self.neighbors {
-					if neighbor.id == neighbor_id {
-						return Some(neighbor_id);
-					}
-				}
+		let common_len = get_common_len(&self.path, &dpath);
 
-				// no idea what to do
-				return None;
-			}
+		if common_len == 0 {
+			println!("common_len is zero");
+			return None;
+		} else if common_len < self.path.len() {
+			// move up the tree
+			let next = self.path.path[self.path.len() - 2];
+			println!("up the tree: {}", next);
+			return Some(next);
 		} else {
-			None
+			// move down the tree
+			let neighbor_id = dpath.path[common_len];
+			println!("down the tree: {}", neighbor_id);
+
+			for neighbor in &self.neighbors {
+				if neighbor.id == neighbor_id {
+					println!("down the tree: {}", neighbor_id);
+					return Some(neighbor_id);
+				}
+			}
+
+			println!("no neighbor found");
+			return None;
 		}
 	}
 }
@@ -215,8 +216,7 @@ impl SpanningTreeRouting {
 	}
 }
 
-impl RoutingAlgorithm for SpanningTreeRouting
-{
+impl RoutingAlgorithm for SpanningTreeRouting {
 	fn get_node(&self, id: ID, key: &str, out: &mut std::fmt::Write) -> Result<(), std::fmt::Error> {
 		let node = &self.nodes[id as usize];
 		match key {
@@ -275,9 +275,9 @@ impl RoutingAlgorithm for SpanningTreeRouting
 		// Assign random numbers.
 		// Avoid edges case for now when the ids are not unique
 		for i in 0..len {
-			let id = unique_rnd_id(&self.nodes);
+			//let id = unique_rnd_id(&self.nodes);
 			let time = rand::random::<u16>() as u32;
-			self.nodes[i].init(id, time);
+			self.nodes[i].init(i as u32, time);
 		}
 	}
 
@@ -301,7 +301,7 @@ pub fn new(transmitter: ID, receiver: ID, source: ID, destination: ID) -> Self {
 
 	fn route(&self, packet: &TestPacket) -> Option<ID> {
 		let dpath = &self.nodes[packet.destination as usize].path;
-		self.nodes[packet.receiver as usize].route(dpath)
+		self.nodes[packet.receiver as usize].route(dpath, packet.destination)
 	}
 
 }
