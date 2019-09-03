@@ -29,10 +29,10 @@ $ ./MeshNetSimulator-amd64-linux
 Listen for commands on 127.0.0.1:8011
 ```
 
-Every time toplogy or node state changes, a new file `graph.json` file is written. You can use the [GraphViewer](https://github.com/mwarning/GraphViewer) frontend to visualize the topology and node states:
+Every time toplogy or node state changes, a new `graph.json` file is written. You can use the [GraphViewer](https://github.com/mwarning/GraphViewer) frontend to visualize the topology and node states:
 
 ```
-$ ./MeshNetViewer-amd64-linux ~/simulation/graph.json --open --call tcp://127.0.0.1:8011 --config config.json
+$ ./MeshNetViewer-amd64-linux ~/simulation/graph.json --call tcp://127.0.0.1:8011 --config config.json --open
 ```
 
 Now the web browsers opens and commands can be passed to the MeshNetSimulator from the command line in the web browser interface. Results will be displayed.
@@ -54,7 +54,7 @@ Simulation:
 - `progress <true|false>`  
   Show simulation progress.
 - `test [<samples>]`  
-  Test routing algorithm with optional samples size.  
+  Test routing algorithm with optional sample size.  
   Does not change node state.
 - `debug_init <source> <target>`  
   Debug routing path from source to target.  
