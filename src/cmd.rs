@@ -21,6 +21,7 @@ use crate::algorithms::spanning_tree_routing::SpanningTreeRouting;
 use crate::importer::import_file;
 use crate::exporter::export_file;
 use crate::utils::{fmt_duration, DEG2KM, MyError};
+use crate::movements::Movements;
 
 
 #[derive(PartialEq)]
@@ -512,16 +513,16 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			send_dummy_to_stdin();
 		},
 		Command::ShowMinimumSpanningTree => {
-			let mst = sim.gstate.graph.minimum_spanning_tree();
+			let mst = sim.graph.minimum_spanning_tree();
 			if mst.node_count() > 0 {
 				mark_links = Some(mst);
 			}
 		},
 		Command::CropMinimumSpanningTree => {
 			// mst is only a uni-directional graph...!!
-			let mst = sim.gstate.graph.minimum_spanning_tree();
+			let mst = sim.graph.minimum_spanning_tree();
 			if mst.node_count() > 0 {
-				sim.gstate.graph = mst;
+				sim.graph = mst;
 			}
 		},
 		Command::Error(msg) => {
@@ -540,13 +541,12 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			sim.algorithm.set(&key, &value)?;
 		},
 		Command::GraphInfo => {
-			let state = &mut sim.gstate;
-			let node_count = state.graph.node_count();
-			let link_count = state.graph.link_count();
-			let avg_node_degree = state.graph.get_avg_node_degree();
+			let node_count = sim.graph.node_count();
+			let link_count = sim.graph.link_count();
+			let avg_node_degree = sim.graph.get_avg_node_degree();
 
 			writeln!(out, "nodes: {}, links: {}", node_count, link_count)?;
-			writeln!(out, "locations: {}, metadata: {}", state.location.data.len(), state.meta.data.len())?;
+			writeln!(out, "locations: {}, metadata: {}", sim.locations.data.len(), sim.meta.data.len())?;
 			writeln!(out, "average node degree: {}", avg_node_degree)?;
 /*
 			if (verbose) {
@@ -566,7 +566,7 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			writeln!(out, "\n steps: {}", sim.sim_steps)?;
 		},
 		Command::ClearGraph => {
-			sim.gstate.graph.clear();
+			sim.graph.clear();
 			do_init = true;
 			writeln!(out, "done")?;
 		},
@@ -580,13 +580,15 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 		Command::SimStep(count) => {
 			let mut progress = Progress::new();
 			let now = Instant::now();
-			let mut io = Io::new(&sim.gstate.graph);
+			let mut io = Io::new(&sim.graph);
+
 			for step in 0..count {
 				if sim.abort_simulation {
 					break;
 				}
 
 				sim.algorithm.step(&mut io);
+				sim.movements.step(&mut sim.locations);
 				sim.sim_steps += 1;
 
 				if sim.show_progress {
@@ -611,10 +613,10 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 				)
 			}
 			sim.test.show_progress(sim.show_progress);
-			run_test(out, &mut sim.test, &sim.gstate.graph, &sim.algorithm, samples)?;
+			run_test(out, &mut sim.test, &sim.graph, &sim.algorithm, samples)?;
 		},
 		Command::Debug(from, to) => {
-			let node_count = sim.gstate.graph.node_count() as u32;
+			let node_count = sim.graph.node_count() as u32;
 			if (from < node_count) && (from < node_count) {
 				sim.debug_path.init(from, to);
 				writeln!(out, "Init path debugger: {} => {}", from, to)?;
@@ -630,11 +632,11 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			}
 
 			for _ in 0..steps {
-				run_test(out, &mut sim.debug_path, &sim.gstate.graph, &sim.algorithm)?;
+				run_test(out, &mut sim.debug_path, &sim.graph, &sim.algorithm)?;
 			}
 		}
 		Command::Import(ref path) => {
-			import_file(&mut sim.gstate.graph, Some(&mut sim.gstate.location), Some(&mut sim.gstate.meta), path.as_str())?;
+			import_file(&mut sim.graph, Some(&mut sim.locations), Some(&mut sim.meta), path.as_str())?;
 			do_init = true;
 			writeln!(out, "Import done: {}", path)?;
 		},
@@ -646,38 +648,38 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			writeln!(out, "Export done: {}", sim.export_path)?;
 		},
 		Command::AddLine(count, close) => {
-			sim.gstate.add_line(count, close);
+			sim.add_line(count, close);
 			do_init = true;
 		},
 		Command::MoveNodes(x, y, z) => {
-			sim.gstate.location.move_nodes([x, y, z]);
+			sim.locations.move_nodes([x, y, z]);
 		},
 		Command::MoveNode(id, x, y, z) => {
-			sim.gstate.location.move_node(id, [x, y, z]);
+			sim.locations.move_node(id, [x, y, z]);
 		},
 		Command::AddTree(count, intra) => {
-			sim.gstate.add_tree(count, intra);
+			sim.add_tree(count, intra);
 			do_init = true;
 		},
 		Command::AddStar(count) => {
-			sim.gstate.add_star(count);
+			sim.add_star(count);
 			do_init = true;
 		},
 		Command::AddLattice4(x_count, y_count) => {
-			sim.gstate.add_lattice4(x_count, y_count);
+			sim.add_lattice4(x_count, y_count);
 			do_init = true;
 		},
 		Command::AddLattice8(x_count, y_count) => {
-			sim.gstate.add_lattice8(x_count, y_count);
+			sim.add_lattice8(x_count, y_count);
 			do_init = true;
 		},
 		Command::Positions(enable) => {
 			if enable {
 				// add positions to node that have none
-				let node_count = sim.gstate.graph.node_count();
-				sim.gstate.location.init_positions(node_count, [0.0, 0.0, 0.0]);
+				let node_count = sim.graph.node_count();
+				sim.locations.init_positions(node_count, [0.0, 0.0, 0.0]);
 			} else {
-				sim.gstate.location.clear();
+				sim.locations.clear();
 			}
 
 			writeln!(out, "positions: {}", if enable {
@@ -687,11 +689,11 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			})?;
 		}
 		Command::RandomizePositions(range) => {
-			let center = sim.gstate.location.graph_center();
-			sim.gstate.location.randomize_positions_2d(center, range);
+			let center = sim.locations.graph_center();
+			sim.locations.randomize_positions_2d(center, range);
 		},
 		Command::ConnectInRange(range) => {
-			sim.gstate.connect_in_range(range);
+			sim.connect_in_range(range);
 		},
 		Command::Algorithm(algo) => {
 			if let Some(algo) = algo {
@@ -749,32 +751,32 @@ fn cmd_handler(out: &mut std::fmt::Write, sim: &mut GlobalState, input: &str, ca
 			}
 		},
 		Command::RemoveUnconnected => {
-			sim.gstate.graph.remove_unconnected_nodes();
+			sim.graph.remove_unconnected_nodes();
 			do_init = true;
 		},
 		Command::RemoveNodes(ids) => {
-			sim.gstate.graph.remove_nodes(&ids);
+			sim.graph.remove_nodes(&ids);
 		},
 		Command::ConnectNodes(ids) => {
-			sim.gstate.graph.connect_nodes(&ids);
+			sim.graph.connect_nodes(&ids);
 		},
 		Command::DisconnectNodes(ids) => {
-			sim.gstate.graph.disconnect_nodes(&ids);
+			sim.graph.disconnect_nodes(&ids);
 		},
 		Command::MoveTo(x, y, z) => {
-			let center = sim.gstate.location.graph_center();
-			sim.gstate.location.move_nodes([center[0] + x * DEG2KM, center[1] + y * DEG2KM, center[2] + z * DEG2KM]);
+			let center = sim.locations.graph_center();
+			sim.locations.move_nodes([center[0] + x * DEG2KM, center[1] + y * DEG2KM, center[2] + z * DEG2KM]);
 		}
 	};
 
 	if do_init {
-		sim.algorithm.reset(sim.gstate.graph.node_count());
+		sim.algorithm.reset(sim.graph.node_count());
 		sim.test.clear();
 	}
 
 	export_file(
-		&sim.gstate.graph,
-		Some(&sim.gstate.location),
+		&sim.graph,
+		Some(&sim.locations),
 		Some(&*sim.algorithm),
 		mark_links.as_ref(),
 		sim.export_path.as_ref()

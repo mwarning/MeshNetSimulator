@@ -5,12 +5,13 @@ use std::collections::HashMap;
 use std::borrow::BorrowMut;
 
 use serde_json::Value;
-use crate::graph_state::{Meta, Location};
+use crate::meta::Meta;
+use crate::locations::Locations;
 use crate::graph::{Graph, ID};
 use crate::utils::*;
 
 
-pub fn import_file(graph: &mut Graph, loc: Option<&mut Location>, meta: Option<&mut Meta>, path: &str) -> Result<(), MyError> {
+pub fn import_file(graph: &mut Graph, loc: Option<&mut Locations>, meta: Option<&mut Meta>, path: &str) -> Result<(), MyError> {
 	let mut file = File::open(path)?;
 	let mut data = String::new();
 	file.read_to_string(&mut data)?;
@@ -28,7 +29,7 @@ fn extract_location(node: &Value) -> (f32, f32) {
 }
 
 // parse the meshviewer data
-fn parse_netjson(graph: &mut Graph, mut loc: Option<&mut Location>, mut meta: Option<&mut Meta>, data: &str) -> Result<(), MyError> {
+fn parse_netjson(graph: &mut Graph, mut loc: Option<&mut Locations>, mut meta: Option<&mut Meta>, data: &str) -> Result<(), MyError> {
 	let v = serde_json::from_str::<Value>(data)?;
 
 	if let (Some(nodes), Some(links)) = (get_array(&v, "nodes"), get_array(&v, "links")) {

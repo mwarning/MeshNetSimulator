@@ -4,16 +4,16 @@ use std::u16;
 use std::fmt::Write;
 
 use crate::sim::RoutingAlgorithm;
-use crate::graph_state::{Location};
+use crate::locations::Locations;
 use crate::graph::{Graph, ID};
 use crate::utils::*;
 
 
-pub fn export_file(graph: &Graph, loc: Option<&Location>,
+pub fn export_file(graph: &Graph, locations: Option<&Locations>,
 	algo: Option<&RoutingAlgorithm>, mark_links: Option<&Graph>, path: &str) {
 	use std::io::Write;
 	if let Ok(mut file) = File::create(path) {
-		let content = export_json(&graph, loc, algo, mark_links);
+		let content = export_json(&graph, locations, algo, mark_links);
 		file.write_all(content.as_bytes()).unwrap();
 		//println!("Wrote {}", path);
 	} else {
@@ -21,7 +21,7 @@ pub fn export_file(graph: &Graph, loc: Option<&Location>,
 	}
 }
 
-pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingAlgorithm>, mark_links: Option<&Graph>) -> String {
+pub fn export_json(graph: &Graph, locations: Option<&Locations>, algo: Option<&RoutingAlgorithm>, mark_links: Option<&Graph>) -> String {
 	let mut ret = String::new();
 	let mut name = String::new();
 	let mut label = String::new();
@@ -47,8 +47,8 @@ pub fn export_json(graph: &Graph, loc: Option<&Location>, algo: Option<&RoutingA
 		}
 
 		write!(&mut ret, "{{\"id\": \"{}\"", id).unwrap();
-		if let Some(loc) = loc {
-			if let Some(pos) = loc.get_position(id) {
+		if let Some(locs) = locations {
+			if let Some(pos) = locs.get_position(id) {
 				write!(&mut ret, ", \"x\": {}, \"y\": {}", pos[0] / DEG2KM, pos[1] / DEG2KM).unwrap();
 			}
 		}
