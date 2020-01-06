@@ -30,10 +30,10 @@ Emulating OSI model layer 2 or 3 as part of the mesh network protocol has some p
 
 Layer 2 is the data link layer and deals with MAC addresses. Layer 2 mesh routing implementations basicly emulate a big switch.
 pros:
-* easier to implement
+* harder to implement, most low level routing protocols that need brodcasts (e.g. ARP, NDP, DHCP..) need to be handled to have a scalable IP layer.
 * trivial to implement roaming (when a client moves between nodes)
 
-Layer 3 is the procotol layer and deals with IP addresses.
+Layer 3 is the network layer and deals with IP addresses.
 The routing protocol takes care of assigning subnets.
 pros:
 * better scalability because subnets do not forward broadcast/mutlicast packets by definition
@@ -49,50 +49,55 @@ Layer 4 meshes would be TOR, I2P, and CJDNS. (https://superuser.com/questions/48
 Used in distributed Bellman-Ford algorithm to check if a received announcement creates a routing loop or not.
 A node will only integrate feasible routes in its routing table.
 
-BGP: only accept route announcements that do not include its own node. The complete route must be announced and attached to the packets. Internet routes usually have 3-4 hops.
+BGP: only accept route announcements that do not include its own node (AS). The complete route must be announced and attached to the packets. Internet routes usually have 3-4 hops.
 
 DSDV, AODV: only accept routes if they do not increase the metric known by that node
 
-EIGR/DUAL, Babel: node sending a route update remembers the smalles value (metric) it send and accepts only better routes
+EIGRP/DUAL, Babel: node sending a route update remembers the smalles value (metric) it send and accepts only better routes
 
 ### Pro-Active vs. Reactive
 
 Reactive (also on demand) routing protocols try to gather the information need for routing when a packet arrives.
 This usually means that there is less traffic to keep local routing information up to date. It is only updated/gatheres when a packet actually needs to be routed. On the other hand this adds latency.
 
-Example: Babel, DSR, AODV
+Example: DSR, AODV
 
 Pro-active (also table driven) protocols keep all information ready and up to date for when a packet needs to be routed. For this a table of all received routing information is maintained.
 This approach is popular in existing implementations, but needs a steady overhead to keep the routing information up to date.
 
-Examples: DSDV, OLSR, BATMAN-adv
+Examples: Babel, DSDV, OLSR, BATMAN-adv
 
 ### Uni- or Bi-directional Links
 
-Routing protocols can see links as symmetrical or asymmetric connections. If traffic can flow in one direction only, then it would be uni-directional connection. If the quality of a connection is not symmetrical, then a routing protocol can still try to ignore this and assume that it is perfectly symmetrical in its transmission quality.
-
-A sender and a receiver would form a typical asymmetric link.
+Links can be bi-directional or uni-directional, which only let traffic flow in one connection. Most mesh routing algorithms only support bi-directional connections. A broader distinction is symmetric vs. asymmetric links.
 
 ### Name-dependent vs. Name-independent
 
-Name-dependent routing schemes assign an address (of some kind, not necessarily a familiar IP address) based on a node’s location in the network. Name-independent routing schemes place no requirements on a node’s address and treat it as some opaque identifier in a flat (i.e. non-subnetted) address space. 
+Name-dependent routing schemes assign an address based on a nodes location in the network, a structured name space (e.g. IP address, geo position). Name-independent routing schemes place no requirements on a nodes address and treat it as some opaque identifier in a flat address space (MAC address, DNS name).
+Usually, both schemes are implemented as separate layers of one network (e.g. layer 2 MAC addresses and layer 3 IP addresses).
+Mesh network often utilizes a form of a Distributed Hash Table to look up Name-independent identifiers on a Name-dependent routing substrate.
+
+### EGP vs. IGP
+
+These terms only exist when talking about the organizations that compose the Internet.
+Interior Gateway Protocol (IGP) is used for protocols that are used inside an organisation (e.g. and Internet Serivce Provider / ISP). Examples are OSPF, EIGRP, IS-IS.
+Exterior-Gateway-Protokoll (EGP) are protocols used to connect organizations. The prime example is BGP. BGP calls these organizations Autonomous System (AS).
+
 
 ### Flat Proactive Routing
 
 Flat proactive Routing protocols can be roughly divided into two subcategories; link-state (LS) and distributed Bellman-Ford (DBF) algorithms.
 Flat proactive routing scales very well with respect to the frequency of connection
 establishment (F) and the number of concurrent connections (C). However, the
-number of control packet transmissions per node is Θ(N ).
+number of control packet transmissions per node is Θ(N).
 
-Link state Examples: Fish-eye State Routing [22], Global State Routing [4] and Opti-
-mized Link-State Routing.
+Link state Examples: Fish-eye State Routing [22], Global State Routing [4] and Optimized Link-State Routing.
 Every node has a complete but not accurate view of the toplogy.
 Can react fast on link change.
 FSR does not keep changes far away, idea: link changes far away have a small effect on local routing decisions.
 
 DBF examples:
-Destination Sequenced Distance Vector routing [24] and Wire-
-less Routing Protocol [19]
+Destination Sequenced Distance Vector routing [24] and Wireless Routing Protocol [19]
 
 routing table consisting of the distance to the destination, and the next hop neighbor on the shortest route toward the destination.
 
@@ -339,9 +344,13 @@ Distance-Vector:
 Link-State:
 * more routing overhead (less scalability)
 
-Link-State: OSPF, IS-IS
-Distance-Vector: RIP, IGRP
-(none are MANET protocols)
+None-MANET protocols:
+* Link-State: OSPF, IS-IS
+* Distance-Vector: RIP, IGRP
+
+MANET protocols:
+* Link-State: OLSR
+* Distance-Vector: batman-adv, Babel
 
 ### Hierarchical Routing
 
