@@ -20,6 +20,21 @@
 * >45.000 nodes overall in Germany
 * most routers are inter-connected over the Internet to connect areas that are out of range (>50m)
 
+
+### Disaster Area Network
+
+[Disaster Radio](https://disaster.radio/)
+
+* since 2019
+* uses LoRa, primarily with ESP32
+* mesh network
+* App that communicates with the ESP32 to send specific messages (chat, map, ..) over LoRa
+* sends out hello packets every 15 seconds, data packets also act as hello messages
+* every node has a niehgbor and a routing table
+* routing table is send in intervals (max. 30 fit in dedicated packet)
+  * more routing entries will send via multiple pakets in randomized portions
+* [Protocol info](https://github.com/sudomesh/disaster-radio/wiki/Protocol)
+
 ### HAMNET
 
 [European HAMNET](https://www.youtube.com/watch?v=3A6DDrJRcws)
