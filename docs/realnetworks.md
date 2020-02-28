@@ -87,6 +87,11 @@ It is a Internet on the Internet to play around with BGP.
 * works entirely over the Internet
 * P2P VPN network with explicity peering
 * written in C
+* cjdns is meant to allow routing between different mesh routing networks
+  * aka "null" protocol
+  * different protocols can be added as plugins
+  * but every mesh network needs to at least support Source Routing (the path of nodes is part of the destination), to allow interoperability
+* only one routing protocol implemented so far (?)
 * state: mature
 
 ### GnuNet
