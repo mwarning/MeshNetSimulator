@@ -1,9 +1,23 @@
 # Papers
 
+A collections of mesh routing related topic with comments.
+
+
+"Fuzzy Logic-Based Geographic Routing Protocol for
+Dynamic Wireless Sensor Networks" (2019) [pdf](https://www.mdpi.com/1424-8220/19/1/196/htm)
+DOI: 10.3390/s19010196
+
+"Binary Waypoint Geographical Routing in Wireless MeshNetworks" (2008) [pdf](https://drakkar.imag.fr/IMG/pdf/schiller.mswim2008.pdf)
+  * bipartitions 2D plane
+  * store representative nodes as waypoint for area
+  * DOI: 10.1145/1454503.1454548
+
+"A Routing Protocol for LoRA Mesh Networks" (2018) [pdf](https://portal.research.lu.se/portal/files/45735775/paper.pdf)
+  * combination of Hybrid Wireless Mesh Protocol (HWMP) and Ad-hoc On-Demand Distance Vector Routing (AODV)
+  * DOI: 10.1109/WoWMoM.2018.8449743
+
 Hyperbolic Embeddings for Near-Optimal Greedy Routing. [doi](http://dx.doi.org/10.1137/1.9781611975055.17)
 
-
-A collections of mesh routing related topic with comments.
 
 * "Sustaining the Internet with Hyperbolic Mapping" (2010)
   * https://arxiv.org/abs/1009.0267
