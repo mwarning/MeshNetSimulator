@@ -150,6 +150,8 @@ Meta:
 
 - Understanding Mesh Networking ([Part I](https://inthemesh.com/archive/understanding-mesh-networking-part-i/), [Part II](https://inthemesh.com/archive/understanding-mesh-networking-part-ii/), [Slides](https://www.dropbox.com/s/wqksd8dmykev8x7/))
 
+- [On the Connectivity of Mesh Networks](https://inthemesh.com/archive/whitepaper-connectivity-of-mesh-networks/) / [Percolation Theory](https://inthemesh.com/archive/from-mocha-to-mesh-insights-from-percolation-theory/)
+
 - [Ask Slashdot: Could We Build A Global Wireless Mesh Network?](https://ask.slashdot.org/story/17/04/29/2134234/ask-slashdot-could-we-build-a-global-wireless-mesh-network)
 
 - Contains an overview of different mesh routing strategies: [From MANET To IETF ROLL Standardization: A Paradigm Shift in WSN Routing Protocols](http://www.cttc.es/publication/from-manet-to-ietf-roll-standardization-a-paradigm-shift-in-wsn-routing-protocols/)
