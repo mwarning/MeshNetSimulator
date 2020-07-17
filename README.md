@@ -126,7 +126,11 @@ Meta:
 - `help`  
   Show this help.
 
-## Related Software
+## Build Program
+
+Use `cargo build` or `cargo run` to build the project. Cargo is the Rust package manager and build tool.
+
+## Similar Software
 
 ### Big Projects
 
@@ -135,6 +139,8 @@ Meta:
 [ns-3](https://www.nsnam.org/): ns-3 is a discrete-event network simulator for Internet systems, targeted primarily for research and educational use. 
 
 [EMANE](https://github.com/adjacentlink/emane): Extendable Mobile Ad-hoc Network Emulator.
+
+http://www.brianlinkletter.com/open-source-network-simulators/
 
 ### Small Projects
 
@@ -159,3 +165,7 @@ Meta:
 ## Various Scientific Papers
 
 A [collection](docs/papers.md) of scientific papers somewhat related to Mobile Ad-Hoc Mesh Routing.
+
+## Mesh Radio Projects
+
+A [collection](docs/projects.md) of projects.
