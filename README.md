@@ -2,7 +2,7 @@
 
 **Currently not maintained - I write routing protocols in C now and use my emulator.**
 
-This is a simple simulator for sketching mesh network routing strategies in the hopes to find better approaches to mesh routing. Please note that this simulator does not virtualize a TCP/IP stack nor all characteristics of wireless connections. The dynamic nature of MANETs is also not (yet) covered by this simulator.
+This is a simple discrete event simulator for sketching mesh network routing strategies in the hopes to find better approaches to mesh routing. Please note that this simulator does not virtualize a TCP/IP stack nor all characteristics of wireless connections. The dynamic nature of MANETs is also not (yet) covered by this simulator.
 
 The simulator is controled via a command line that can also be reached over a network. The output from the simulator is a json files and can be displayed using the [Mesh Graph Viewer](https://github.com/mwarning/MeshGraphViewer/).
 
