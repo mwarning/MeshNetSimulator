@@ -3,6 +3,11 @@
 A collections of mesh routing related topic with comments.
 
 
+goTenna:
+* [VINE: Zero-Control-Packet Routing forUltra-Low-Capacity Mobile Ad Hoc Networks](https://cdn.shopify.com/s/files/1/0046/7524/0005/files/goTenna_VINE_MILCOM_2019.pdf?15166) (2019)
+* [ECHO: Efficient Zero-Control Network-Wide Broadcast for Mobile Multi-Hop Wireless Networks](https://doi.org/10.1109/MILCOM.2018.8599737) (2018)
+* [Long-Range Short-Burst Mobile Mesh Networking: Architecture and Evaluation](https://doi.org/10.1109/SAHCN.2019.8824803) (2019)
+
 "Fuzzy Logic-Based Geographic Routing Protocol for
 Dynamic Wireless Sensor Networks" (2019) [pdf](https://www.mdpi.com/1424-8220/19/1/196/htm)
 DOI: 10.3390/s19010196
