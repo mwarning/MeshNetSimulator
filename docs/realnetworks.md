@@ -59,7 +59,7 @@ A commercial Token with low band transmitter and blue tooth.
 * expensive (~ 150EUR)
 * mesh protocol documented in "ECHO: Efficient Zero-Control Network-WideBroadcast for Mobile Multi-hop Wireless Networks"
 
-(Packet sniffing the Gotenna - DEF CON 25)[https://www.youtube.com/watch?v=pKP74WGa_s0]
+[Packet sniffing the Gotenna - DEF CON 25](https://www.youtube.com/watch?v=pKP74WGa_s0)
 [Kickstarter](https://www.kickstarter.com/projects/gotenna/gotenna-mesh-off-grid-people-powered-connectivity)
 
 ## With primary links over the Internet
@@ -101,12 +101,12 @@ It is a Internet on the Internet to play around with BGP.
 
 An extensive environment.
 
-(Overview)[https://www.youtube.com/watch?v=eM4J7ljCExM] ((Slides)[https://grothoff.org/christian/psc2015.pdf])
-(R5N DHT)[https://grothoff.org/christian/teaching/2012/2194/r5n.pdf] ((Paper)[https://grothoff.org/christian/nss2011.pdf])
+[Overview](https://www.youtube.com/watch?v=eM4J7ljCExM), [Slides](https://grothoff.org/christian/psc2015.pdf),
+[R5N DHT](https://grothoff.org/christian/teaching/2012/2194/r5n.pdf), [Paper](https://grothoff.org/christian/nss2011.pdf)
 
 ### Named Data Networking (NDN)
 
-(Names Data Networking)[https://named-data.net/] focuses on requesting data by name prefixes.
+[Names Data Networking](https://named-data.net/) focuses on requesting data by name prefixes.
 - IP based routing based on endpoint addresse is the wrong approach for addressing on the Internet.
 - Use content centric address approach is choosen.
 - No NAT, ARP, DHCP, DNS etc. needed
@@ -117,7 +117,7 @@ A NDN router has several components:
 - Content Store (CS): a cache containing  previously received Data.
 - Forwarding Strategy Module: The routing module to route Interest packets to the destination. Several routing strategies are considered. 
 
-Named Data Link State Routing (NLSR) and greedy routing on (hyperbolic embeddings)[https://arxiv.org/pdf/1611.00403.pdf] are tested. Small testbeds exist.
+Named Data Link State Routing (NLSR) and greedy routing on [hyperbolic embeddings](https://arxiv.org/pdf/1611.00403.pdf) are tested. Small testbeds exist.
 
 ### Yggdrasil
 
